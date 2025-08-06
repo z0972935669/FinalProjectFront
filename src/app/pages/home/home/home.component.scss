@@ -1,0 +1,32 @@
+@mixin arrow {
+  color: rgba(80, 80, 80, 0.4);
+}
+@mixin arrowHover {
+  color: #ffffff;
+}
+@mixin arrowHover2 {
+  color: #81c408;
+}
+
+.swiper1 {
+  img {
+    width: 100%;
+  }
+  .swiper-button-next, .swiper-button-prev {
+    @include arrow;
+    &:hover {
+      @include arrowHover;
+    }
+  }
+}
+.swiper2 {
+  img {
+    width: 100%;
+  }
+  .swiper-button-next, .swiper-button-prev {
+    @include arrow;
+    &:hover {
+      @include arrowHover2;
+    }
+  }
+}
