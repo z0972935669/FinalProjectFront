@@ -4,8 +4,8 @@
   </div>
   <div class="card-body">
     <!-- 編輯模式 -->
-    <form *ngIf="isEdit; else viewMode" (ngSubmit)="save()" class="row g-3">
-      <!-- 頭像上傳 -->
+    @if (isEdit) {
+    <form (ngSubmit)="save()" class="row g-3">
       <div class="col-md-3 text-center">
         <img
           [src]="
@@ -16,16 +16,7 @@
           width="120"
           height="120"
         />
-        <!-- (change)="onPhotoSelected($event)" -->
-        <input
-          type="file"
-          name="photo"
-          accept="image/*"
-          class="form-control mt-2"
-        />
       </div>
-
-      <!-- 基本資料 -->
       <div class="col-md-9 row">
         <div class="col-md-6">
           <label class="form-label">姓名</label>
@@ -65,7 +56,6 @@
           />
         </div>
       </div>
-
       <div class="col-12 mt-3">
         <button class="btn btn-success px-4" type="submit">儲存</button>
         <button
@@ -77,35 +67,31 @@
         </button>
       </div>
     </form>
-
-    <!-- 查看模式 -->
-    <ng-template #viewMode>
-      <div class="row">
-        <div class="col-md-3 text-center">
-          <img
-            [src]="
-              member.photoPreview ||
-              'https://via.placeholder.com/120x120?text=Photo'
-            "
-            class="rounded-circle border"
-            width="120"
-            height="120"
-          />
-        </div>
-        <div class="col-md-9">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>姓名：</b> {{ member.name }}</li>
-            <li class="list-group-item"><b>Email：</b> {{ member.email }}</li>
-            <li class="list-group-item"><b>手機：</b> {{ member.phone }}</li>
-            <li class="list-group-item">
-              <b>身分證：</b> {{ member.idnumber }}
-            </li>
-            <li class="list-group-item"><b>性別：</b> {{ member.gender }}</li>
-            <li class="list-group-item"><b>生日：</b> {{ member.birth }}</li>
-          </ul>
-        </div>
+    } @else {
+    <div class="row">
+      <div class="col-md-3 text-center">
+        <img
+          [src]="
+            member.photoPreview ||
+            'https://via.placeholder.com/120x120?text=Photo'
+          "
+          class="rounded-circle border"
+          width="120"
+          height="120"
+        />
       </div>
-      <button class="btn btn-success mt-4" (click)="toggleEdit()">編輯</button>
-    </ng-template>
+      <div class="col-md-9">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><b>姓名：</b> {{ member.name }}</li>
+          <li class="list-group-item"><b>Email：</b> {{ member.email }}</li>
+          <li class="list-group-item"><b>手機：</b> {{ member.phone }}</li>
+          <li class="list-group-item"><b>身分證：</b> {{ member.idnumber }}</li>
+          <li class="list-group-item"><b>性別：</b> {{ member.gender }}</li>
+          <li class="list-group-item"><b>生日：</b> {{ member.birth }}</li>
+        </ul>
+      </div>
+    </div>
+    <button class="btn btn-success mt-4" (click)="toggleEdit()">編輯</button>
+    }
   </div>
 </div>

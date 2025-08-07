@@ -1,0 +1,277 @@
+<div class="container bg-white p-4 rounded shadow">
+  <h3 class="fw-bold mb-4">訂單管理</h3>
+
+  <!-- 搜尋欄 -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <input
+        class="form-control"
+        [(ngModel)]="keyword"
+        (ngModelChange)="setKeyword($event)"
+        placeholder="輸入訂單編號進行搜尋"
+      />
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary w-100" (click)="search()">查詢</button>
+    </div>
+  </div>
+
+  <!-- 表格 -->
+  <table class="table table-bordered text-center">
+    <thead class="table-light">
+      <tr>
+        <th>訂單編號</th>
+        <th>訂單時間</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (order of pagedOrders(); track order.ordernumber) {
+      <tr>
+        <td>{{ order.ordernumber }}</td>
+        <td>{{ order.orderTime | date : "yyyy/MM/dd HH:mm:ss" }}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-warning btn-sm"
+            data-bs-toggle="modal"
+            [attr.data-bs-target]="'#orderModal' + order.ordernumber"
+          >
+            檢視
+          </button>
+        </td>
+      </tr>
+      } @empty {
+      <tr>
+        <td colspan="4">無符合條件的訂單</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- 分頁 -->
+  <div class="pagination d-flex justify-content-center mt-4">
+    @for (page of getPageNumbers(); track page) {
+    <button
+      class="btn btn-outline-secondary mx-1"
+      [class.active]="page === currentPage()"
+      [disabled]="
+        page === currentPage() ||
+        (page === 1 && currentPage() === 1) ||
+        (page === totalPages() && currentPage() === totalPages())
+      "
+      (click)="setPage(page)"
+    >
+      {{ page }}
+    </button>
+    }
+  </div>
+
+  <!-- Modal 每筆訂單 -->
+  @for (order of orders(); track order.ordernumber) {
+  <div
+    class="modal fade"
+    [id]="'orderModal' + order.ordernumber"
+    tabindex="-1"
+    [attr.aria-labelledby]="'orderModalLabel' + order.ordernumber"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <form #orderForm="ngForm">
+          <div class="modal-header">
+            <h5
+              class="modal-title"
+              [id]="'orderModalLabel' + order.ordernumber"
+            >
+              訂單編號：{{ order.ordernumber }}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">訂單編號</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.ordernumber"
+                  [name]="'orderNumber' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">訂單時間</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="formatDateTime(order.orderTime)"
+                  [name]="'orderTime' + order.ordernumber"
+                  readonly
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold">收件電話</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.customerPhone"
+                  [name]="'customerPhone' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">配送方式</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.deliveryWay"
+                  [name]="'deliveryWay' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">訂購人</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.orderman"
+                  [name]="'orderman' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">收件人</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.receiver"
+                  [name]="'receiver' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">付款方式</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.payWay"
+                  [name]="'payWay' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">送貨地址</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.address"
+                  [name]="'address' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">發票抬頭</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.invoiceTitle"
+                  [name]="'invoiceTitle' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">發票方式</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.invoiceWay"
+                  [name]="'invoiceWay' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">載具(發票)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.invoiceCarrier"
+                  [name]="'invoiceCarrier' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">備註</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.notes"
+                  [name]="'notes' + order.ordernumber"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">訂單狀態</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="order.orderStatus"
+                  [name]="'orderStatus' + order.ordernumber"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <!-- 商品明細 -->
+            <h6 class="fw-bold">商品明細</h6>
+            <table class="table table-bordered table-sm">
+              <thead class="table-light text-center">
+                <tr>
+                  <th>商品名稱</th>
+                  <th>數量</th>
+                  <th>單價</th>
+                  <th>小計</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of order.orderItems; track $index) {
+                <tr class="text-center">
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>${{ item.unitPrice | number : "1.0-0" }}</td>
+                  <td>
+                    ${{ item.quantity * item.unitPrice | number : "1.0-0" }}
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="modal-footer d-flex justify-content-between">
+            <div class="fw-bold text-danger">
+              總金額：${{ getOrderTotal(order) | number : "1.0-0" }}
+            </div>
+            <div>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                關閉
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  }
+</div>

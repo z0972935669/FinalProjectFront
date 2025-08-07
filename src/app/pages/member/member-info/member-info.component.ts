@@ -11,14 +11,14 @@ import { FormsModule } from '@angular/forms';
 })
 export class MemberInfoComponent {
   member = {
-    username: 'Dantni',
-    name: '謝維澤',
-    email: 'xie********@gmail.com',
+    username: 'DAYE',
+    name: '王大爺',
+    email: 'wang********@gmail.com',
     phone: '09******43',
-    idnumber: 'A123456789',
+    idnumber: 'A12*****89',
     gender: '男',
-    birth: '1997-10-10',
-    photoPreview: '',
+    birth: '1966-10-10',
+    photoPreview: 'assets/img/member/Older.jpg',
   };
 
   isEdit = false;

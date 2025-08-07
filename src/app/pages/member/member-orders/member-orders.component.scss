@@ -1,0 +1,27 @@
+/* member-orders.component.scss */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.table {
+  margin-bottom: 1.5rem;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.pagination {
+  user-select: none;
+}
+
+.page-item .page-link {
+  cursor: pointer;
+}
+
+.page-item.disabled .page-link {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
