@@ -15,8 +15,10 @@ export class MemberInfoComponent {
     name: '謝維澤',
     email: 'xie********@gmail.com',
     phone: '09******43',
+    idnumber: 'A123456789',
     gender: '男',
     birth: '1997-10-10',
+    photoPreview: '',
   };
 
   isEdit = false;
@@ -27,6 +29,17 @@ export class MemberInfoComponent {
 
   save() {
     this.isEdit = false;
-    alert('資料已儲存！（模擬）');
+    alert('資料已儲存！');
+  }
+
+  onPhotoSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.member.photoPreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }

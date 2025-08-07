@@ -7,7 +7,7 @@ import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
 import { MembermanagementComponent } from './pages/member/membermanagement/membermanagement.component';
 import { MemberInfoComponent } from './pages/member/member-info/member-info.component';
-
+import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
@@ -16,12 +16,13 @@ export const routes: Routes = [
 
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-    {
+  {
     path: 'member-management',
     component: MembermanagementComponent,
     children: [
-      { path: '', redirectTo: 'info', pathMatch: 'full' },
-      { path: 'info', component: MemberInfoComponent }         // 子頁放右邊 router-outlet
+      { path: '', redirectTo: 'info', pathMatch: 'full' },     // 有預設資料
+      { path: 'info', component: MemberInfoComponent },         // 子頁放右邊 router-outlet
+      { path: 'password', component: MemberPasswordComponent }
     ]
   }
 
