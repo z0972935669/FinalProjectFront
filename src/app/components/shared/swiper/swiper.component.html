@@ -1,0 +1,24 @@
+<div class="swiper swiper2" #swiperRef>
+  <div class="swiper-wrapper">
+    <div class="swiper-slide" *ngFor="let item of items">
+      <div class="border border-primary rounded position-relative vesitable-item">
+        <div class="vesitable-img">
+          <img [src]="item.img" class="img-fluid w-100 rounded-top" [alt]="item.title" />
+        </div>
+        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
+          {{ item.category }}
+        </div>
+        <div class="p-4 rounded-bottom">
+          <h4>{{ item.title }}</h4>
+          <p>{{ item.description }}</p>
+          <div class="d-flex justify-content-between flex-lg-wrap">
+            <p class="text-dark fs-5 fw-bold mb-0">${{ item.price }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="swiper-button-next"></div>
+  <div class="swiper-button-prev"></div>
+</div>

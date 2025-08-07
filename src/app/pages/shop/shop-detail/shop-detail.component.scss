@@ -1,0 +1,28 @@
+.swiper-main {
+  width: 100%;
+  height: auto;
+
+  .swiper-slide img {
+    object-fit: cover;
+    border-radius: 0 !important;
+  }
+}
+
+.swiper-thumbs {
+  .swiper-slide {
+    cursor: pointer;
+    opacity: 0.5;
+
+    &-thumb-active,
+    &:hover {
+      opacity: 1;
+      border: 2px solid #81c408;
+      // border-radius: 12px;
+    }
+  }
+  .swiper-slide img {
+    width: 100% !important;
+    object-fit: cover;
+    border-radius: 0 !important;
+  }
+}

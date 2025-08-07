@@ -30,6 +30,7 @@
               "src/favicon.ico"
             ],
             "styles": [
+              "node_modules/swiper/swiper-bundle.min.css",
               "src/styles.scss",
               "src/assets/lib/owlcarousel/assets/owl.carousel.min.css",
               "src/assets/lib/lightbox/css/lightbox.min.css",

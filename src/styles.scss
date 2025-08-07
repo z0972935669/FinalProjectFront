@@ -13,6 +13,11 @@
   z-index: 999;
   transition: opacity 0.3s ease;
 }
+.swiper1 {
+  img {
+    width: 100%;
+  }
+}
 .func {
   .fa-shopping-bag {
     font-size: 34px;
@@ -33,5 +38,10 @@
         color: #ffffff;
       }
     }
+  }
+}
+.quantity {
+  .input-group-btn {
+    display: flex;
   }
 }

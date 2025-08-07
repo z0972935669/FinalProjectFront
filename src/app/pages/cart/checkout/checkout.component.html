@@ -1,0 +1,187 @@
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+  <h1 class="text-center text-white display-6">結帳</h1>
+  <ol class="breadcrumb justify-content-center mb-0">
+    <li class="breadcrumb-item"><a routerLink="/">首頁</a></li>
+    <li class="breadcrumb-item"><a routerLink="/cart">購物車</a></li>
+    <li class="breadcrumb-item active text-white">結帳</li>
+  </ol>
+</div>
+<!-- Single Page Header End -->
+
+<!-- Checkout Page Start -->
+<div class="container-fluid py-5">
+  <div class="container py-5">
+    <form action="#">
+      <div class="row g-5">
+        <div class="col-md-12 col-lg-6 col-xl-7">
+          <div class="row">
+            <div class="col-md-12 col-lg-6">
+              <div class="form-item w-100">
+                <label class="form-label my-3">訂購人</label>
+                <input type="text" class="form-control">
+              </div>
+            </div>
+            <div class="col-md-12 col-lg-6">
+              <div class="form-item">
+                <label class="form-label my-3">收件人</label>
+                <input type="text" class="form-control">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-item">
+            <label class="form-label my-3">收件電話</label>
+            <input type="tel" class="form-control">
+          </div>
+
+          <!-- 付款方式 -->
+          <div class="form-item">
+            <label class="form-label my-3">付款方式</label>
+            <select class="form-select" [(ngModel)]="paymentMethod" name="paymentMethod">
+              <option disabled selected value="">請選擇付款方式</option>
+              <option value="Credit">信用卡</option>
+              <option value="ATM">ATM 轉帳</option>
+              <option value="CVS">超商代碼繳費</option>
+              <option value="COD">貨到付款</option>
+              <!-- <option value="WebATM">WebATM</option>
+              <option value="ApplePay">Apple Pay</option>
+              <option value="JKOPay">街口支付</option>
+              <option value="LINEPay">LINE Pay</option> -->
+            </select>
+          </div>
+
+          <!-- 配送方式 -->
+          @if (availableDeliveryMethods.length > 0) {
+          <div class="form-item">
+            <label class="form-label my-3">配送方式</label>
+            <select class="form-select" [(ngModel)]="deliveryMethod" name="deliveryMethod">
+              <option selected disabled value="">請選擇配送方式</option>
+              @for (method of availableDeliveryMethods; track method.value) {
+              <option [value]="method.value">{{ method.label }}</option>
+              }
+            </select>
+          </div>
+          }
+
+          <div class="form-item">
+            <label class="form-label my-3">送貨地址</label>
+            <input type="text" class="form-control">
+          </div>
+
+          <div class="form-item">
+            <label class="form-label my-3 d-block">發票方式</label>
+
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="InvoiceType" id="invoice-personal" value="Personal"
+                [(ngModel)]="invoiceType" />
+              <label class="form-check-label" for="invoice-personal">載具</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="InvoiceType" id="invoice-company" value="Company"
+                [(ngModel)]="invoiceType" />
+              <label class="form-check-label" for="invoice-company">公司電子發票</label>
+            </div>
+          </div>
+
+          @if (invoiceType === 'Personal') {
+          <div class="form-item">
+            <label class="form-label my-3">載具</label>
+            <input type="text" class="form-control" name="vehicleNumber" placeholder="請輸入載具號碼"
+              [(ngModel)]="vehicleNumber" />
+          </div>
+          }
+
+          @else if (invoiceType === 'Company') {
+          <div class="form-item">
+            <label class="form-label my-3">發票抬頭</label>
+            <input type="text" class="form-control" name="invoiceTitle" placeholder="請輸入發票抬頭"
+              [(ngModel)]="invoiceTitle" />
+          </div>
+          }
+
+
+
+          <div class="form-item">
+            <label class="form-label my-3">備註</label>
+            <textarea name="text" class="form-control" spellcheck="false" cols="30" rows="5"
+              placeholder="請輸入備註 (選填)"></textarea>
+          </div>
+        </div>
+
+        <div class="col-md-12 col-lg-6 col-xl-5">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">商品圖片</th>
+                  <th scope="col">商品名稱</th>
+                  <th scope="col">價格</th>
+                  <th scope="col">數量</th>
+                  <th scope="col">小計</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">
+                    <div class="d-flex align-items-center mt-2">
+                      <img src="assets/img/vegetable-item-2.jpg" class="img-fluid rounded-circle"
+                        style="width: 90px; height: 90px;" alt="">
+                    </div>
+                  </th>
+                  <td class="py-5">綠花椰</td>
+                  <td class="py-5">$100</td>
+                  <td class="py-5">2</td>
+                  <td class="py-5">$200</td>
+                </tr>
+                <tr>
+                  <th scope="row">
+                    <div class="d-flex align-items-center mt-2">
+                      <img src="assets/img/vegetable-item-5.jpg" class="img-fluid rounded-circle"
+                        style="width: 90px; height: 90px;" alt="">
+                    </div>
+                  </th>
+                  <td class="py-5">馬鈴薯</td>
+                  <td class="py-5">$100</td>
+                  <td class="py-5">2</td>
+                  <td class="py-5">$200</td>
+                </tr>
+                <tr>
+                  <th scope="row">
+                    <div class="d-flex align-items-center mt-2">
+                      <img src="assets/img/vegetable-item-3.png" class="img-fluid rounded-circle"
+                        style="width: 90px; height: 90px;" alt="">
+                    </div>
+                  </th>
+                  <td class="py-5">香蕉</td>
+                  <td class="py-5">$100</td>
+                  <td class="py-5">2</td>
+                  <td class="py-5">$200</td>
+                </tr>
+                <tr>
+                  <th scope="row">
+                  </th>
+                  <td class="py-5">
+                    <p class="mb-0 text-dark text-uppercase py-2">運費</p>
+                    <p class="mb-0 text-dark text-uppercase py-2 mt-4">總金額</p>
+                  </td>
+                  <td class="py-5"></td>
+                  <td class="py-5"></td>
+                  <td class="py-5">
+                    <p class="mb-0 text-dark py-2">$60</p>
+                    <p class="mb-0 py-2 text-primary display-5">$660</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row g-4 text-center align-items-center justify-content-center pt-4">
+            <button routerLink="/checkoutsuccessful" type="button" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">下訂單</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Checkout Page End -->

@@ -1,71 +1,88 @@
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+  <h1 class="text-center text-white display-6">商店</h1>
+  <ol class="breadcrumb justify-content-center mb-0">
+    <li class="breadcrumb-item"><a routerLink="/">首頁</a></li>
+    <li class="breadcrumb-item"><a routerLink="/shop">商店</a></li>
+    <li class="breadcrumb-item active text-white">葡萄</li>
+  </ol>
+</div>
+<!-- Single Page Header End -->
+
 <!-- Single Product Start -->
 <div class="container-fluid py-5 mt-5">
   <div class="container py-5">
     <div class="row g-4 mb-5">
-      <div class="col-lg-8 col-xl-9">
+      <div class="col-lg-12">
         <div class="row g-4">
           <div class="col-lg-6">
-            <div class="border rounded">
-              <a href="#">
-                <img src="assets/img/single-item.jpg" class="img-fluid rounded" alt="Image">
-              </a>
+            <div>
+              <!-- 主圖輪播 -->
+              <div class="swiper swiper-main mb-3">
+                <div class="swiper-wrapper">
+                  <div class="swiper-slide" *ngFor="let img of images">
+                    <img [src]="img" class="img-fluid rounded w-100" />
+                  </div>
+                </div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+              </div>
+
+              <!-- 縮圖輪播 -->
+              <div class="swiper swiper-thumbs">
+                <div class="swiper-wrapper">
+                  <div class="swiper-slide" *ngFor="let img of images">
+                    <img [src]="img" class="img-fluid rounded" style="height: 80px; width: auto;" />
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
           <div class="col-lg-6">
-            <h4 class="fw-bold mb-3">Brocoli</h4>
-            <p class="mb-3">Category: Vegetables</p>
-            <h5 class="fw-bold mb-3">3,35 $</h5>
-            <div class="d-flex mb-4">
-              <i class="fa fa-star text-secondary"></i>
-              <i class="fa fa-star text-secondary"></i>
-              <i class="fa fa-star text-secondary"></i>
-              <i class="fa fa-star text-secondary"></i>
-              <i class="fa fa-star"></i>
-            </div>
-            <p class="mb-4">The generated Lorem Ipsum is therefore always free from repetition injected humour, or
-              non-characteristic words etc.</p>
-            <p class="mb-4">Susp endisse ultricies nisi vel quam suscipit. Sabertooth peacock flounder; chain pickerel
-              hatchetfish, pencilfish snailfish</p>
-            <div class="input-group quantity mb-5" style="width: 100px;">
-              <div class="input-group-btn">
-                <button class="btn btn-sm btn-minus rounded-circle bg-light border">
-                  <i class="fa fa-minus"></i>
-                </button>
-              </div>
-              <input type="text" class="form-control form-control-sm text-center border-0" value="1">
-              <div class="input-group-btn">
-                <button class="btn btn-sm btn-plus rounded-circle bg-light border">
-                  <i class="fa fa-plus"></i>
-                </button>
-              </div>
-            </div>
-            <a href="#" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"><i
-                class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
+            <h4 class="fw-bold mb-3">葡萄</h4>
+            <h5 class="fw-bold mb-3">$100</h5>
+            <p class="mb-4">
+              本公司多年來專注於提供高品質的產品與專業的客製化服務，深耕各大產業領域，建立穩固的合作關係。我們秉持誠信經營與創新思維，不斷導入先進技術與高效流程，提升競爭力與服務品質。從市場趨勢分析到產品研發設計，皆由經驗豐富的團隊精心策劃，確保每一項方案皆能符合客戶需求，創造最大價值。我們相信，唯有與客戶攜手成長，才能共創長遠的成功與穩健的未來。選擇我們，即是選擇值得信賴的夥伴。
+            </p>
+
+            <app-quantity [(value)]="count1"></app-quantity>
+
+            <a routerLink="/cart" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary"><i
+                class="fa fa-shopping-bag me-2 text-primary "></i>加入購物車</a>
+            <button class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary"><i
+                class="fas fa-truck me-2 text-primary"></i>補貨中...</button>
           </div>
           <div class="col-lg-12">
             <nav>
               <div class="nav nav-tabs mb-3">
                 <button class="nav-link active border-white border-bottom-0" type="button" role="tab" id="nav-about-tab"
                   data-bs-toggle="tab" data-bs-target="#nav-about" aria-controls="nav-about"
-                  aria-selected="true">Description</button>
-                <button class="nav-link border-white border-bottom-0" type="button" role="tab" id="nav-mission-tab"
-                  data-bs-toggle="tab" data-bs-target="#nav-mission" aria-controls="nav-mission"
-                  aria-selected="false">Reviews</button>
+                  aria-selected="true">說明</button>
+                <!-- 暫時先不做 -->
+                <!-- <button class="nav-link border-white border-bottom-0" type="button" role="tab" id="nav-mission-tab"
+                data-bs-toggle="tab" data-bs-target="#nav-mission" aria-controls="nav-mission"
+                aria-selected="false">Reviews</button> -->
+                <!-- end 暫時先不做 -->
               </div>
             </nav>
             <div class="tab-content mb-5">
               <div class="tab-pane active" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
-                <p>The generated Lorem Ipsum is therefore always free from repetition injected humour, or
-                  non-characteristic words etc.
-                  Susp endisse ultricies nisi vel quam suscipit </p>
-                <p>Sabertooth peacock flounder; chain pickerel hatchetfish, pencilfish snailfish filefish Antarctic
-                  icefish goldeye aholehole trumpetfish pilot fish airbreathing catfish, electric ray sweeper.</p>
+                <p>
+                  在這個瞬息萬變的市場環境中，企業唯有持續創新與穩健經營，才能在競爭激烈的產業中脫穎而出。本公司自創立以來，始終秉持「誠信、專業、創新、服務」的核心理念，致力於為客戶打造高效、可靠且具前瞻性的整合解決方案。我們擁有一支充滿熱情與經驗的專業團隊，橫跨業務開發、產品設計、行銷企劃與售後服務等各個領域，能迅速掌握市場動態並提出最佳應對策略。
+
+                  我們深知客戶需求多元且快速變化，因此積極導入最新技術與智慧化管理系統，不斷優化流程與提升品質，力求在每一個細節中展現我們的用心與專業。從初步諮詢、方案設計、執行落地到後續維運，我們提供一條龍的完整服務，讓客戶無後顧之憂，專注於核心業務發展。
+
+                  除了提供優質的產品與服務，我們亦重視永續發展與社會責任。透過環保材料應用、節能減碳措施及社區關懷活動，我們積極實踐企業公民的角色，為社會與環境盡一份心力。
+
+                  展望未來，我們將持續強化核心競爭力，擴大全球佈局，攜手客戶共創價值，共築長遠且穩固的合作夥伴關係。選擇我們，就是選擇一個值得信賴、與時俱進的夥伴，讓我們一同邁向更卓越的明天。
+                </p>
                 <div class="px-2">
                   <div class="row g-4">
                     <div class="col-6">
                       <div class="row bg-light align-items-center text-center justify-content-center py-2">
                         <div class="col-6">
-                          <p class="mb-0">Weight</p>
+                          <p class="mb-0">淨重</p>
                         </div>
                         <div class="col-6">
                           <p class="mb-0">1 kg</p>
@@ -73,41 +90,26 @@
                       </div>
                       <div class="row text-center align-items-center justify-content-center py-2">
                         <div class="col-6">
-                          <p class="mb-0">Country of Origin</p>
+                          <p class="mb-0">出產地</p>
                         </div>
                         <div class="col-6">
-                          <p class="mb-0">Agro Farm</p>
-                        </div>
-                      </div>
-                      <div class="row bg-light text-center align-items-center justify-content-center py-2">
-                        <div class="col-6">
-                          <p class="mb-0">Quality</p>
-                        </div>
-                        <div class="col-6">
-                          <p class="mb-0">Organic</p>
-                        </div>
-                      </div>
-                      <div class="row text-center align-items-center justify-content-center py-2">
-                        <div class="col-6">
-                          <p class="mb-0">Сheck</p>
-                        </div>
-                        <div class="col-6">
-                          <p class="mb-0">Healthy</p>
+                          <p class="mb-0">台灣</p>
                         </div>
                       </div>
                       <div class="row bg-light text-center align-items-center justify-content-center py-2">
                         <div class="col-6">
-                          <p class="mb-0">Min Weight</p>
+                          <p class="mb-0">數量</p>
                         </div>
                         <div class="col-6">
-                          <p class="mb-0">250 Kg</p>
+                          <p class="mb-0">10000</p>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
+              <!-- 暫時先不做 -->
+              <!-- <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
                 <div class="d-flex">
                   <img src="assets/img/avatar.jpg" class="img-fluid rounded-circle p-3"
                     style="width: 100px; height: 100px;" alt="">
@@ -154,48 +156,13 @@
                   amet diam et eos labore. 3</p>
                 <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos labore.
                   Clita erat ipsum et lorem et sit</p>
-              </div>
+              </div> -->
+              <!-- end 暫時先不做 -->
             </div>
           </div>
-          <form action="#">
-            <h4 class="mb-5 fw-bold">Leave a Reply</h4>
-            <div class="row g-4">
-              <div class="col-lg-6">
-                <div class="border-bottom rounded">
-                  <input type="text" class="form-control border-0 me-4" placeholder="Yur Name *">
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="border-bottom rounded">
-                  <input type="email" class="form-control border-0" placeholder="Your Email *">
-                </div>
-              </div>
-              <div class="col-lg-12">
-                <div class="border-bottom rounded my-4">
-                  <textarea name="" id="" class="form-control border-0" cols="30" rows="8" placeholder="Your Review *"
-                    spellcheck="false"></textarea>
-                </div>
-              </div>
-              <div class="col-lg-12">
-                <div class="d-flex justify-content-between py-3 mb-5">
-                  <div class="d-flex align-items-center">
-                    <p class="mb-0 me-3">Please rate:</p>
-                    <div class="d-flex align-items-center" style="font-size: 12px;">
-                      <i class="fa fa-star text-muted"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                    </div>
-                  </div>
-                  <a href="#" class="btn border border-secondary text-primary rounded-pill px-4 py-3"> Post Comment</a>
-                </div>
-              </div>
-            </div>
-          </form>
         </div>
       </div>
-      <div class="col-lg-4 col-xl-3">
+      <!-- <div class="col-lg-4 col-xl-3">
         <div class="row g-4 fruite">
           <div class="col-lg-12">
             <div class="input-group w-100 mx-auto d-flex mb-4">
@@ -367,140 +334,7 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <h1 class="fw-bold mb-0">Related products</h1>
-    <div class="vesitable">
-      <div class="owl-carousel vegetable-carousel justify-content-center">
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Parsely</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$4.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-1.jpg" class="img-fluid w-100 rounded-top" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Parsely</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$4.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-3.png" class="img-fluid w-100 rounded-top bg-light" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Banana</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-4.jpg" class="img-fluid w-100 rounded-top" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Bell Papper</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Potatoes</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Parsely</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Potatoes</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-        <div class="border border-primary rounded position-relative vesitable-item">
-          <div class="vesitable-img">
-            <img src="assets/img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-          </div>
-          <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
-            Vegetable</div>
-          <div class="p-4 pb-0 rounded-bottom">
-            <h4>Parsely</h4>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-            <div class="d-flex justify-content-between flex-lg-wrap">
-              <p class="text-dark fs-5 fw-bold">$7.99 / kg</p>
-              <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i
-                  class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-            </div>
-          </div>
-        </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
