@@ -1,0 +1,38 @@
+<div class="card">
+  <div class="card-header">
+    <h4>我的資料</h4>
+  </div>
+  <div class="card-body">
+    <form *ngIf="isEdit; else viewMode" (ngSubmit)="save()">
+      <div class="mb-3">
+        <label>姓名</label>
+        <input class="form-control" [(ngModel)]="member.name" name="name" />
+      </div>
+      <div class="mb-3">
+        <label>Email</label>
+        <input class="form-control" [(ngModel)]="member.email" name="email" />
+      </div>
+      <div class="mb-3">
+        <label>手機</label>
+        <input class="form-control" [(ngModel)]="member.phone" name="phone" />
+      </div>
+      <button class="btn btn-primary" type="submit">儲存</button>
+      <button
+        class="btn btn-secondary ms-2"
+        type="button"
+        (click)="toggleEdit()"
+      >
+        取消
+      </button>
+    </form>
+
+    <ng-template #viewMode>
+      <ul class="list-group">
+        <li class="list-group-item"><b>姓名：</b> {{ member.name }}</li>
+        <li class="list-group-item"><b>Email：</b> {{ member.email }}</li>
+        <li class="list-group-item"><b>手機：</b> {{ member.phone }}</li>
+      </ul>
+      <button class="btn btn-primary mt-3" (click)="toggleEdit()">編輯</button>
+    </ng-template>
+  </div>
+</div>
