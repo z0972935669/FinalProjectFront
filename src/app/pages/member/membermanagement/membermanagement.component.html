@@ -1,0 +1,70 @@
+<div class="container py-5">
+  <div class="row">
+    <!-- 側邊選單 -->
+    <div class="col-md-3">
+      <div class="list-group">
+        <a
+          routerLink="info"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-user"></i> 我的資料
+        </a>
+        <a
+          routerLink="password"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-lock"></i> 修改密碼
+        </a>
+        <a
+          routerLink="orders"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-file-invoice"></i> 我的訂單
+        </a>
+        <a
+          routerLink="room"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-bed"></i> 我的房號
+        </a>
+        <a
+          routerLink="comments"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-comment-dots"></i> 我的社群
+        </a>
+        <a
+          routerLink="care-service"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-calendar-week"></i> 我的活動
+        </a>
+        <a
+          routerLink="events"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-hand-holding-medical"></i> 照護服務
+        </a>
+        <a
+          routerLink="notifications"
+          routerLinkActive="active"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-bell"></i> 通知中心
+        </a>
+      </div>
+    </div>
+
+    <!-- 主內容顯示區：這裡一定要加 -->
+    <div class="col-md-9">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

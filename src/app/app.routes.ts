@@ -6,6 +6,12 @@ import { CartComponent } from './pages/cart/cart/cart.component';
 import { CheckoutComponent } from './pages/cart/checkout/checkout.component';
 import { CheckoutsuccessfulComponent } from './pages/cart/checkoutsuccessful/checkoutsuccessful.component';
 
+import { LoginComponent } from './pages/account/login/login.component';
+import { RegisterComponent } from './pages/account/register/register.component';
+import { MembermanagementComponent } from './pages/member/membermanagement/membermanagement.component';
+import { MemberInfoComponent } from './pages/member/member-info/member-info.component';
+import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
+import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
@@ -14,4 +20,17 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: 'checkoutsuccessful', component: CheckoutsuccessfulComponent },
+
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  {
+    path: 'member-management',
+    component: MembermanagementComponent,
+    children: [
+      { path: '', redirectTo: 'info', pathMatch: 'full' },
+      { path: 'info', component: MemberInfoComponent },
+      { path: 'password', component: MemberPasswordComponent },
+      { path: 'orders', component: MemberOrdersComponent },
+    ],
+  },
 ];

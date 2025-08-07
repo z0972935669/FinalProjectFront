@@ -1,0 +1,97 @@
+<div class="card shadow">
+  <div class="card-header bg-light">
+    <h4 class="text-primary fw-bold">我的資料</h4>
+  </div>
+  <div class="card-body">
+    <!-- 編輯模式 -->
+    @if (isEdit) {
+    <form (ngSubmit)="save()" class="row g-3">
+      <div class="col-md-3 text-center">
+        <img
+          [src]="
+            member.photoPreview ||
+            'https://via.placeholder.com/120x120?text=Photo'
+          "
+          class="rounded-circle border"
+          width="120"
+          height="120"
+        />
+      </div>
+      <div class="col-md-9 row">
+        <div class="col-md-6">
+          <label class="form-label">姓名</label>
+          <input class="form-control" [(ngModel)]="member.name" name="name" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input class="form-control" [(ngModel)]="member.email" name="email" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">手機</label>
+          <input class="form-control" [(ngModel)]="member.phone" name="phone" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">身分證</label>
+          <input
+            class="form-control"
+            [(ngModel)]="member.idnumber"
+            name="idnumber"
+          />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">性別</label>
+          <select class="form-select" [(ngModel)]="member.gender" name="gender">
+            <option value="男">男</option>
+            <option value="女">女</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">生日</label>
+          <input
+            class="form-control"
+            type="date"
+            [(ngModel)]="member.birth"
+            name="birth"
+          />
+        </div>
+      </div>
+      <div class="col-12 mt-3">
+        <button class="btn btn-success px-4" type="submit">儲存</button>
+        <button
+          class="btn btn-outline-secondary ms-2"
+          type="button"
+          (click)="toggleEdit()"
+        >
+          取消
+        </button>
+      </div>
+    </form>
+    } @else {
+    <div class="row">
+      <div class="col-md-3 text-center">
+        <img
+          [src]="
+            member.photoPreview ||
+            'https://via.placeholder.com/120x120?text=Photo'
+          "
+          class="rounded-circle border"
+          width="120"
+          height="120"
+        />
+      </div>
+      <div class="col-md-9">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><b>姓名：</b> {{ member.name }}</li>
+          <li class="list-group-item"><b>Email：</b> {{ member.email }}</li>
+          <li class="list-group-item"><b>手機：</b> {{ member.phone }}</li>
+          <li class="list-group-item"><b>身分證：</b> {{ member.idnumber }}</li>
+          <li class="list-group-item"><b>性別：</b> {{ member.gender }}</li>
+          <li class="list-group-item"><b>生日：</b> {{ member.birth }}</li>
+        </ul>
+      </div>
+    </div>
+    <button class="btn btn-success mt-4" (click)="toggleEdit()">編輯</button>
+    }
+  </div>
+</div>
