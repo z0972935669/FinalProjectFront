@@ -5,6 +5,9 @@ import { ShopDetailComponent } from './pages/shop/shop-detail/shop-detail.compon
 import { CartComponent } from './pages/cart/cart/cart.component';
 import { CheckoutComponent } from './pages/cart/checkout/checkout.component';
 import { CheckoutsuccessfulComponent } from './pages/cart/checkoutsuccessful/checkoutsuccessful.component';
+import { BoardListComponent } from './pages//community/board-list/board-list.component';
+import { PostListComponent } from './pages/community/post-list/post-list.component';
+import { PostComponent } from './pages/community/post/post.component';
 
 import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
@@ -33,4 +36,7 @@ export const routes: Routes = [
       { path: 'orders', component: MemberOrdersComponent },
     ],
   },
+  { path: 'community', component: BoardListComponent },
+  { path: 'community/:boardID/posts', component: PostListComponent },
+  { path: 'community/:boardID/posts/:postId', component: PostComponent },
 ];

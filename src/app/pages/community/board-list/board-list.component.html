@@ -1,0 +1,29 @@
+<div class="container my-5">
+  <h2 class="text-center mb-4">社群看板列表</h2>
+  <div class="row">
+    <div
+      class="col-12 col-md-6 col-lg-4 mb-4"
+      *ngFor="let board of boards"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="'看板 ' + board.name"
+      (click)="goToBoardPosts(board.id)"
+    >
+      <div class="board-card h-100 shadow-sm rounded">
+        <img
+          *ngIf="board.coverImageUrl"
+          [src]="board.coverImageUrl"
+          [alt]="board.name"
+          class="board-cover img-fluid rounded-top"
+        />
+        <div class="board-info p-3">
+          <h3 class="board-name">{{ board.name }}</h3>
+          <p class="board-description mb-2">{{ board.description }}</p>
+          <p class="board-post-count text-muted">
+            文章數：{{ board.postCount }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

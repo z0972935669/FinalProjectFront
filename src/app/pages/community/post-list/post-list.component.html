@@ -1,0 +1,72 @@
+<div class="container my-5">
+  <h2 class="text-center mb-4">{{ boardName }} 的文章列表</h2>
+
+  <!-- 🔍 查詢與新增按鈕 -->
+  <div
+    class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-2"
+  >
+    <div class="input-group w-25 w-md-20">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="輸入關鍵字搜尋文章..."
+        [(ngModel)]="searchKeyword"
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+
+    <button
+      class="btn btn-outline-success rounded-pill shadow-sm px-4 py-2"
+      (click)="navigateToCreatePost()"
+    >
+      <i class="bi bi-plus-circle me-2"></i> 新增文章
+    </button>
+  </div>
+
+  <!-- 📃 文章列表卡片 -->
+  <div class="card post-list-card shadow-sm">
+    <div *ngIf="filteredPosts.length > 0; else noPosts" class="p-3">
+      <div class="list-group">
+        <div
+          class="list-group-item d-flex flex-column flex-md-row align-items-start gap-3"
+          *ngFor="let post of filteredPosts"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'文章 ' + post.title"
+          (click)="goToPost(post.id)"
+        >
+          <div class="flex-grow-1">
+            <h5 class="post-title mb-1">{{ post.title }}</h5>
+            <p class="post-excerpt mb-2">{{ post.excerpt }}</p>
+            <small class="post-date text-muted">{{
+              post.createdAt | date : "yyyy/MM/dd HH:mm"
+            }}</small>
+
+            <div class="post-actions mt-2 d-flex gap-4 align-items-center">
+              <button type="button" class="action-btn" aria-label="喜歡文章">
+                <i class="bi bi-heart"></i> <span>{{ post.likes || 0 }}</span>
+              </button>
+              <button type="button" class="action-btn" aria-label="回覆文章">
+                <i class="bi bi-chat-left-text"></i>
+                <span>{{ post.replies || 0 }}</span>
+              </button>
+              <button type="button" class="action-btn" aria-label="收藏文章">
+                <i class="bi bi-bookmark"></i>
+                <span>{{ post.bookmarks || 0 }}</span>
+              </button>
+              <button type="button" class="action-btn" aria-label="轉發文章">
+                <i class="bi bi-share"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noPosts>
+      <div class="alert alert-info text-center m-3">
+        目前尚無任何文章，歡迎成為第一個發文者！
+      </div>
+    </ng-template>
+  </div>
+</div>

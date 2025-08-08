@@ -1,0 +1,102 @@
+<div class="container my-5">
+  <div class="card post-card shadow-sm p-4">
+    <!-- 文章 -->
+    <div class="post-header mb-3">
+      <h1 class="post-title">{{ post.title }}</h1>
+      <div class="post-meta text-muted">
+        <span>作者：{{ post.author }}</span> |
+        <span>{{ post.createdAt | date : "yyyy-MM-dd HH:mm" }}</span>
+      </div>
+    </div>
+
+    <div class="post-content mb-4">
+      {{ post.content }}
+    </div>
+
+    <div class="post-actions d-flex gap-3 mb-4">
+      <button class="btn btn-outline-primary">
+        <i class="bi bi-heart"></i> 喜歡 {{ post.likes }}
+      </button>
+      <button class="btn btn-outline-secondary">
+        <i class="bi bi-bookmark"></i> 收藏
+      </button>
+      <button class="btn btn-outline-success">
+        <i class="bi bi-share"></i> 分享
+      </button>
+    </div>
+
+    <!-- 留言 -->
+    <div class="comment-section">
+      <h2 class="mb-3">留言（{{ comments.length }}）</h2>
+
+      <div class="comment-input mb-4">
+        <textarea
+          [(ngModel)]="newComment"
+          placeholder="輸入你的留言..."
+          class="form-control"
+          rows="3"
+        ></textarea>
+        <button class="btn btn-primary mt-2" (click)="submitComment()">
+          送出
+        </button>
+      </div>
+
+      <div class="comment-list">
+        <div
+          class="comment-item mb-3 p-3 rounded"
+          *ngFor="let comment of comments"
+        >
+          <div class="d-flex align-items-center mb-2">
+            <img
+              [src]="comment.avatar"
+              alt="avatar"
+              class="rounded-circle"
+              width="40"
+              height="40"
+            />
+            <div class="ms-2">
+              <strong>{{ comment.name }}</strong>
+              <div class="text-muted small">
+                {{ comment.createdAt | date : "yyyy-MM-dd HH:mm" }}
+              </div>
+            </div>
+          </div>
+          <div class="comment-content mb-2">{{ comment.content }}</div>
+          <div class="comment-actions d-flex gap-3">
+            <button class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-hand-thumbs-up"></i> 喜歡 {{ comment.likes }}
+            </button>
+            <button class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-reply"></i> 回覆
+            </button>
+          </div>
+
+          <!-- 回覆列表 -->
+          <div class="replies ms-5 mt-3" *ngIf="comment.replies?.length">
+            <div
+              class="reply-item mb-2 p-2 rounded bg-light"
+              *ngFor="let reply of comment.replies"
+            >
+              <div class="d-flex align-items-center mb-1">
+                <img
+                  [src]="reply.avatar"
+                  alt="avatar"
+                  class="rounded-circle"
+                  width="30"
+                  height="30"
+                />
+                <div class="ms-2">
+                  <strong>{{ reply.name }}</strong>
+                  <div class="text-muted small">
+                    {{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}
+                  </div>
+                </div>
+              </div>
+              <div class="reply-content">{{ reply.content }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
