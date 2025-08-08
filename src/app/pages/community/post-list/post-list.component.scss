@@ -1,0 +1,88 @@
+/* 大卡片容器 - 米白色底，柔和陰影 */
+.post-list-card {
+  border-radius: 1rem;
+  border: 1px solid #d8cfc4; /* 淺棕色邊框 */
+  background-color: #f9f6f1; /* 米白色 */
+  box-shadow: 0 2px 8px rgb(152 135 109 / 0.15); /* 柔和棕色陰影 */
+  padding: 1rem 1.5rem;
+}
+
+/* 文章列表項目 */
+.list-group-item {
+  background-color: #fffdfa; /* 很淺的米白 */
+  border: 1px solid #e3dcca; /* 淺米棕 */
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgb(152 135 109 / 0.1); /* 柔和陰影 */
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &:hover,
+  &:focus {
+    background-color: #f0ede7; /* 淡淡灰綠色 */
+    box-shadow: 0 4px 12px rgb(152 135 109 / 0.25);
+    outline: none;
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: start;
+  }
+}
+
+/* 文章標題 */
+.post-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #6b584c; /* 深棕色 */
+  margin-bottom: 0.25rem;
+}
+
+/* 文章摘要 */
+.post-excerpt {
+  color: #7a6d60; /* 柔和棕灰 */
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+/* 日期 */
+.post-date {
+  font-size: 0.8rem;
+  color: #a89987; /* 淡棕灰 */
+}
+
+/* 功能按鈕區塊 */
+.post-actions {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+
+  .action-btn {
+    background: transparent;
+    border: none;
+    color: #8c7a65; /* 柔和棕色 */
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+
+    i {
+      font-size: 1.2rem;
+    }
+
+    &:hover,
+    &:focus {
+      color: #536854; /* 柔和森林綠 */
+      outline: none;
+    }
+  }
+}

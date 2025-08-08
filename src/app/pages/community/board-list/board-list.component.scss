@@ -1,0 +1,43 @@
+.board-card {
+  background-color: #f9f7f1; // 柔和奶油白，溫暖感
+  cursor: pointer;
+  border: 1px solid #d9cbb6; // 淡米色邊框
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover,
+  &:focus {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(149, 126, 84, 0.25); // 柔和金色陰影
+    outline: none;
+  }
+
+  .board-cover {
+    height: 150px;
+    object-fit: cover;
+    width: 100%;
+    border-bottom: 1px solid #d9cbb6; // 與邊框呼應的底線
+    border-radius: 6px 6px 0 0;
+  }
+
+  .board-info {
+    padding: 16px;
+
+    .board-name {
+      font-size: 1.25rem;
+      color: #8b6d3c; // 柔和咖啡色字體
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .board-description {
+      font-size: 1rem;
+      color: #5a4d2e; // 深淺適中的文字色，易閱讀
+      margin-bottom: 0.75rem;
+    }
+
+    .board-post-count {
+      font-size: 0.9rem;
+      color: #7a6e4a; // 比描述更淡的字色
+    }
+  }
+}
