@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+// 前台
+import { FrontendComponent } from './layout/frontend/frontend.component';
 import { HomeComponent } from './pages/home/home/home.component';
 import { ShopListComponent } from './pages/shop/shop-list/shop-list.component';
 import { ShopDetailComponent } from './pages/shop/shop-detail/shop-detail.component';
@@ -15,28 +17,54 @@ import { MembermanagementComponent } from './pages/member/membermanagement/membe
 import { MemberInfoComponent } from './pages/member/member-info/member-info.component';
 import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
+import { OrdersComponent } from './pages/backend/orders/orders.component';
+// 後台
+import { BackendComponent } from './layout/backend/backend.component';
 export const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
-  { path: 'shop', component: ShopListComponent },
-  { path: 'shop/:slug', component: ShopDetailComponent }, // 動態路由顯示商品詳細, 等開API的時候要改成shop/:slug
-  { path: 'cart', component: CartComponent },
-  { path: 'checkout', component: CheckoutComponent },
-  { path: 'checkoutsuccessful', component: CheckoutsuccessfulComponent },
-
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  // 根目錄自動轉到 /show 或 /show/home
+  { path: '', pathMatch: 'full', redirectTo: 'show' },
+  // 若想直接到首頁就寫：redirectTo: 'show/home'
   {
-    path: 'member-management',
-    component: MembermanagementComponent,
+    // 前台
+    path: 'show',
+    component: FrontendComponent,
     children: [
-      { path: '', redirectTo: 'info', pathMatch: 'full' },
-      { path: 'info', component: MemberInfoComponent },
-      { path: 'password', component: MemberPasswordComponent },
-      { path: 'orders', component: MemberOrdersComponent },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: HomeComponent },
+      { path: 'shop', component: ShopListComponent },
+      { path: 'shop/:slug', component: ShopDetailComponent }, // 動態路由顯示商品詳細, 等開API的時候要改成shop/:slug
+      { path: 'cart', component: CartComponent },
+      { path: 'checkout', component: CheckoutComponent },
+      { path: 'checkoutsuccessful', component: CheckoutsuccessfulComponent },
+
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+      {
+        path: 'member-management',
+        component: MembermanagementComponent,
+        children: [
+          { path: '', redirectTo: 'info', pathMatch: 'full' },
+          { path: 'info', component: MemberInfoComponent },
+          { path: 'password', component: MemberPasswordComponent },
+          { path: 'orders', component: MemberOrdersComponent },
+        ],
+      },
+      { path: 'community', component: BoardListComponent },
+      { path: 'community/:boardID/posts', component: PostListComponent },
+      { path: 'community/:boardID/posts/:postId', component: PostComponent },
     ],
   },
-  { path: 'community', component: BoardListComponent },
-  { path: 'community/:boardID/posts', component: PostListComponent },
-  { path: 'community/:boardID/posts/:postId', component: PostComponent },
+  {
+    // 後台
+    path: 'erp',
+    component: BackendComponent,
+    children: [
+      // 沒有 backend 的 home，建議改成 orders
+      { path: '', redirectTo: 'orders', pathMatch: 'full'},
+      { path: 'orders', component: OrdersComponent },
+    ],
+  },
+  // 其它未知路徑都導回前台（可選）
+  // **: 萬用路由 => 沒有上面的路徑全都導回show
+  { path: '**', redirectTo: 'show' }
 ];

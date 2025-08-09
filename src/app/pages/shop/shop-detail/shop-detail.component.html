@@ -2,8 +2,8 @@
 <div class="container-fluid page-header py-5">
   <h1 class="text-center text-white display-6">商店</h1>
   <ol class="breadcrumb justify-content-center mb-0">
-    <li class="breadcrumb-item"><a routerLink="/">首頁</a></li>
-    <li class="breadcrumb-item"><a routerLink="/shop">商店</a></li>
+    <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
+    <li class="breadcrumb-item"><a routerLink="/show/shop">商店</a></li>
     <li class="breadcrumb-item active text-white">葡萄</li>
   </ol>
 </div>
@@ -48,7 +48,8 @@
 
             <app-quantity [(value)]="count1"></app-quantity>
 
-            <a routerLink="/cart" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary"><i
+            <a routerLink="/show/cart"
+              class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary"><i
                 class="fa fa-shopping-bag me-2 text-primary "></i>加入購物車</a>
             <button class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary"><i
                 class="fas fa-truck me-2 text-primary"></i>補貨中...</button>

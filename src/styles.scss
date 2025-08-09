@@ -1,47 +1,55 @@
-.logo {
-  img {
-    width: 140px;
-  }
-}
-.nav-bg {
-  background: linear-gradient(to bottom, #ffffff, #f3fbea);
-}
-#gotop {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  z-index: 999;
-  transition: opacity 0.3s ease;
-}
-.swiper1 {
-  img {
-    width: 100%;
-  }
-}
-.func {
-  .fa-shopping-bag {
-    font-size: 34px;
-  }
-  .dropdown-toggle {
-    &::after {
-      content: "";
-      display: none;
+// 前台寫.theme-frontend
+.theme-frontend {
+  .logo {
+    img {
+      width: 140px;
     }
   }
-  .fa-user {
-    font-size: 34px;
+  .nav-bg {
+    background: linear-gradient(to bottom, #ffffff, #f3fbea);
   }
-  .dropdown-menu {
-    left: -120px !important;
-    .dropdown-item {
-      &:hover {
-        color: #ffffff;
+  #gotop {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    z-index: 999;
+    transition: opacity 0.3s ease;
+  }
+  .swiper1 {
+    img {
+      width: 100%;
+    }
+  }
+  .func {
+    .fa-shopping-bag {
+      font-size: 34px;
+    }
+    .dropdown-toggle {
+      &::after {
+        content: "";
+        display: none;
+      }
+    }
+    .fa-user {
+      font-size: 34px;
+    }
+    .dropdown-menu {
+      left: -120px !important;
+      .dropdown-item {
+        &:hover {
+          color: #ffffff;
+        }
       }
     }
   }
-}
-.quantity {
-  .input-group-btn {
-    display: flex;
+  .quantity {
+    .input-group-btn {
+      display: flex;
+    }
   }
+}
+
+// 後台寫.theme-backend
+.theme-backend {
+
 }

@@ -178,7 +178,7 @@ export class PostListComponent implements OnInit {
   }
 
   navigateToCreatePost() {
-    this.router.navigate(['/community/create']); // 根據你的 route 修改
+    this.router.navigate(['/show/community/create']); // 根據你的 route 修改
   }
 
   get boardName(): string {
