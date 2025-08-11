@@ -20,6 +20,9 @@ import { MemberOrdersComponent } from './pages/member/member-orders/member-order
 import { OrdersComponent } from './pages/backend/orders/orders.component';
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
+import { EventListComponent } from './pages/event/event-list/event-list.component';
+import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
+import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -52,6 +55,10 @@ export const routes: Routes = [
       { path: 'community', component: BoardListComponent },
       { path: 'community/:boardID/posts', component: PostListComponent },
       { path: 'community/:boardID/posts/:postId', component: PostComponent },
+
+      { path: 'event', component: EventListComponent },
+      { path: 'event/:slug', component: EventDetailComponent },
+      { path: 'event/:slug/register', component: EventRegistrationComponent },
     ],
   },
   {
@@ -60,11 +67,11 @@ export const routes: Routes = [
     component: BackendComponent,
     children: [
       // 沒有 backend 的 home，建議改成 orders
-      { path: '', redirectTo: 'orders', pathMatch: 'full'},
+      { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
     ],
   },
   // 其它未知路徑都導回前台（可選）
   // **: 萬用路由 => 沒有上面的路徑全都導回show
-  { path: '**', redirectTo: 'show' }
+  { path: '**', redirectTo: 'show' },
 ];
