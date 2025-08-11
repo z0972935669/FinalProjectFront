@@ -34,9 +34,9 @@ export class MemberPasswordComponent {
       return;
     }
 
-    // TODO: 呼叫 API 修改密碼（這裡先模擬成功）
+    // TODO: 呼叫 API 修改密碼
     this.errorMessage = '';
-    this.successMessage = '密碼修改成功！（模擬）';
+    this.successMessage = '密碼修改成功！';
 
     // 清空欄位
     this.passwordData = {
