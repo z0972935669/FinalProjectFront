@@ -1,9 +1,11 @@
 @mixin arrow {
   color: rgba(80, 80, 80, 0.4);
 }
+
 @mixin arrowHover {
   color: #ffffff;
 }
+
 @mixin arrowHover2 {
   color: #81c408;
 }
@@ -12,21 +14,36 @@
   img {
     width: 100%;
   }
-  .swiper-button-next, .swiper-button-prev {
+
+  .swiper-button-next,
+  .swiper-button-prev {
     @include arrow;
+
     &:hover {
       @include arrowHover;
     }
   }
 }
+
 .swiper2 {
   img {
     width: 100%;
   }
-  .swiper-button-next, .swiper-button-prev {
+
+  .swiper-button-next,
+  .swiper-button-prev {
     @include arrow;
+
     &:hover {
       @include arrowHover2;
+    }
+  }
+
+  .room-item {
+    .room-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
     }
   }
 }
