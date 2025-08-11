@@ -1,0 +1,44 @@
+.carousel-item img {
+  height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 1.25rem;
+}
+
+.text-primary {
+  color: #007bff !important;
+}
+
+.modal-content {
+  border-radius: 10px;
+}
+
+.form-control {
+  border-radius: 5px;
+}
+
+.modal-header,
+.modal-footer {
+  border: none;
+}
+
+.lightbox img {
+  cursor: zoom-in;
+}
+
+.modal.fade {
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.modal.show {
+  opacity: 1;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}

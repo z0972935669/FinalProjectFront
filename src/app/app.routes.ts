@@ -18,8 +18,14 @@ import { MemberInfoComponent } from './pages/member/member-info/member-info.comp
 import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
 import { OrdersComponent } from './pages/backend/orders/orders.component';
+import { MemberRoomComponent } from './pages/member/member-room/member-room.component';
+import { RoomListComponent } from './pages/room/room-list/room-list.component';
+import { RoomDetailComponent } from './pages/room/room-detail/room-detail.component';
+import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.component';
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
+
+
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -47,11 +53,15 @@ export const routes: Routes = [
           { path: 'info', component: MemberInfoComponent },
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
+          { path: 'room', component: MemberRoomComponent },
         ],
       },
       { path: 'community', component: BoardListComponent },
       { path: 'community/:boardID/posts', component: PostListComponent },
       { path: 'community/:boardID/posts/:postId', component: PostComponent },
+      { path: 'room-list', component: RoomListComponent },
+      { path: 'room-detail/:id', component: RoomDetailComponent },
+      { path: 'room-swiper', component: RoomSwiperComponent },
     ],
   },
   {
@@ -60,7 +70,7 @@ export const routes: Routes = [
     component: BackendComponent,
     children: [
       // 沒有 backend 的 home，建議改成 orders
-      { path: '', redirectTo: 'orders', pathMatch: 'full'},
+      { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
     ],
   },

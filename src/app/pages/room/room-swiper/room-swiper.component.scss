@@ -1,0 +1,61 @@
+.swiper {
+  width: 100%;
+  padding: 20px 0;
+
+  .swiper-slide {
+    .vesitable-item {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      background: #f5f5f5;
+      border-radius: 8px;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        border: 2px solid #f7eea2;
+      }
+
+      .vesitable-img {
+        img {
+          width: 100%;
+          height: 250px;
+          object-fit: cover;
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+        }
+      }
+
+      .p-4 {
+        text-align: center;
+
+        h5 {
+          font-size: 1.25rem;
+          margin-bottom: 10px;
+        }
+
+        p {
+          font-size: 0.9rem;
+          color: #666;
+          margin-bottom: 10px;
+        }
+
+        .text-primary {
+          color: #81c408;
+        }
+
+        .btn {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: rgba(80, 80, 80, 0.4);
+
+    &:hover {
+      color: #81c408;
+    }
+  }
+}

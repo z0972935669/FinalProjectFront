@@ -1,0 +1,23 @@
+<div class="card">
+  <div class="card-header">
+    <h4>房間資料</h4>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-12">
+        <p><strong>姓名：</strong> {{ Member.fName }}</p>
+        <p><strong>身分證：</strong> {{ Member.fIdNumber }}</p>
+        <p><strong>房號：</strong> {{ RoomTable.fRoomName }}</p>
+        <p><strong>房名：</strong> {{ RoomTable.fRoomAlias }}</p>
+        <p><strong>房間類型：</strong> {{ RoomTable.fRoomType }}</p>
+        <p><strong>床位編號：</strong> {{ RoomBed.fBedCode }}</p>
+        <p><strong>房間價格：</strong> {{ RoomTable.fRoomPrice }}</p>
+        <p><strong>繳款狀態：</strong>
+          <span [ngClass]="RoomOccupancy.fBillingStatus === 1 ? 'text-success' : 'text-danger'">
+            {{ RoomOccupancy.fBillingStatus === 1 ? '已繳費，本月無須繳費' : '請盡速繳費' }}
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

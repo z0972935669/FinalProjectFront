@@ -1,0 +1,65 @@
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+  <h1 class="text-center text-white display-6">入住</h1>
+  <ol class="breadcrumb justify-content-center mb-0">
+    <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
+    <li class="breadcrumb-item active text-white">預約參訪&入住</li>
+  </ol>
+</div>
+<!-- Single Page Header End -->
+<div class="container py-5">
+  <!-- 介紹區塊 -->
+  <div class="text-center mb-5">
+    <h1 class="text-primary">體驗溫馨與專業的安養生活</h1>
+    <p class="lead text-secondary">
+      歡迎入住我們的安養院！這裡不僅是居住空間，更是充滿關懷與活力的家。從舒適的單人房到寬敞的多人套房，每間房間都精心設計，搭配專業照護服務，讓您或您的家人享受安心、尊貴的生活體驗。
+    </p>
+  </div>
+
+  <!-- 房型列表 -->
+  <div class="row g-4">
+    <div class="col-lg-4 col-md-6" *ngFor="let room of rooms">
+      <div class="card h-100 shadow-sm">
+        <img [src]="room.image" class="card-img-top" alt="{{ room.fRoomAlias }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ room.fRoomAlias }}</h5>
+          <p class="card-text">{{ room.fRoomDescription }}</p>
+          <a [routerLink]="['/show/room-detail', room.fRoomId]" class="btn btn-primary ">查看詳情</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 預約參訪表單 -->
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">歡迎預約參訪！</h2>
+    <form #reservationForm="ngForm" (ngSubmit)="onSubmit(reservationForm.value)" class="row g-3 justify-content-center">
+      <div class="col-12">
+        <div class="form-group">
+          <input type="text" class="form-control form-control-narrow" placeholder="姓名" name="fName"
+            [(ngModel)]="RoomVisitReservation.fName" required>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-group">
+          <input type="email" class="form-control form-control-narrow" placeholder="電子郵件" name="fEmail"
+            [(ngModel)]="RoomVisitReservation.fEmail" required>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-group">
+          <input type="text" class="form-control form-control-narrow" placeholder="電話號碼或LINE ID" name="fPhoneOrLineId"
+            [(ngModel)]="RoomVisitReservation.fPhoneOrLineId" required>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-group">
+          <input type="date" class="form-control form-control-narrow" name="fReservationDate"
+            [(ngModel)]="RoomVisitReservation.fReservationDate" required [min]="minDate">
+        </div>
+      </div>
+      <div class="col-12 text-center">
+        <button type="submit" class="btn btn-primary">馬上預約</button>
+      </div>
+    </form>
+  </div>
+</div>
