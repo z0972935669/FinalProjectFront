@@ -1,0 +1,89 @@
+/* 麵包屑：極簡＋柔和底 */
+.breadcrumb-wrap {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.03);
+}
+.breadcrumb a { color: #0ea5e9; text-decoration: none; }
+.breadcrumb a:hover { color: #0284c7; text-decoration: underline; }
+.breadcrumb .active { color: #475569; }
+
+/* 大圖 */
+.detail-cover { aspect-ratio: 16/9; object-fit: cover; border-radius: 12px; }
+@media (max-width: 992px) { .detail-cover { aspect-ratio: 4/3; } }
+
+/* 標籤與重點資訊 */
+.info-highlight { font-size: 1.15rem; font-weight: 600; color: #0f172a; }
+.info-highlight div { line-height: 1.6; }
+.chip {
+  padding: 4px 10px; border-radius: 999px;
+  background: #eef6ff; border: 1px solid #cfe3ff;
+  font-size: .875rem; color: #0f172a;
+}
+/* 活動說明文字 star*/
+/* 內容本體：維持易讀深灰 */
+.activity-desc {
+  color: #374151;
+  line-height: 1.9;
+  font-size: 1rem;
+}
+.activity-desc p { margin: 0 0 1rem; }
+.activity-desc ul, .activity-desc ol { margin: 0 0 1rem 1.25rem; }
+.activity-desc p:last-child { margin-bottom: 0; }
+
+/* 標題：活潑咖啡色＋淡淡底線感 */
+:host ::ng-deep .activity-desc h5 {
+  font-weight: 800;
+  margin: 1rem 0 .5rem;
+  color: #b56e3a; /* 咖啡橘 */
+  /* 底線感的軟底色 */
+  background-image: linear-gradient(to bottom, transparent 70%, rgba(181,110,58,.18) 0);
+  display: inline;
+  padding: 0 .2rem;
+}
+
+/* 重點詞（亮綠）與次重點（深咖啡） */
+:host ::ng-deep .activity-desc .hl {
+  color: #16a34a;  /* 亮綠（活潑） */
+  font-weight: 800;
+}
+:host ::ng-deep .activity-desc .em {
+  color: #8b5e3c;  /* 深咖啡（穩重） */
+  font-weight: 600;
+}
+
+/* 列表符號也上色，讓版面更有層次 */
+:host ::ng-deep .activity-desc ul li::marker { color: #16a34a; }   /* 無序列表：綠 */
+:host ::ng-deep .activity-desc ol li::marker { color: #b56e3a; font-weight: 700; } /* 有序列表：咖啡 */
+
+/* 活動說明文字 end*/
+
+.btn-cta {
+  background: #ff9900;
+  border: 2px solid #ff9900;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 24px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.06);
+  transition: transform .15s ease, box-shadow .15s ease,
+              background-color .15s ease, border-color .15s ease;
+}
+.btn-cta:hover {
+  background: #e68900;
+  border-color: #e68900;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(230,137,0,.35);
+}
+.btn-cta:active {
+  background: #cc7a00;
+  border-color: #cc7a00;
+  transform: none;
+}
+.btn-cta:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(255,153,0,.25);
+}
