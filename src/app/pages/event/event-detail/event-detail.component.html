@@ -1,0 +1,87 @@
+<!-- Simple Breadcrumb Header -->
+<div class="container mt-4">
+  <nav aria-label="breadcrumb" class="breadcrumb-wrap">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
+      <li class="breadcrumb-item"><a routerLink="/show/event">活動000</a></li>
+      <li class="breadcrumb-item active" aria-current="page">銀髮太極體驗課</li>
+    </ol>
+  </nav>
+</div>
+
+<!-- Event Detail -->
+<div class="container py-4">
+  <div class="row g-4 align-items-start">
+    <!-- 左：大圖 + 活動說明 -->
+    <div class="col-lg-7">
+      <div
+        class="detail-hero position-relative rounded overflow-hidden shadow-sm"
+      >
+        <img
+          [src]="event.imageUrl"
+          class="w-100 d-block detail-cover"
+          [alt]="event.title"
+        />
+      </div>
+
+      <!-- 活動說明（移到大圖下方） -->
+      <section class="card mt-4 border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-bold mb-2">活動說明</h5>
+          <div class="activity-desc" [innerHTML]="event.descriptionHtml"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 右：資訊 -->
+    <div class="col-lg-5">
+      <div class="small text-muted mb-2">
+        課程狀態：
+        <span
+          class="badge"
+          [ngClass]="{
+            'bg-success': event.states === '招生中',
+            'bg-warning text-dark': event.states === '即將額滿',
+            'bg-secondary': event.states === '已額滿'
+          }"
+          >{{ event.states }}</span
+        >
+      </div>
+
+      <h3 class="fw-bold mb-2">{{ event.title }}</h3>
+      <p class="text-secondary mb-3">{{ event.subtitle }}</p>
+
+      <div class="mb-3 info-highlight">
+        <div class="mb-1">📅 時間：{{ event.date }}</div>
+        <div>📍 地點：{{ event.location }}</div>
+        <div class="mb-1">👤 聯絡人：{{ event.contactPersonID }}</div>
+        <div>📞 聯絡電話：{{ event.contactPhone }}</div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-3 mb-4 small text-muted">
+        <span>⏱ {{ event.duration }}</span>
+        <span>👥 {{ event.attendees }} 位</span>
+        <span>🏢 {{ event.organizer }}</span>
+      </div>
+
+      <div class="fs-2 fw-bold text-primary mb-4">{{ event.priceText }}</div>
+      <div class="mb-4">
+        <button
+          type="button"
+          class="btn btn-cta"
+          [routerLink]="['/show/event', event.id, 'register']"
+        >
+          立即報名
+        </button>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <span class="chip">太極</span>
+        <span class="chip">運動</span>
+        <span class="chip">入門</span>
+        <span class="chip">舒展</span>
+      </div>
+    </div>
+    <!-- 右：資訊 end -->
+  </div>
+</div>

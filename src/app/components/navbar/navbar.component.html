@@ -1,18 +1,27 @@
 <div class="nav-bg">
   <div class="container px-0">
     <nav class="navbar navbar-light navbar-expand-xl">
-      <a routerLink="/show/" routerLinkActive="active" class="navbar-brand pb-0">
+      <a
+        routerLink="/show/"
+        routerLinkActive="active"
+        class="navbar-brand pb-0"
+      >
         <h1 class="logo">
           <img src="assets/img/logo/logo.png" alt="" />
         </h1>
       </a>
-      <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+      <button
+        class="navbar-toggler py-2 px-3"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarCollapse"
+      >
         <span class="fa fa-bars text-primary"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <div class="navbar-nav mx-auto">
           <a routerLink="/show/room-list" class="nav-item nav-link">入住</a>
-          <a routerLink="" class="nav-item nav-link">活動</a>
+          <a routerLink="/show/event" class="nav-item nav-link">活動</a>
           <a routerLink="/show/community" class="nav-item nav-link">社群</a>
           <a routerLink="/show/shop" class="nav-item nav-link">商店</a>
 
@@ -35,18 +44,30 @@
               <i class="fa fa-shopping-bag"></i>
               <span
                 class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
-                style="top: -15px; left: 23px; height: 20px; min-width: 20px">3</span>
+                style="top: -15px; left: 23px; height: 20px; min-width: 20px"
+                >3</span
+              >
             </a>
           </div>
           <!-- 會員 -->
           <div class="nav-item dropdown">
-            <a href="#" class="my-auto dropdown-toggle" data-bs-toggle="dropdown">
+            <a
+              href="#"
+              class="my-auto dropdown-toggle"
+              data-bs-toggle="dropdown"
+            >
               <i class="fas fa-user"></i>
             </a>
 
-            <div class="dropdown-menu m-0 bg-secondary rounded-0 position-absolute">
-              <a href="/erp/orders" target="_blank" class="dropdown-item">ERP</a>
-              <a routerLink="/show/member-management" class="dropdown-item">會員管理中心</a>
+            <div
+              class="dropdown-menu m-0 bg-secondary rounded-0 position-absolute"
+            >
+              <a href="/erp/orders" target="_blank" class="dropdown-item"
+                >ERP</a
+              >
+              <a routerLink="/show/member-management" class="dropdown-item"
+                >會員管理中心</a
+              >
               <!-- <a routerLink="/show/member" class="dropdown-item">會員管理中心</a> -->
               <a routerLink="/show/logout" class="dropdown-item">登出</a>
               <!-- <div class="dropdown-divider"></div> -->
