@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 // 前台
 import { FrontendComponent } from './layout/frontend/frontend.component';
@@ -24,8 +25,7 @@ import { RoomDetailComponent } from './pages/room/room-detail/room-detail.compon
 import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.component';
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
-
-
+import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component'
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -72,6 +72,7 @@ export const routes: Routes = [
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
+      { path: 'supplieslist', component: SupplieslistComponent }
     ],
   },
   // 其它未知路徑都導回前台（可選）
