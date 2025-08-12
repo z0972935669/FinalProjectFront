@@ -1,52 +1,132 @@
-.post-card {
-  background-color: #f9f7f1; // 柔和米白色底
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  color: #4a4a4a;
+.replies {
+  margin-top: 1rem;
+  padding-left: 1rem;
+  border-left: 3px solid #d6cfc0; /* 米灰暖色邊框 */
 
-  .post-title {
-    color: #5a5a5a;
-  }
+  .reply-item {
+    background-color: #f6f2e9; /* 柔和米色底 */
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 1px 5px rgba(150, 135, 100, 0.15); /* 柔和陰影 */
 
-  .post-meta {
-    font-size: 0.9rem;
-    color: #7a7a7a;
-  }
-
-  .post-content {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #4a4a4a;
-  }
-
-  .post-actions button {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-
-  .comment-section {
-    h2 {
-      color: #6a6a6a;
-    }
-
-    .comment-input textarea {
-      background-color: #fffef8;
-      border: 1px solid #ccc6b9;
-      border-radius: 0.5rem;
-      resize: vertical;
-    }
-
-    .comment-item {
-      background-color: #fffef8;
-      border: 1px solid #ccc6b9;
-      box-shadow: 0 2px 6px rgba(204, 198, 185, 0.3);
-      color: #444;
-    }
-
-    .comment-actions button {
+    .floor-tag {
+      font-weight: 700;
+      color: #8c7b58; /* 暖棕色文字 */
+      background-color: #e2dbc5; /* 柔和米黃背景 */
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.4rem;
       font-size: 0.85rem;
-      gap: 0.2rem;
+      margin-right: 0.4rem;
+      user-select: none;
     }
+
+    .reply-content {
+      margin-top: 0.3rem;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      color: #4a4535; /* 暖灰棕文字 */
+      white-space: pre-wrap;
+    }
+
+    &.sub-reply {
+      background-color: #ede8d8; /* 更淡米色 */
+      margin-left: 1.5rem;
+      border-left: 3px solid #cfc4a7; /* 淡棕色邊框 */
+      box-shadow: 0 1px 6px rgba(140, 120, 80, 0.2);
+
+      .floor-tag {
+        background-color: #cfc4a7;
+        color: #6e633f;
+      }
+    }
+  }
+}
+
+/* textarea 輸入框樣式 */
+textarea.form-control {
+  background-color: #fcfaf2; /* 柔和奶油米白 */
+  border: 1.2px solid #d1c9b1; /* 柔和暖灰邊框 */
+  border-radius: 0.5rem;
+  resize: vertical;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  color: #514a3f;
+
+  &:focus {
+    outline: none;
+    border-color: #b19f6a; /* 暖金色聚焦邊框 */
+    box-shadow: 0 0 8px #d9d1a8; /* 暖光暈 */
+    background-color: #fffdf6;
+  }
+}
+
+/* 送出留言按鈕 */
+button.btn-primary {
+  background-color: #a99870; /* 暖棕金色 */
+  border-color: #a99870;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  color: #f7f5e8;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+
+  &:hover {
+    background-color: #7e6c48; /* 深暖棕 */
+    border-color: #7e6c48;
+    color: #f9f8f1;
+  }
+}
+
+/* 上一頁按鈕 */
+.btn-back {
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  color: #556b2f;
+  border-color: #a3b66f;
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    background-color: #a3b66f;
+    color: #fff;
+    border-color: #798934;
+  }
+}
+
+/* 麵包屑 */
+.breadcrumb-container {
+  padding: 0;
+}
+
+/* 麵包屑樣式 */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    padding: 0 0.5rem;
+    color: #888;
+  }
+
+  .breadcrumb-item a {
+    color: #556b2f;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .breadcrumb-item.active {
+    color: #a3b66f;
+    font-weight: 600;
   }
 }

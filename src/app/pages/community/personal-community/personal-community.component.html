@@ -1,0 +1,35 @@
+<div class="personal-community-wrapper">
+  <section class="profile-card">
+    <div class="profile-info">
+      <img class="avatar" [src]="userProfile.profilePictureUrl" alt="頭像" />
+      <div class="name-bio">
+        <h1>{{ userProfile.displayName }}</h1>
+        <p class="bio">{{ userProfile.profileBio }}</p>
+      </div>
+    </div>
+
+    <div class="follow-info">
+      <div class="followers-count">
+        <span>{{ userProfile.followers }}</span>
+        <span>追蹤者</span>
+      </div>
+      <button (click)="toggleFollow()" class="btn-follow">
+        {{ userProfile.isFollowing ? "取消追蹤" : "追蹤" }}
+      </button>
+    </div>
+  </section>
+
+  <section class="posts-section">
+    <h2>我的貼文</h2>
+    <div
+      *ngFor="let post of userPosts"
+      class="post-item"
+      tabindex="0"
+      role="button"
+    >
+      <h3>{{ post.title }}</h3>
+      <p class="post-excerpt">{{ post.content }}</p>
+      <time>{{ post.createdAt | date : "yyyy/MM/dd" }}</time>
+    </div>
+  </section>
+</div>
