@@ -24,7 +24,19 @@ import { OrdersComponent } from './pages/backend/orders/orders.component';
 import { MemberEventComponent } from './pages/member/member-event/member-event.component';
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
-import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component'
+// 物料管理
+import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component';
+import { SuppliespurchasinglistComponent } from './pages/backend/suppliespurchasinglist/suppliespurchasinglist.component';
+import { SuppliessaleslistComponent } from './pages/backend/suppliessaleslist/suppliessaleslist.component';
+import { TransferlistComponent } from './pages/backend/transferlist/transferlist.component';
+import { SuppliessupplierlistComponent } from './pages/backend/suppliessupplierlist/suppliessupplierlist.component';
+// 設備
+import { EquipmentlistComponent } from './pages/backend/equipmentlist/equipmentlist.component';
+import { EquipmentpurchasinglistComponent } from './pages/backend/equipmentpurchasinglist/equipmentpurchasinglist.component';
+import { EquipmentrentlistComponent } from './pages/backend/equipmentrentlist/equipmentrentlist.component';
+import { EquipmentmaintenancelistComponent } from './pages/backend/equipmentmaintenancelist/equipmentmaintenancelist.component';
+import { EquipmentsupplierlistComponent } from './pages/backend/equipmentsupplierlist/equipmentsupplierlist.component';
+// 物料管理
 import { EventListComponent } from './pages/event/event-list/event-list.component';
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
 import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
@@ -36,6 +48,8 @@ import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.compon
 import { EmployeelistComponent } from './pages/backend/employeelist/employeelist.component';
 import { EmployeelistdetailComponent } from './pages/backend/employeelistdetail/employeelistdetail.component';
 import { EmployeelisteditComponent } from './pages/backend/employeelistedit/employeelistedit.component';
+
+
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -89,10 +103,24 @@ export const routes: Routes = [
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
-      { path: 'supplieslist', component: SupplieslistComponent },
+      // 物料管理
+      { path: 'supplieslist', component: SupplieslistComponent, title: '物品列表' },
+      { path: 'suppliespurchasinglist', component: SuppliespurchasinglistComponent, title: '進貨單' },
+      { path: 'suppliessaleslist', component: SuppliessaleslistComponent, title: '銷貨單' },
+      { path: 'transferlist', component: TransferlistComponent, title: '轉倉單' },
+      { path: 'suppliessupplierlist', component: SuppliessupplierlistComponent, title: '供應商列表' },
+      //設備
+      { path: 'equipmentlist', component: EquipmentlistComponent, title: '設備列表' },
+      { path: 'equipmentpurchasinglist', component: EquipmentpurchasinglistComponent, title: '購置單' },
+      { path: 'equipmentrentlist', component: EquipmentrentlistComponent, title: '借出單' },
+      { path: 'equipmentmaintenancelist', component: EquipmentmaintenancelistComponent, title: '檢修單' },
+      { path: 'equipmentsupplierlist', component: EquipmentsupplierlistComponent, title: '供應商列表' },
+      // 物料管理
+      // 員工管理
       { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
       { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
       { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
+      // 員工管理
 
       // 其他後台頁面可以在這裡添加
     ],
