@@ -18,11 +18,13 @@ import { MemberInfoComponent } from './pages/member/member-info/member-info.comp
 import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
 import { OrdersComponent } from './pages/backend/orders/orders.component';
+import { MemberEventComponent } from './pages/member/member-event/member-event.component';
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
 import { EventListComponent } from './pages/event/event-list/event-list.component';
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
 import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
+
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -50,6 +52,7 @@ export const routes: Routes = [
           { path: 'info', component: MemberInfoComponent },
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
+          { path: 'event', component: MemberEventComponent },
         ],
       },
       { path: 'community', component: BoardListComponent },
