@@ -26,6 +26,10 @@ import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist
 import { EventListComponent } from './pages/event/event-list/event-list.component';
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
 import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
+import { MemberRoomComponent } from './pages/member/member-room/member-room.component';
+import { RoomListComponent } from './pages/room/room-list/room-list.component';
+import { RoomDetailComponent } from './pages/room/room-detail/room-detail.component';
+import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.component';
 
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
@@ -55,6 +59,7 @@ export const routes: Routes = [
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
           { path: 'event', component: MemberEventComponent },
+          { path: 'room', component: MemberRoomComponent },
         ],
       },
       { path: 'community', component: BoardListComponent },
@@ -64,6 +69,9 @@ export const routes: Routes = [
       { path: 'event', component: EventListComponent },
       { path: 'event/:slug', component: EventDetailComponent },
       { path: 'event/:slug/register', component: EventRegistrationComponent },
+      { path: 'room-list', component: RoomListComponent },
+      { path: 'room-detail/:id', component: RoomDetailComponent },
+      { path: 'room-swiper', component: RoomSwiperComponent },
     ],
   },
   {
