@@ -71,6 +71,6 @@ export class BoardListComponent {
   constructor(private router: Router) {}
 
   goToBoardPosts(boardID: string) {
-    this.router.navigate(['/show/community', boardID, 'posts']);
+    this.router.navigate(['show/community', boardID, 'posts']);
   }
 }

@@ -10,6 +10,8 @@ import { CheckoutsuccessfulComponent } from './pages/cart/checkoutsuccessful/che
 import { BoardListComponent } from './pages//community/board-list/board-list.component';
 import { PostListComponent } from './pages/community/post-list/post-list.component';
 import { PostComponent } from './pages/community/post/post.component';
+import { PersonalCommunityComponent } from './pages/community/personal-community/personal-community.component';
+import { CreatePostComponent } from './pages/community/create-post/create-post.component';
 
 import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
@@ -47,10 +49,12 @@ export const routes: Routes = [
           { path: 'info', component: MemberInfoComponent },
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
+          { path: 'comments', component: PersonalCommunityComponent },
         ],
       },
       { path: 'community', component: BoardListComponent },
       { path: 'community/:boardID/posts', component: PostListComponent },
+      { path: 'community/:boardID/create', component: CreatePostComponent },
       { path: 'community/:boardID/posts/:postId', component: PostComponent },
     ],
   },
@@ -60,11 +64,11 @@ export const routes: Routes = [
     component: BackendComponent,
     children: [
       // 沒有 backend 的 home，建議改成 orders
-      { path: '', redirectTo: 'orders', pathMatch: 'full'},
+      { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
     ],
   },
   // 其它未知路徑都導回前台（可選）
   // **: 萬用路由 => 沒有上面的路徑全都導回show
-  { path: '**', redirectTo: 'show' }
+  { path: '**', redirectTo: 'show' },
 ];

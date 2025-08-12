@@ -1,7 +1,30 @@
 <div class="container my-5">
+
+  <div class="nav-header d-flex justify-content-between align-items-center mb-3">
+    <!-- 麵包屑導航 -->
+    <nav aria-label="breadcrumb" class="breadcrumb-container m-0 p-0">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
+        <li class="breadcrumb-item"><a routerLink="/show/community">社群看板</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ boardName }} 
+        </li>
+      </ol>
+    </nav>
+
+    <!-- 上一頁按鈕 -->
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-back"
+      (click)="goBack()"
+    >
+      ← 上一頁
+    </button>
+  </div>
+
   <h2 class="text-center mb-4">{{ boardName }} 的文章列表</h2>
 
-  <!-- 🔍 查詢與新增按鈕 -->
+  <!-- 查詢與新增按鈕 -->
   <div
     class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-2"
   >
@@ -23,7 +46,7 @@
     </button>
   </div>
 
-  <!-- 📃 文章列表卡片 -->
+  <!-- 文章列表卡片 -->
   <div class="card post-list-card shadow-sm">
     <div *ngIf="filteredPosts.length > 0; else noPosts" class="p-3">
       <div class="list-group">
