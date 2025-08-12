@@ -1,0 +1,220 @@
+<div class="app-wrapper">
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+
+      <h1 class="badge bg-danger mb-3" style="font-size: xx-large;">編輯員工資料</h1>
+
+      <div class="row gy-4">
+        <!-- 左邊：基本資料（單一卡片） -->
+        <div class="col-12 col-lg-6">
+          <div class="app-card app-card-account shadow-lg">
+            <div class="app-card-header p-3 border-bottom-0">
+              <div class="d-flex align-items-center gap-3">
+                <div class="app-icon-holder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-person" viewBox="0 0 16 16">
+                    <path
+                      d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                  </svg>
+                </div>
+                <h4 class="app-card-title mb-0">基本資料</h4>
+              </div>
+            </div>
+
+            <div class="app-card-body px-4">
+              <div class="edit-row">
+                <div class="edit-label">大頭照</div>
+                <div class="edit-field">
+                  <input type="file" class="form-control form-control-sm"
+                    value="assets/backend/images/users/user-1.jpg">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">姓名</div>
+                <div class="edit-field">
+                  <input type="text" class="form-control form-control-sm" value="余俊良">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">身分證字號</div>
+                <div class="edit-field">
+                  <input type="text" class="form-control form-control-sm" value="Y149717287">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">生日</div>
+                <div class="edit-field">
+                  <input type="date" class="form-control form-control-sm" value="2004-02-15">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">電話</div>
+                <div class="edit-field">
+                  <input type="text" class="form-control form-control-sm" value="0943793414">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">電子郵件</div>
+                <div class="edit-field">
+                  <input type="email" class="form-control form-control-sm" value="grace0930@gmail.com">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">最高學歷</div>
+                <div class="edit-field">
+                  <input type="text" class="form-control form-control-sm" value="碩士">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">戶籍地址</div>
+                <div class="edit-field">
+                  <input type="text" class="form-control form-control-sm" value="台北市信義區光復路37號4樓">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">現居地址</div>
+                <div class="edit-field">
+                  <input type="text" class="form-control form-control-sm" value="台北市信義區光復路37號4樓">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">身高</div>
+                <div class="edit-field">
+                  <input type="number" class="form-control form-control-sm" value="166">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">體重</div>
+                <div class="edit-field">
+                  <input type="number" class="form-control form-control-sm" value="40">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">薪轉帳戶</div>
+                <div class="edit-field">
+                  <input type="text" class="form-control form-control-sm" value="65915377937766">
+                </div>
+              </div>
+            </div>
+
+            <div class="app-card-footer p-4">
+              <button class="btn app-btn-secondary me-5" style="font-size: large;font-weight: bolder;"
+                routerLink="/erp/employeelistdetail" routerLinkActive="active">儲存資料</button>
+              <button class="btn app-btn-secondary" style="font-size: large;font-weight: bolder;"
+                routerLink="/erp/employeelistdetail" routerLinkActive="active">回到詳細資料</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右邊：職務資訊 + 緊急連絡人資訊（兩張卡片堆疊，等寬） -->
+        <div class="col-12 col-lg-6 right-stack">
+
+          <div class="app-card app-card-account shadow-lg">
+            <div class="app-card-header p-3 border-bottom-0">
+              <div class="d-flex align-items-center gap-3">
+                <div class="app-icon-holder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-briefcase" viewBox="0 0 16 16">
+                    <path
+                      d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5" />
+                  </svg>
+                </div>
+                <h4 class="app-card-title mb-0">職務資訊</h4>
+              </div>
+            </div>
+
+            <div class="app-card-body px-4">
+              <div class="edit-row">
+                <div class="edit-label">員工編號</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="1"></div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">在職狀態</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="在職"></div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">部門名稱</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="照護部門"></div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">職位名稱</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="照護部長"></div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">到職日期</div>
+                <div class="edit-field"><input type="date" class="form-control form-control-sm" value="2024-07-31">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">是否具有良民證</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="是"></div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">是否為主管職</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="是"></div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">是否為系統管理員</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="否"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-card app-card-account shadow-lg">
+            <div class="app-card-header p-3 border-bottom-0">
+              <div class="d-flex align-items-center gap-3">
+                <div class="app-icon-holder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house"
+                    viewBox="0 0 16 16">
+                    <path
+                      d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
+                  </svg>
+                </div>
+                <h4 class="app-card-title mb-0">緊急連絡人資訊</h4>
+              </div>
+            </div>
+
+            <div class="app-card-body px-4">
+              <div class="edit-row">
+                <div class="edit-label">姓名</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="余雅文"></div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">電話</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="0918376022">
+                </div>
+              </div>
+
+              <div class="edit-row">
+                <div class="edit-label">關係</div>
+                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="子女"></div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /右側 -->
+
+      </div><!-- /row -->
+
+    </div>
+  </div>
+</div>

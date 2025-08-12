@@ -31,6 +31,9 @@ import { RoomListComponent } from './pages/room/room-list/room-list.component';
 import { RoomDetailComponent } from './pages/room/room-detail/room-detail.component';
 import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.component';
 
+import { EmployeelistComponent } from './pages/backend/employeelist/employeelist.component';
+import { EmployeelistdetailComponent } from './pages/backend/employeelistdetail/employeelistdetail.component';
+import { EmployeelisteditComponent } from './pages/backend/employeelistedit/employeelistedit.component';
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -82,7 +85,12 @@ export const routes: Routes = [
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
-      { path: 'supplieslist', component: SupplieslistComponent }
+      { path: 'supplieslist', component: SupplieslistComponent },
+      { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
+      { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
+      { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
+
+      // 其他後台頁面可以在這裡添加
     ],
   },
   // 其它未知路徑都導回前台（可選）
