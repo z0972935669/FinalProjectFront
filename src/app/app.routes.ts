@@ -11,6 +11,8 @@ import { CheckoutsuccessfulComponent } from './pages/cart/checkoutsuccessful/che
 import { BoardListComponent } from './pages//community/board-list/board-list.component';
 import { PostListComponent } from './pages/community/post-list/post-list.component';
 import { PostComponent } from './pages/community/post/post.component';
+import { PersonalCommunityComponent } from './pages/community/personal-community/personal-community.component';
+import { CreatePostComponent } from './pages/community/create-post/create-post.component';
 
 import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
@@ -26,7 +28,14 @@ import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist
 import { EventListComponent } from './pages/event/event-list/event-list.component';
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
 import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
+import { MemberRoomComponent } from './pages/member/member-room/member-room.component';
+import { RoomListComponent } from './pages/room/room-list/room-list.component';
+import { RoomDetailComponent } from './pages/room/room-detail/room-detail.component';
+import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.component';
 
+import { EmployeelistComponent } from './pages/backend/employeelist/employeelist.component';
+import { EmployeelistdetailComponent } from './pages/backend/employeelistdetail/employeelistdetail.component';
+import { EmployeelisteditComponent } from './pages/backend/employeelistedit/employeelistedit.component';
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -55,15 +64,21 @@ export const routes: Routes = [
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
           { path: 'event', component: MemberEventComponent },
+          { path: 'room', component: MemberRoomComponent },
+          { path: 'comments', component: PersonalCommunityComponent },
         ],
       },
       { path: 'community', component: BoardListComponent },
       { path: 'community/:boardID/posts', component: PostListComponent },
+      { path: 'community/:boardID/create', component: CreatePostComponent },
       { path: 'community/:boardID/posts/:postId', component: PostComponent },
 
       { path: 'event', component: EventListComponent },
       { path: 'event/:slug', component: EventDetailComponent },
       { path: 'event/:slug/register', component: EventRegistrationComponent },
+      { path: 'room-list', component: RoomListComponent },
+      { path: 'room-detail/:id', component: RoomDetailComponent },
+      { path: 'room-swiper', component: RoomSwiperComponent },
     ],
   },
   {
@@ -74,7 +89,12 @@ export const routes: Routes = [
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
-      { path: 'supplieslist', component: SupplieslistComponent }
+      { path: 'supplieslist', component: SupplieslistComponent },
+      { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
+      { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
+      { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
+
+      // 其他後台頁面可以在這裡添加
     ],
   },
   // 其它未知路徑都導回前台（可選）

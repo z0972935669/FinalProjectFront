@@ -1,0 +1,91 @@
+<div class="container my-5">
+
+  <h2 class="mb-4 text-center">新增文章</h2>
+
+  <form (ngSubmit)="submitPost()" enctype="multipart/form-data">
+    <!-- 標題 -->
+    <div class="mb-4">
+      <label for="titleInput" class="form-label fw-semibold">標題</label>
+      <input
+        id="titleInput"
+        type="text"
+        class="form-control"
+        [(ngModel)]="title"
+        name="title"
+        placeholder="請輸入文章標題"
+        required
+      />
+    </div>
+
+    <!-- 內容 -->
+    <div class="mb-4">
+      <label for="contentInput" class="form-label fw-semibold">內容</label>
+      <textarea
+        id="contentInput"
+        class="form-control"
+        rows="8"
+        [(ngModel)]="content"
+        name="content"
+        placeholder="請輸入文章內容"
+        required
+      ></textarea>
+    </div>
+
+    <!-- 附件上傳 -->
+    <div class="mb-4">
+      <label for="attachments" class="form-label fw-semibold">附件上傳</label>
+      <input
+        id="attachments"
+        type="file"
+        class="form-control"
+        (change)="onFileSelected($event)"
+        multiple
+      />
+      <div class="form-text">可選擇多個檔案，格式不限。</div>
+
+      <!-- 預覽列表 -->
+      <div
+        class="preview-container mt-2"
+        *ngIf="previewFiles.length > 0"
+        tabindex="0"
+        role="list"
+        aria-label="附件預覽列表"
+      >
+        <div
+          class="preview-item"
+          *ngFor="let file of previewFiles; let i = index"
+        >
+          <img
+            *ngIf="file.isImage"
+            [src]="file.url"
+            alt="預覽"
+            class="preview-image"
+          />
+          <div class="file-name" [title]="file.name">{{ file.name }}</div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger btn-remove"
+            (click)="removeFile(i)"
+            aria-label="刪除檔案"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 按鈕 -->
+    <div class="d-flex justify-content-end gap-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary rounded-pill px-4"
+        (click)="goBackToBoard()"
+      >
+        取消
+      </button>
+      <button type="submit" class="btn btn-success rounded-pill px-4">
+        發佈文章
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,6 +1,29 @@
 <div class="container my-5">
-  <div class="card post-card shadow-sm p-4">
-    <!-- 文章 -->
+
+  <div class="nav-header d-flex justify-content-between align-items-center mb-3">
+    <!-- 麵包屑導航 -->
+    <nav aria-label="breadcrumb" class="breadcrumb-container m-0 p-0">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
+        <li class="breadcrumb-item"><a routerLink="/show/community">社群看板</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ boardName }} 
+        </li>
+      </ol>
+    </nav>
+
+    <!-- 上一頁按鈕 -->
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-back"
+      (click)="goBack()"
+    >
+      ← 上一頁
+    </button>
+  </div>
+  
+  <div class="card post-card shadow-sm p-4 mb-4">
+    <!-- 文章資訊 -->
     <div class="post-header mb-3">
       <h1 class="post-title">{{ post.title }}</h1>
       <div class="post-meta text-muted">
@@ -9,9 +32,7 @@
       </div>
     </div>
 
-    <div class="post-content mb-4">
-      {{ post.content }}
-    </div>
+    <div class="post-content mb-4">{{ post.content }}</div>
 
     <div class="post-actions d-flex gap-3 mb-4">
       <button class="btn btn-outline-primary">
@@ -25,77 +46,84 @@
       </button>
     </div>
 
-    <!-- 留言 -->
-    <div class="comment-section">
-      <h2 class="mb-3">留言（{{ comments.length }}）</h2>
+    <!-- 每個樓層一張卡片 -->
+    <div *ngFor="let comment of comments" class="card comment-item mb-4 p-3">
+      <!-- 樓層標籤和主留言 -->
+      <div class="d-flex align-items-center mb-2">
+        <div class="floor-tag badge bg-primary me-3">
+          {{ comment.floorTag }}
+        </div>
+        <img
+          [src]="comment.avatar"
+          alt="avatar"
+          class="rounded-circle"
+          width="40"
+          height="40"
+        />
+        <div class="ms-3">
+          <strong>{{ comment.name }}</strong>
+          <div class="text-muted small">
+            {{ comment.createdAt | date : "yyyy-MM-dd HH:mm" }}
+          </div>
+        </div>
+      </div>
+      <div class="comment-content mb-3">{{ comment.content }}</div>
 
-      <div class="comment-input mb-4">
-        <textarea
-          [(ngModel)]="newComment"
-          placeholder="輸入你的留言..."
-          class="form-control"
-          rows="3"
-        ></textarea>
-        <button class="btn btn-primary mt-2" (click)="submitComment()">
-          送出
+      <!-- 這則主留言的所有回覆 -->
+      <div
+        *ngIf="comment.replies?.length"
+        class="replies ps-4 border-start border-2 border-secondary"
+      >
+        <div
+          *ngFor="let reply of comment.replies"
+          class="reply-item mb-3"
+          [hidden]="!comment.showAllReplies"
+        >
+          <div class="d-flex align-items-center mb-1">
+            <div class="floor-tag badge bg-secondary me-2">
+              {{ reply.floorTag }}
+            </div>
+            <img
+              [src]="reply.avatar"
+              alt="avatar"
+              class="rounded-circle"
+              width="30"
+              height="30"
+            />
+            <div class="ms-2">
+              <strong>{{ reply.name }}</strong>
+              <div class="text-muted small">
+                {{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}
+              </div>
+            </div>
+          </div>
+          <div class="reply-content">{{ reply.content }}</div>
+        </div>
+
+        <button
+          *ngIf="comment.replies && comment.replies.length > 0"
+          class="btn btn-link p-0"
+          (click)="toggleReplies(comment)"
+        >
+          {{
+            comment.showAllReplies
+              ? "收起留言"
+              : "查看其他 " + comment.replies.length + " 則留言"
+          }}
         </button>
       </div>
 
-      <div class="comment-list">
-        <div
-          class="comment-item mb-3 p-3 rounded"
-          *ngFor="let comment of comments"
-        >
-          <div class="d-flex align-items-center mb-2">
-            <img
-              [src]="comment.avatar"
-              alt="avatar"
-              class="rounded-circle"
-              width="40"
-              height="40"
-            />
-            <div class="ms-2">
-              <strong>{{ comment.name }}</strong>
-              <div class="text-muted small">
-                {{ comment.createdAt | date : "yyyy-MM-dd HH:mm" }}
-              </div>
-            </div>
-          </div>
-          <div class="comment-content mb-2">{{ comment.content }}</div>
-          <div class="comment-actions d-flex gap-3">
-            <button class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-hand-thumbs-up"></i> 喜歡 {{ comment.likes }}
-            </button>
-            <button class="btn btn-sm btn-outline-secondary">
-              <i class="bi bi-reply"></i> 回覆
-            </button>
-          </div>
-
-          <!-- 回覆列表 -->
-          <div class="replies ms-5 mt-3" *ngIf="comment.replies?.length">
-            <div
-              class="reply-item mb-2 p-2 rounded bg-light"
-              *ngFor="let reply of comment.replies"
-            >
-              <div class="d-flex align-items-center mb-1">
-                <img
-                  [src]="reply.avatar"
-                  alt="avatar"
-                  class="rounded-circle"
-                  width="30"
-                  height="30"
-                />
-                <div class="ms-2">
-                  <strong>{{ reply.name }}</strong>
-                  <div class="text-muted small">
-                    {{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}
-                  </div>
-                </div>
-              </div>
-              <div class="reply-content">{{ reply.content }}</div>
-            </div>
-          </div>
-        </div>
+      <!-- 新增留言區 -->
+      <div class="mt-4">
+        <textarea
+          class="form-control mb-2"
+          rows="3"
+          [(ngModel)]="newComment"
+          placeholder="寫下你的留言..."
+        ></textarea>
+        <button class="btn btn-primary" (click)="submitComment()">
+          送出留言
+        </button>
       </div>
     </div>
   </div>

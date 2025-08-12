@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 interface Post {
   id: string;
@@ -18,7 +19,7 @@ interface Post {
 @Component({
   selector: 'app-post-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './post-list.component.html',
   styleUrls: ['./post-list.component.scss'],
 })
@@ -151,12 +152,21 @@ export class PostListComponent implements OnInit {
     },
   ];
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private location: Location
+  ) {}
 
   goToPost(postId: string) {
     const boardID = this.route.snapshot.paramMap.get('boardID');
-    this.router.navigate(['/community', boardID, 'posts', postId]);
+    this.router.navigate(['show/community', boardID, 'posts', postId]);
   }
+  // 上一頁按鈕功能
+  goBack(): void {
+    this.location.back();
+  }
+
   ngOnInit() {
     this.boardID = this.route.snapshot.paramMap.get('boardID') || '';
     // 篩選出該看板的文章
@@ -178,7 +188,12 @@ export class PostListComponent implements OnInit {
   }
 
   navigateToCreatePost() {
-    this.router.navigate(['/show/community/create']); // 根據你的 route 修改
+    const boardID = this.route.snapshot.paramMap.get('boardID');
+    if (boardID) {
+      this.router.navigate(['show', 'community', boardID, 'create']);
+    } else {
+      this.router.navigate(['show', 'community', 'create']);
+    }
   }
 
   get boardName(): string {

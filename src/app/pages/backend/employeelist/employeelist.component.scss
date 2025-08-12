@@ -1,0 +1,59 @@
+th.cell,
+td.cell {
+  text-align: center;
+  vertical-align: middle;
+  font-size: large;
+  font-weight: bolder;
+  /* 如果只要表頭粗體，移到 th.cell 就好 */
+}
+
+/* 淡綠底 + 交錯色 + 無任何格線/外框 */
+.table-soft-green {
+  --bs-table-bg: #ffffff;
+  /* 基底淡綠 */
+  --bs-table-striped-bg: #e6f6ea;
+  /* 交錯淡綠 */
+  --bs-table-hover-bg: #cef0d6;
+  /* 滑過淡綠 */
+  // --bs-table-border-color: transparent;
+  // border: none;
+}
+
+// .table-soft-green> :not(caption)>*>* {
+//   border: 0 !important;
+//   /* 關閉 th/td 底線 */
+// }
+
+/* 表頭強化：綠底白字、加粗、加大間距、底部細陰影 */
+.table-head-strong thead {
+  background-color: #198754;
+  /* Bootstrap success 綠 */
+  color: #fff;
+}
+
+.table-head-strong thead th {
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-align: center;
+  /* 想靠左就改 left */
+  padding: .9rem .75rem;
+  /* 增加高度/行距 */
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .08);
+  /* 底部細陰影 */
+}
+
+table {
+  table-layout: fixed;
+  /* 固定欄位寬度 */
+  width: 100%;
+  /* 撐滿整個容器 */
+}
+
+th,
+td,
+tr {
+  text-align: center;
+  /* 水平置中 */
+  vertical-align: middle;
+  /* 垂直置中 */
+}

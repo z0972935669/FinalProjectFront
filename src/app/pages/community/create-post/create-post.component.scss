@@ -1,0 +1,181 @@
+/* 主要容器微調 */
+:host {
+  display: block;
+  padding: 2.5rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fef9f3; /* 柔和米色背景 */
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 20px rgba(150, 120, 90, 0.15); /* 暖色柔和陰影 */
+  font-family: "Noto Sans TC", "微軟正黑體", sans-serif;
+}
+
+/* 標題 */
+h2 {
+  font-weight: 700;
+  color: #7a4f01; /* 暖棕色 */
+  margin-bottom: 2.5rem;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(122, 79, 1, 0.3);
+}
+
+/* 標籤字體與顏色 */
+label.form-label {
+  font-weight: 600;
+  color: #a87c4a; /* 柔和咖啡色 */
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+/* 輸入框和文字區域 */
+input.form-control,
+textarea.form-control {
+  border: 1.8px solid #d1b07f; /* 柔和金色邊框 */
+  border-radius: 1rem;
+  padding: 0.85rem 1.2rem;
+  font-size: 1rem;
+  color: #5b4636; /* 深棕色字 */
+  background-color: #fff8e1; /* 柔和淺米色背景 */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #bc945f; /* 暖橘色聚焦 */
+    box-shadow: 0 0 10px rgba(188, 148, 95, 0.5);
+    background-color: #fffbea;
+  }
+}
+
+/* 按鈕容器 */
+.d-flex {
+  margin-top: 2rem;
+  justify-content: flex-end;
+}
+
+/* 按鈕風格 */
+button.btn {
+  min-width: 130px;
+  padding: 0.6rem 1.8rem;
+  font-weight: 700;
+  border-radius: 3rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(122, 79, 1, 0.2);
+
+  &.btn-success {
+    background-color: #bc945f; /* 暖橘色 */
+    border: none;
+    color: #fff;
+
+    &:hover {
+      background-color: #a77a3c;
+      box-shadow: 0 3px 8px rgba(167, 122, 60, 0.5);
+    }
+  }
+
+  &.btn-outline-secondary {
+    color: #a87c4a;
+    border-color: #a87c4a;
+    background-color: transparent;
+
+    &:hover {
+      background-color: #a87c4a;
+      color: #fff;
+      border-color: #a87c4a;
+      box-shadow: 0 3px 8px rgba(168, 124, 74, 0.5);
+    }
+  }
+}
+
+/* 表單間距 */
+.mb-4 {
+  margin-bottom: 1.7rem !important;
+}
+
+/* 預覽區塊 */
+.preview-container {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  /* 隱藏垂直滾動條，只留水平滾動 */
+  scrollbar-width: thin;
+  scrollbar-color: #aaa transparent;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* 預覽項目 */
+.preview-item {
+  position: relative;
+  flex: 0 0 auto; /* 固定寬度且不縮放 */
+  width: 80px;
+  height: 80px;
+  border: 1px solid #ccc6b9;
+  border-radius: 8px;
+  padding: 0.25rem;
+  background: #f9fbff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #555;
+  user-select: none;
+
+  /* 預覽圖片 */
+  .preview-image {
+    width: 100%;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 0.2rem;
+  }
+
+  /* 檔案名稱 */
+  .file-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* 移除按鈕 */
+  .btn-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    padding: 0;
+    font-weight: bold;
+    line-height: 1;
+    font-size: 1.1rem;
+    border-radius: 50%;
+
+    width: 24px; /* 固定寬度 */
+    height: 24px; /* 固定高度 */
+    min-width: 0 !important; /* 取消全局 min-width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-sizing: border-box;
+
+    &:hover {
+      background-color: #b02a37;
+    }
+  }
+}
