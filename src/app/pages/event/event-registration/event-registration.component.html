@@ -1,0 +1,169 @@
+<div class="container py-4 max-w-3xl">
+  <div class="container py-4 max-w-3xl">
+    <!-- 頁首：置中 + 日期 -->
+    <h3 class="page-title text-center mb-1">活動報名</h3>
+    <!-- 活動資料 -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3">報名活動</h6>
+        <div class="row g-3 align-items-center">
+          <div class="col-md-6">
+            <label class="form-label event-info-label mb-0 me-2"
+              >活動名稱：</label
+            >
+            <span class="event-info-value">{{ event.eventName }}</span>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label event-info-label mb-0 me-2"
+              >活動日期：</label
+            >
+            <span class="event-info-value">{{ event.date }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 使用者資訊 -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="fw-bold mb-2">報名人</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">姓名</label>
+            <input class="form-control" [value]="user?.name" disabled />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">聯絡電話</label>
+            <input class="form-control" [value]="user?.phone" disabled />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <!-- 報名資訊 -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="fw-bold mb-2">報名資訊</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">應繳金額</label>
+              <input
+                class="form-control"
+                formControlName="amountDue"
+                readonly
+              />
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">內部備註（選填）</label>
+              <input class="form-control" formControlName="internalRemarks" />
+            </div>
+          </div>
+          <div class="form-check mt-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="agree"
+              formControlName="agree"
+            />
+            <label class="form-check-label" for="agree"
+              >我已閱讀並同意報名須知</label
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- 繳費方式 -->
+      <div class="card mb-3" formGroupName="payment">
+        <div class="card-body">
+          <h6 class="fw-bold mb-2">付款與發票</h6>
+
+          <div class="mb-3">
+            <label class="form-label d-block">付款方式</label>
+            <div class="btn-group" role="group">
+              <input
+                type="radio"
+                class="btn-check"
+                id="pm-cash"
+                value="CASH"
+                formControlName="paymentMethod"
+              />
+              <label class="btn btn-outline-secondary" for="pm-cash"
+                >現金</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                id="pm-card"
+                value="CARD"
+                formControlName="paymentMethod"
+              />
+              <label class="btn btn-outline-secondary" for="pm-card"
+                >信用卡</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                id="pm-line"
+                value="LINEPAY"
+                formControlName="paymentMethod"
+              />
+              <label class="btn btn-outline-secondary" for="pm-line"
+                >LINE Pay</label
+              >
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">發票形式</label>
+              <select class="form-select" formControlName="invoiceType">
+                <option value="二聯式">二聯式</option>
+                <option value="三聯式">三聯式</option>
+                <option value="電子發票">電子發票</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">發票抬頭（選填）</label>
+              <input class="form-control" formControlName="invoiceTitle" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">統一編號（選填）</label>
+              <input
+                class="form-control"
+                formControlName="taxId"
+                maxlength="10"
+              />
+            </div>
+
+            <div
+              class="col-md-6"
+              *ngIf="form.get('payment.invoiceType')?.value === '電子發票'"
+            >
+              <label class="form-label">電子發票載具（選填）</label>
+              <input
+                class="form-control"
+                formControlName="eInvoiceCarrier"
+                placeholder="/AB12345"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-grid mt-3">
+        <button
+          type="submit"
+          class="btn btn-cta"
+          [disabled]="form.invalid || submitting"
+        >
+          {{ submitting ? "送出中…" : "確定報名" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

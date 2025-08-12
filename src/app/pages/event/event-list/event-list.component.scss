@@ -1,0 +1,296 @@
+/* ===== 咖啡米色主題 ===== */
+
+.head{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:14px 18px;
+  font-size:16px;                    /* 整體字體加大 */
+  background: linear-gradient(135deg,#fbf7f2,#f3ebe2);
+  border:1px solid #e6dfd6;
+  border-radius:16px;
+  box-shadow:0 4px 14px rgba(0,0,0,.06);
+  color:#3e2c21;                      /* 深咖字色 */
+}
+/* 讓分類＋搜尋永遠同一行 */
+.toolbar{
+  margin-top: 20px;  /* 輪播下方留空間，再接工具列 */
+  display: flex;                     /* 關鍵 */
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;                 /* 不換行 */
+  position: relative; z-index: 2; /* 避免被上方覆蓋（有些輪播的定位/陰影會壓住） */
+}
+
+/* 左側分類：吃剩餘寬度，超出時可橫向捲動 */
+.toolbar .left{
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+.toolbar .btn-group{ display: inline-flex; gap: 8px; }
+.toolbar .btn-group .cat-btn{ white-space: nowrap; }
+
+/* 右側搜尋：固定合理寬度，不掉行 */
+.toolbar .yotta-search{
+  flex: 0 0 clamp(260px, 32vw, 420px);
+  white-space: nowrap;
+}
+/* 讓群組內每顆按鈕都保有完整圓角（覆蓋 Bootstrap 預設） */
+.toolbar .btn-group > .btn.cat-btn {
+  border-radius: 14px !important;
+}
+
+/* 取消 .btn-group 的相鄰按鈕負邊距，避免圓角被吃掉 */
+.toolbar .btn-group > .btn.cat-btn + .btn.cat-btn {
+  margin-left: 0 !important;
+}
+
+/* 類別按鈕：圓角卡片＋外框 */
+.btn-group .cat-btn{
+  border:2px solid #dac8b7;           /* 外框更明顯 */
+  background:#f6f1ea;
+  color:#3e2c21;
+  border-radius:14px;
+  padding:10px 18px;
+  font-size:1rem;                     /* 按鈕字體加大 */
+  font-weight:700;
+  letter-spacing:.3px;
+  box-shadow:0 2px 6px rgba(0,0,0,.04);
+  transition:transform .15s ease, box-shadow .15s ease, background .2s ease, border-color .2s ease;
+}
+.btn-group .cat-btn:hover{
+  transform:translateY(-2px);
+  background:#efe5da;
+  border-color:#cbb39b;
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+}
+.btn-group .cat-btn:focus{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(164,124,91,.25); /* 咖啡色聚焦環 */
+}
+.btn-group .cat-btn.active{
+  background:#a47c5b;                 /* 主咖啡色 */
+  border-color:#8b664a;
+  color:#fff;
+  box-shadow:0 6px 14px rgba(164,124,91,.35);
+}
+/* 預留緩衝，避免上移時被卡到 */
+.toolbar .btn-group{ padding-top: 4px; }
+.btn-group .cat-btn:hover{ transform: translateY(-2px); }
+
+/* 膠囊搜尋框（咖啡米色） */
+.yotta-search{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 18px;
+  width:min(620px,80vw);
+  background:#f6efe7;
+  border:2px solid #dac8b7;           /* 外框加粗 */
+  border-radius:999px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.04);
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.yotta-search:focus-within{
+  border-color:#c5aa93;
+  box-shadow:0 0 0 4px rgba(164,124,91,.18);
+}
+.yotta-search input{
+  flex:1; border:none; background:transparent; outline:none;
+  font-size:17px;                      /* 搜尋文字加大 */
+  color:#3e2c21;
+}
+.yotta-search input::placeholder{ color:#8b6f5a; }
+.yotta-search button{
+  border:2px solid #a47c5b;           /* 有外框的主按鈕 */
+  border-radius:999px;
+  padding:8px 18px;
+  font-size:16px; font-weight:800;
+  background:#a47c5b; color:#fff;
+  transition:transform .15s ease, box-shadow .15s ease, background .2s ease, border-color .2s ease;
+  white-space:nowrap;
+}
+.yotta-search button:hover{
+  background:#8b664a; border-color:#8b664a;
+  transform:translateY(-1px);
+  box-shadow:0 6px 14px rgba(139,102,74,.28);
+}
+.yotta-search button:focus{
+  outline:none; box-shadow:0 0 0 4px rgba(164,124,91,.25);
+}
+
+/* RWD：小螢幕直向堆疊 */
+@media (max-width:992px){
+  .toolbar{ flex-direction:column; align-items:stretch; }
+  .btn-group{ display:flex; flex-wrap:wrap; gap:8px; }
+  .yotta-search{ width:100%; }
+}
+
+
+  /* 活動卡片 */
+  .fruite-item {
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid #e5e7eb;
+  }
+
+  .fruite-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  }
+
+  .fruite-item .title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .fruite-item .subtitle {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #4b5563;
+  }
+
+  .fruite-item .price {
+    font-size: 1rem;
+  }
+
+  .fruite-item .Organizer {
+    font-size: 0.9rem;
+    color: #374151;
+  }
+
+  .fruite-item .meta {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #6b7280;
+  }
+  /* 卡片圖片調整 */
+  .fixed-img {
+    height: 200px; /* 依需求可改高度 */
+    overflow: hidden;
+     border: 1px solid var(--bs-secondary);  /* 與 .border-secondary 同色 */
+  border-bottom: 0;                        /* 與下段接起來 */
+  border-radius: 12px 12px 0 0;
+  }
+
+  .fixed-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 自動放大並裁切 */
+  }
+
+  /* 狀態區塊 */
+.content__mark {
+  border-top: 1px solid #ddd;  /* 上方分隔線 */
+  padding-top: 8px;
+  text-align: center;          /* 置中 */
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 10px;
+}
+ /* 狀態區塊 */
+.content__mark .mark__dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #4caf50;   /* 狀態顏色，可改 */
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+  /* 篩選框 */
+  .bg-light.ps-3.py-3 {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+  }
+
+  /* 分頁 */
+  .pagination a {
+    padding: 8px 12px;
+    margin: 0 4px;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .pagination a:hover {
+    background-color: #e0e7ff;
+    border-color: #c7d2fe;
+    color: #1e3a8a;
+  }
+
+  .pagination a.active {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: white;
+  }
+
+  .input-group .form-control {
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 50px 0 0 50px;
+    font-size: 0.95rem;
+    background-color: #f9fafb;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+
+  .input-group .form-control:focus {
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    outline: none;
+  }
+
+  .input-group-text {
+    border: none;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0 50px 50px 0;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .input-group-text:hover {
+    background-color: #1e40af;
+  }
+
+  .input-group-text i {
+    font-size: 1rem;
+  }
+  /* 輪播圖片固定高度 */
+  .carousel-item img {
+    height: 400px; /* 你想要的高度 */
+    object-fit: cover; /* 保持比例並裁切多餘部分 */
+  }
+
+  /* 固定兩行高度 + 多行省略 */
+  .subtitle-2lines {
+    line-height: 1.5; /* 每行行高 */
+    max-height: 3em; /* 2 行 x 1.5 = 3em → 剛好兩行高度 */
+    min-height: 3em; /* 內容不足也保留兩行空間 */
+    overflow: hidden;
+
+    display: -webkit-box; /* 多行截斷布局 */
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* 限制顯示 2 行 */
+    /* 非 WebKit 瀏覽器會退化為固定高度隱藏溢出（仍保留兩行空間） */
+  }
+//小標頭樣式  首頁/活動/xxx
+  .activity-header {
+  background-color: #948a82;
+    padding: 40px 0;      /* 調整上下 padding */
+  margin-bottom: 20px;  /* 與下方輪播圖分開 */
+}
+
+.breadcrumb-link {
+  color: white;
+}
+
+.breadcrumb-link:hover {
+  color: #ddd; /* 滑鼠移過時的顏色 */
+}

@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 // 前台
 import { FrontendComponent } from './layout/frontend/frontend.component';
@@ -18,13 +19,13 @@ import { MemberInfoComponent } from './pages/member/member-info/member-info.comp
 import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
 import { OrdersComponent } from './pages/backend/orders/orders.component';
-import { MemberRoomComponent } from './pages/member/member-room/member-room.component';
-import { RoomListComponent } from './pages/room/room-list/room-list.component';
-import { RoomDetailComponent } from './pages/room/room-detail/room-detail.component';
-import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.component';
+import { MemberEventComponent } from './pages/member/member-event/member-event.component';
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
-
+import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component'
+import { EventListComponent } from './pages/event/event-list/event-list.component';
+import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
+import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
 
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
@@ -53,15 +54,16 @@ export const routes: Routes = [
           { path: 'info', component: MemberInfoComponent },
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
-          { path: 'room', component: MemberRoomComponent },
+          { path: 'event', component: MemberEventComponent },
         ],
       },
       { path: 'community', component: BoardListComponent },
       { path: 'community/:boardID/posts', component: PostListComponent },
       { path: 'community/:boardID/posts/:postId', component: PostComponent },
-      { path: 'room-list', component: RoomListComponent },
-      { path: 'room-detail/:id', component: RoomDetailComponent },
-      { path: 'room-swiper', component: RoomSwiperComponent },
+
+      { path: 'event', component: EventListComponent },
+      { path: 'event/:slug', component: EventDetailComponent },
+      { path: 'event/:slug/register', component: EventRegistrationComponent },
     ],
   },
   {
@@ -72,9 +74,10 @@ export const routes: Routes = [
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
+      { path: 'supplieslist', component: SupplieslistComponent }
     ],
   },
   // 其它未知路徑都導回前台（可選）
   // **: 萬用路由 => 沒有上面的路徑全都導回show
-  { path: '**', redirectTo: 'show' }
+  { path: '**', redirectTo: 'show' },
 ];
