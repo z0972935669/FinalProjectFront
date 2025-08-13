@@ -24,19 +24,6 @@
           <a routerLink="/show/event" class="nav-item nav-link">活動</a>
           <a routerLink="/show/community" class="nav-item nav-link">社群</a>
           <a routerLink="/show/shop" class="nav-item nav-link">商店</a>
-
-          <!-- 如果有下拉選單的人參考這段 -->
-          <!-- <a href="shop-detail.html" class="nav-item nav-link">Shop Detail</a>
-          <div class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-            <div class="dropdown-menu m-0 bg-secondary rounded-0">
-              <a href="cart.html" class="dropdown-item">Cart</a>
-              <a href="chackout.html" class="dropdown-item">Chackout</a>
-              <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-              <a href="404.html" class="dropdown-item">404 Page</a>
-            </div>
-          </div> -->
-          <!-- 如果有下拉選單的人參考這段 -->
         </div>
         <div class="d-flex m-3 me-0 func">
           <div class="nav-item">
@@ -58,21 +45,21 @@
             >
               <i class="fas fa-user"></i>
             </a>
-
             <div
               class="dropdown-menu m-0 bg-secondary rounded-0 position-absolute"
             >
+              @if (isLoggedIn()) {
               <a href="/erp/orders" target="_blank" class="dropdown-item"
                 >ERP</a
               >
               <a routerLink="/show/member-management" class="dropdown-item"
                 >會員管理中心</a
               >
-              <!-- <a routerLink="/show/member" class="dropdown-item">會員管理中心</a> -->
-              <a routerLink="/show/logout" class="dropdown-item">登出</a>
-              <!-- <div class="dropdown-divider"></div> -->
+              <a href="#" class="dropdown-item" (click)="logout()">登出</a>
+              } @else {
               <a routerLink="/show/register" class="dropdown-item">註冊</a>
               <a routerLink="/show/login" class="dropdown-item">登入</a>
+              }
             </div>
           </div>
         </div>

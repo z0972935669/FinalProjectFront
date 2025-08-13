@@ -3,14 +3,14 @@
     <h4 class="text-primary fw-bold">我的資料</h4>
   </div>
   <div class="card-body">
-    <!-- 編輯模式 -->
     @if (isEdit) {
     <form (ngSubmit)="save()" class="row g-3">
       <div class="col-md-3 text-center">
         <img
-          [src]="
-            member.photoPreview ||
-            'https://via.placeholder.com/120x120?text=Photo'
+          [src]="member.photoUrl"
+          (error)="
+            member.photoUrl =
+              'https://localhost:7124/images/members/default-avatar.png'
           "
           class="rounded-circle border"
           width="120"
@@ -55,6 +55,32 @@
             name="birth"
           />
         </div>
+        <div class="mt-4 text-end">
+          <button
+            class="btn btn-primary"
+            *ngIf="member.residesInCareHome"
+            routerLink="/health-records"
+          >
+            每日健康檢查
+          </button>
+
+          <button
+            class="btn btn-secondary"
+            *ngIf="!member.residesInCareHome"
+            disabled
+          >
+            僅限入住會員使用
+          </button>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">頭貼</label>
+          <input
+            type="file"
+            class="form-control"
+            (change)="onPhotoSelected($event)"
+          />
+        </div>
       </div>
       <div class="col-12 mt-3">
         <button class="btn btn-success px-4" type="submit">儲存</button>
@@ -71,9 +97,10 @@
     <div class="row">
       <div class="col-md-3 text-center">
         <img
-          [src]="
-            member.photoPreview ||
-            'https://via.placeholder.com/120x120?text=Photo'
+          [src]="member.photoUrl"
+          (error)="
+            member.photoUrl =
+              'https://localhost:7124/images/members/default-avatar.png'
           "
           class="rounded-circle border"
           width="120"
@@ -92,6 +119,83 @@
       </div>
     </div>
     <button class="btn btn-success mt-4" (click)="toggleEdit()">編輯</button>
+
     }
+    <!-- 每日健康檢查 Modal 按鈕 -->
+    @if (!isEdit && member.residesInCareHome) {
+    <div class="text-end mt-3">
+      <button
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#healthModal"
+        (click)="loadHealthRecords()"
+      >
+        查看每日健康檢查
+      </button>
+    </div>
+    }
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="healthModal"
+      tabindex="-1"
+      aria-labelledby="healthModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="healthModalLabel">每日健康檢查紀錄</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="關閉"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- 健康紀錄表格 -->
+            <div class="card mb-4">
+              <div class="card-body table-responsive">
+                <table class="table table-bordered text-center align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>日期</th>
+                      <th>收縮壓</th>
+                      <th>舒張壓</th>
+                      <th>脈搏</th>
+                      <th>I/O</th>
+                      <th>時段</th>
+                      <th>備註</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (record of healthRecords; track record.recordDate) {
+                    <tr>
+                      <td>{{ record.recordDate | date : "yyyy-MM-dd" }}</td>
+                      <td>{{ record.systolic }}</td>
+                      <td>{{ record.diastolic }}</td>
+                      <td>{{ record.pulse }}</td>
+                      <td>{{ record.ioRecord }}</td>
+                      <td>{{ record.checkPeriod }}</td>
+                      <td>{{ record.notes }}</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Chart.js 圖表 -->
+            <div class="card">
+              <div class="card-body">
+                <canvas id="healthChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
