@@ -25,17 +25,17 @@ import { MemberEventComponent } from './pages/member/member-event/member-event.c
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
 // 物料管理
-import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component';
-import { SuppliespurchasinglistComponent } from './pages/backend/suppliespurchasinglist/suppliespurchasinglist.component';
-import { SuppliessaleslistComponent } from './pages/backend/suppliessaleslist/suppliessaleslist.component';
-import { TransferlistComponent } from './pages/backend/transferlist/transferlist.component';
-import { SuppliessupplierlistComponent } from './pages/backend/suppliessupplierlist/suppliessupplierlist.component';
+import { SupplieslistComponent } from './pages/backend/supplies/supplieslist/supplieslist.component';
+import { SuppliespurchasinglistComponent } from './pages/backend/supplies/suppliespurchasinglist/suppliespurchasinglist.component';
+import { SuppliessaleslistComponent } from './pages/backend/supplies/suppliessaleslist/suppliessaleslist.component';
+import { TransferlistComponent } from './pages/backend/supplies/transferlist/transferlist.component';
+import { SuppliessupplierlistComponent } from './pages/backend/supplies/suppliessupplierlist/suppliessupplierlist.component';
 // 設備
-import { EquipmentlistComponent } from './pages/backend/equipmentlist/equipmentlist.component';
-import { EquipmentpurchasinglistComponent } from './pages/backend/equipmentpurchasinglist/equipmentpurchasinglist.component';
-import { EquipmentrentlistComponent } from './pages/backend/equipmentrentlist/equipmentrentlist.component';
-import { EquipmentmaintenancelistComponent } from './pages/backend/equipmentmaintenancelist/equipmentmaintenancelist.component';
-import { EquipmentsupplierlistComponent } from './pages/backend/equipmentsupplierlist/equipmentsupplierlist.component';
+import { EquipmentlistComponent } from './pages/backend/equipment/equipmentlist/equipmentlist.component';
+import { EquipmentpurchasinglistComponent } from './pages/backend/equipment/equipmentpurchasinglist/equipmentpurchasinglist.component';
+import { EquipmentrentlistComponent } from './pages/backend/equipment/equipmentrentlist/equipmentrentlist.component';
+import { EquipmentmaintenancelistComponent } from './pages/backend/equipment/equipmentmaintenancelist/equipmentmaintenancelist.component';
+import { EquipmentsupplierlistComponent } from './pages/backend/equipment/equipmentsupplierlist/equipmentsupplierlist.component';
 // 物料管理
 import { EventListComponent } from './pages/event/event-list/event-list.component';
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';

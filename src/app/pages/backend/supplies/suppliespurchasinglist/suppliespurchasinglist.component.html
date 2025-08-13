@@ -1,0 +1,99 @@
+<div class="app-wrapper">
+
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+
+      <div class="row g-3 mb-4 align-items-center justify-content-between">
+        <div class="col-auto">
+          <h1 class="app-page-title mb-0">進貨單列表</h1>
+        </div>
+        <div class="col-auto">
+          <div class="page-utilities">
+            <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
+              <div class="col-auto">
+                <form class="table-search-form row gx-1 align-items-center">
+                  <div class="col-auto">
+                    <input type="text" id="search-suppliesorders" name="searchsuppliesorders"
+                      class="form-control search-suppliesorders" placeholder="請輸入關鍵字">
+                  </div>
+                  <div class="col-auto">
+                    <button type="submit" class="btn app-btn-secondary">查詢</button>
+                  </div>
+                </form>
+
+              </div><!--//col-->
+              <div class="col-auto">
+
+                <select class="form-select w-auto">
+                  <option selected value="option-1">--類別--</option>
+                  <option value="option-2"></option>
+                  <option value="option-3"></option>
+                  <option value="option-4"></option>
+
+                </select>
+              </div>
+            </div><!--//row-->
+          </div><!--//table-utilities-->
+        </div><!--//col-auto-->
+      </div><!--//row-->
+
+
+      <div>
+        <button class="app-btn-primary mb-4">新增購置單</button>
+      </div>
+
+      <div class="tab-content" id="suppliesorders-table-tab-content">
+        <div class="tab-pane fade show active" id="suppliesorders-all" role="tabpanel"
+          aria-labelledby="suppliesorders-all-tab">
+          <div class="app-card app-card-orders-table shadow-sm mb-5">
+            <div class="app-card-body">
+              <div class="table-responsive">
+                <table class="table app-table-hover mb-0 text-center">
+                  <thead>
+                    <tr>
+                      <th class="cell">訂單編號</th>
+                      <th class="cell">供應商名稱</th>
+                      <th class="cell">到貨日</th>
+                      <th class="cell"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="cell">SuppliesPurchasingOrderID</td>
+                      <td class="cell"><span class="truncate">SuppliesSupplier(Name)</span></td>
+                      <td class="cell"><span>ArrivalDate(月日)</span><span class="note">ArrivalDate(年)</span></td>
+                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">進貨單詳細</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div><!--//table-responsive-->
+
+            </div><!--//app-card-body-->
+          </div><!--//app-card-->
+          <nav class="app-pagination">
+            <ul class="pagination justify-content-center">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一頁</a>
+              </li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#">下一頁</a>
+              </li>
+            </ul>
+          </nav><!--//app-pagination-->
+        </div><!--//tab-pane-->
+      </div><!--//tab-content-->
+
+
+
+
+    </div><!--//container-fluid-->
+  </div><!--//app-content-->
+
+  <footer class="app-footer">
+
+  </footer><!--//app-footer-->
+
+</div><!--//app-wrapper-->

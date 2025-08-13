@@ -1,0 +1,225 @@
+<div class="app-wrapper">
+
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+
+      <div class="row g-3 mb-4 align-items-center justify-content-between">
+        <div class="col-auto">
+          <h1 class="app-page-title mb-0">購置單列表</h1>
+        </div>
+        <div class="col-auto">
+          <div class="page-utilities">
+            <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
+              <div class="col-auto">
+                <form class="table-search-form row gx-1 align-items-center">
+                  <div class="col-auto">
+                    <input type="text" id="search-equipmentorders" name="searchequipmentorders"
+                      class="form-control search-equipmentorders" placeholder="請輸入關鍵字">
+                  </div>
+                  <div class="col-auto">
+                    <button type="submit" class="btn app-btn-secondary">查詢</button>
+                  </div>
+                </form>
+
+              </div><!--//col-->
+              <div class="col-auto">
+
+                <select class="form-select w-auto">
+                  <option selected value="option-1">--類別--</option>
+                  <option value="option-2"></option>
+                  <option value="option-3"></option>
+                  <option value="option-4"></option>
+
+                </select>
+              </div>
+            </div><!--//row-->
+          </div><!--//table-utilities-->
+        </div><!--//col-auto-->
+      </div><!--//row-->
+
+
+      <div>
+        <button class="app-btn-primary mb-4">新增購置單</button>
+      </div>
+
+
+      <nav id="equipmentorders-table-tab"
+        class="equipmentorders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
+        <a class="flex-sm-fill text-sm-center nav-link active" id="equipmentorders-all-tab" data-bs-toggle="tab"
+          href="#equipmentorders-all" role="tab" aria-controls="equipmentorders-all" aria-selected="true">總覽</a>
+        <a class="flex-sm-fill text-sm-center nav-link" id="equipmentorders-valid-tab" data-bs-toggle="tab"
+          href="#equipmentorders-valid" role="tab" aria-controls="equipmentorders-valid" aria-selected="false">已入倉</a>
+        <a class="flex-sm-fill text-sm-center nav-link" id="equipmentorders-ordered-tab" data-bs-toggle="tab"
+          href="#equipmentorders-ordered" role="tab" aria-controls="equipmentorders-ordered"
+          aria-selected="false">已訂購</a>
+        <a class="flex-sm-fill text-sm-center nav-link" id="equipmentorders-cancelled-tab" data-bs-toggle="tab"
+          href="#equipmentorders-cancelled" role="tab" aria-controls="equipmentorders-cancelled"
+          aria-selected="false">已取消</a>
+      </nav>
+
+
+      <div class="tab-content" id="equipmentorders-table-tab-content">
+        <div class="tab-pane fade show active" id="equipmentorders-all" role="tabpanel"
+          aria-labelledby="equipmentorders-all-tab">
+          <div class="app-card app-card-orders-table shadow-sm mb-5">
+            <div class="app-card-body">
+              <div class="table-responsive">
+                <table class="table app-table-hover mb-0 text-center">
+                  <thead>
+                    <tr>
+                      <th class="cell">訂單編號</th>
+                      <th class="cell">供應商名稱</th>
+                      <th class="cell">訂購日</th>
+                      <th class="cell">入倉日</th>
+                      <th class="cell">類別</th>
+                      <th class="cell">訂單狀態</th>
+                      <th class="cell"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="cell">EquipmentPurchasingOrderID</td>
+                      <td class="cell"><span class="truncate">Equipment SupplierName</span></td>
+                      <td class="cell"><span>OrderDate(月日)</span><span class="note">OrderDate(年)</span></td>
+                      <td class="cell"><span>ArrivalDate(月日)</span><span class="note">ArrivalDate(年)</span></td>
+                      <td class="cell">EquipmentCategory(Name)</td>
+                      <td class="cell"><span class="badge bg-success">Status</span></td>
+                      <td class="cell"></td>
+                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">訂單詳細</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div><!--//table-responsive-->
+
+            </div><!--//app-card-body-->
+          </div><!--//app-card-->
+          <nav class="app-pagination">
+            <ul class="pagination justify-content-center">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一頁</a>
+              </li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#">下一頁</a>
+              </li>
+            </ul>
+          </nav><!--//app-pagination-->
+
+        </div><!--//tab-pane-->
+
+        <div class="tab-pane fade" id="equipmentorders-valid" role="tabpanel"
+          aria-labelledby="equipmentorders-valid-tab">
+          <div class="app-card app-card-orders-table mb-5">
+            <div class="app-card-body">
+              <div class="table-responsive">
+
+                <table class="table mb-0 text-center">
+                  <thead>
+                    <tr>
+                      <th class="cell">訂單編號</th>
+                      <th class="cell">供應商名稱</th>
+                      <th class="cell">訂購日</th>
+                      <th class="cell">入倉日</th>
+                      <th class="cell">類別</th>
+                      <th class="cell">訂單狀態</th>
+                      <th class="cell"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="cell">#15346</td>
+                      <td class="cell"><span class="truncate">Lorem ipsum dolor sit amet eget volutpat erat</span></td>
+                      <td class="cell">John Sanders</td>
+                      <td class="cell"><span>17 Oct</span><span class="note">2:16 PM</span></td>
+                      <td class="cell">$259.35</td>
+                      <td class="cell"><span class="badge bg-success">valid</span></td>
+                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div><!--//table-responsive-->
+            </div><!--//app-card-body-->
+          </div><!--//app-card-->
+        </div><!--//tab-pane-->
+
+        <div class="tab-pane fade" id="equipmentorders-ordered" role="tabpanel"
+          aria-labelledby="equipmentorders-ordered-tab">
+          <div class="app-card app-card-orders-table mb-5">
+            <div class="app-card-body">
+              <div class="table-responsive">
+                <table class="table mb-0 text-center">
+                  <thead>
+                    <tr>
+                      <th class="cell">訂單編號</th>
+                      <th class="cell">供應商名稱</th>
+                      <th class="cell">訂購日</th>
+                      <th class="cell">入倉日</th>
+                      <th class="cell">類別</th>
+                      <th class="cell">訂單狀態</th>
+                      <th class="cell"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="cell">#15345</td>
+                      <td class="cell"><span class="truncate">Consectetur adipiscing elit</span></td>
+                      <td class="cell">Dylan Ambrose</td>
+                      <td class="cell"><span class="cell-data">16 Oct</span><span class="note">03:16 AM</span></td>
+                      <td class="cell">$96.20</td>
+                      <td class="cell"><span class="badge bg-warning">ordered</span></td>
+                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div><!--//table-responsive-->
+            </div><!--//app-card-body-->
+          </div><!--//app-card-->
+        </div><!--//tab-pane-->
+        <div class="tab-pane fade" id="equipmentorders-cancelled" role="tabpanel"
+          aria-labelledby="equipmentorders-cancelled-tab">
+          <div class="app-card app-card-orders-table mb-5">
+            <div class="app-card-body">
+              <div class="table-responsive">
+                <table class="table mb-0 text-center">
+                  <thead>
+                    <tr>
+                      <th class="cell">訂單編號</th>
+                      <th class="cell">供應商名稱</th>
+                      <th class="cell">訂購日</th>
+                      <th class="cell">入倉日</th>
+                      <th class="cell">類別</th>
+                      <th class="cell">訂單狀態</th>
+                      <th class="cell"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="cell">#15346</td>
+                      <td class="cell"><span class="truncate">Lorem ipsum dolor sit amet eget volutpat erat</span></td>
+                      <td class="cell">John Sanders</td>
+                      <td class="cell"><span>17 Oct</span><span class="note">2:16 PM</span></td>
+                      <td class="cell">$259.35</td>
+                      <td class="cell"><span class="badge bg-secondary">cancelled</span></td>
+                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div><!--//table-responsive-->
+            </div><!--//app-card-body-->
+          </div><!--//app-card-->
+        </div><!--//tab-pane-->
+      </div><!--//tab-content-->
+
+
+
+
+    </div><!--//container-fluid-->
+  </div><!--//app-content-->
+
+  <footer class="app-footer">
+
+  </footer><!--//app-footer-->
+
+</div><!--//app-wrapper-->
