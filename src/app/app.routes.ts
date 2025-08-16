@@ -22,6 +22,7 @@ import { MemberPasswordComponent } from './pages/member/member-password/member-p
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
 import { OrdersComponent } from './pages/backend/orders/orders.component';
 import { MemberEventComponent } from './pages/member/member-event/member-event.component';
+import { LoginLogsComponent } from './pages/member/login-logs/login-logs.component';
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
 import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component'
@@ -66,6 +67,7 @@ export const routes: Routes = [
           { path: 'event', component: MemberEventComponent },
           { path: 'room', component: MemberRoomComponent },
           { path: 'comments', component: PersonalCommunityComponent },
+          { path: 'login-logs', component: LoginLogsComponent },
         ],
       },
       { path: 'community', component: BoardListComponent },

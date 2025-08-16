@@ -4,14 +4,12 @@
   </div>
   <div class="card-body">
     @if (isEdit) {
+    <!-- 編輯模式 -->
     <form (ngSubmit)="save()" class="row g-3">
       <div class="col-md-3 text-center">
         <img
           [src]="member.photoUrl"
-          (error)="
-            member.photoUrl =
-              'https://localhost:7124/images/members/default-avatar.png'
-          "
+          (error)="member.photoUrl = '../../../../assets/img/member/user.png'"
           class="rounded-circle border"
           width="120"
           height="120"
@@ -55,24 +53,6 @@
             name="birth"
           />
         </div>
-        <div class="mt-4 text-end">
-          <button
-            class="btn btn-primary"
-            *ngIf="member.residesInCareHome"
-            routerLink="/health-records"
-          >
-            每日健康檢查
-          </button>
-
-          <button
-            class="btn btn-secondary"
-            *ngIf="!member.residesInCareHome"
-            disabled
-          >
-            僅限入住會員使用
-          </button>
-        </div>
-
         <div class="col-md-6">
           <label class="form-label">頭貼</label>
           <input
@@ -94,14 +74,12 @@
       </div>
     </form>
     } @else {
+    <!-- 檢視模式 -->
     <div class="row">
       <div class="col-md-3 text-center">
         <img
           [src]="member.photoUrl"
-          (error)="
-            member.photoUrl =
-              'https://localhost:7124/images/members/default-avatar.png'
-          "
+          (error)="member.photoUrl = '../../../../assets/img/member/user.png'"
           class="rounded-circle border"
           width="120"
           height="120"
@@ -118,24 +96,84 @@
         </ul>
       </div>
     </div>
-    <button class="btn btn-success mt-4" (click)="toggleEdit()">編輯</button>
 
-    }
-    <!-- 每日健康檢查 Modal 按鈕 -->
-    @if (!isEdit && member.residesInCareHome) {
-    <div class="text-end mt-3">
+    <!-- 編輯按鈕 -->
+    <div class="d-flex justify-content-end gap-2 mt-4" *ngIf="!isEdit">
+      <!-- 編輯按鈕（任何人都可以編輯） -->
+      <button class="btn btn-success w-25" (click)="toggleEdit()">編輯</button>
+
+      <!-- 若是入住會員才顯示下方兩顆按鈕 -->
+      @if (member.residesInCareHome) {
+      <!-- 緊急聯絡人 -->
       <button
-        class="btn btn-primary"
+        class="btn btn-warning w-25"
+        data-bs-toggle="modal"
+        data-bs-target="#emergencyModal"
+        (click)="loadEmergencyContact()"
+      >
+        查看緊急聯絡人
+      </button>
+
+      <!-- 健康檢查 -->
+      <button
+        class="btn btn-primary w-25"
         data-bs-toggle="modal"
         data-bs-target="#healthModal"
         (click)="loadHealthRecords()"
       >
-        查看每日健康檢查
+        查看近七天健康檢查
       </button>
+      }
     </div>
     }
 
-    <!-- Modal -->
+    <!-- 緊急聯絡人 Modal -->
+    <div
+      class="modal fade"
+      id="emergencyModal"
+      tabindex="-1"
+      aria-labelledby="emergencyModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title" id="emergencyModalLabel">緊急聯絡人資訊</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="關閉"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <b>關係：</b> {{ contact.fRelationship }}
+              </li>
+              <li class="list-group-item">
+                <b>姓名：</b> {{ contact.fContactName }}
+              </li>
+              <li class="list-group-item">
+                <b>電話：</b> {{ contact.fPhone }}
+              </li>
+              <li class="list-group-item">
+                <b>Email：</b> {{ contact.fEmail }}
+              </li>
+              <li class="list-group-item">
+                <b>地址：</b> {{ contact.fCity }}{{ contact.fDistrict
+                }}{{ contact.fAddress }}
+              </li>
+              <li class="list-group-item">
+                <b>備註：</b> {{ contact.fNotes }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 健康檢查 Modal -->
     <div
       class="modal fade"
       id="healthModal"
@@ -146,7 +184,9 @@
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content shadow">
           <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title" id="healthModalLabel">每日健康檢查紀錄</h5>
+            <h5 class="modal-title" id="healthModalLabel">
+              近七天健康檢查紀錄
+            </h5>
             <button
               type="button"
               class="btn-close"
@@ -187,13 +227,30 @@
               </div>
             </div>
 
-            <!-- Chart.js 圖表 -->
-            <div class="card">
-              <div class="card-body">
-                <canvas id="healthChart"></canvas>
+            <!-- 圓餅圖 + 柱狀圖 -->
+            <div class="row my-4">
+              <!-- 左邊圓餅圖 -->
+              <div class="col-md-4 text-center">
+                <h5>今日健康度</h5>
+                <div style="width: 150px; height: 150px; margin: auto">
+                  <canvas id="healthGauge"></canvas>
+                </div>
+                <div class="mt-3">
+                  <i [class]="healthIcon" style="font-size: 2.5rem"></i>
+                  <p class="fw-bold mt-2">{{ healthStatus }}</p>
+                </div>
+              </div>
+
+              <!-- 右邊柱狀圖 -->
+              <div class="col-md-8">
+                <h5 class="text-center">最近一週健康指數</h5>
+                <div style="width: 100%; height: 300px">
+                  <canvas id="healthBarChart"></canvas>
+                </div>
               </div>
             </div>
           </div>
+          <!-- modal-body -->
         </div>
       </div>
     </div>
