@@ -14,6 +14,7 @@ import { PostComponent } from './pages/community/post/post.component';
 import { PersonalCommunityComponent } from './pages/community/personal-community/personal-community.component';
 import { CreatePostComponent } from './pages/community/create-post/create-post.component';
 
+
 import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
 import { MembermanagementComponent } from './pages/member/membermanagement/membermanagement.component';
@@ -23,6 +24,9 @@ import { MemberOrdersComponent } from './pages/member/member-orders/member-order
 import { OrdersComponent } from './pages/backend/orders/orders.component';
 import { MemberEventComponent } from './pages/member/member-event/member-event.component';
 import { LoginLogsComponent } from './pages/member/login-logs/login-logs.component';
+
+
+
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
 import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component'
@@ -56,6 +60,8 @@ export const routes: Routes = [
 
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+      { path: 'forgot-password', loadComponent: () => import('./pages/account/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
+      { path: 'reset-password',loadComponent: ()=>import('./pages/account/reset-password/reset-password.component').then(m=>m.ResetPasswordComponent)},
       {
         path: 'member-management',
         component: MembermanagementComponent,

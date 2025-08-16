@@ -13,7 +13,7 @@ export class LoginLogsComponent implements OnInit {
   currentPage = 1;
   pageSize = 5;
   totalCount = 0;
-  loading = false;
+
   constructor(private http: HttpClient) {}
 
 ngOnInit(): void {
@@ -38,8 +38,6 @@ ngOnInit(): void {
 
 
   loadLogs(page: number = 1) {
-    this.loading = true;
-
     const token = localStorage.getItem('jwtToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -50,11 +48,9 @@ ngOnInit(): void {
           this.logs = res.logs;
           this.totalCount = res.totalCount;
           this.currentPage = res.page;
-          this.loading = false
         },
         error: (err) => {
           console.error('無法載入登入紀錄', err);
-          this.loading = false;
         },
       });
   }
