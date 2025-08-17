@@ -12,6 +12,9 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
   styleUrls: ['./reset-password.component.scss'],
 })
 export class ResetPasswordComponent {
+
+  token: string = '';
+
   email: string = '';
   newPassword: string = '';
   confirmPassword: string = '';
@@ -29,31 +32,36 @@ export class ResetPasswordComponent {
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
       this.email = params['email'] || '';
+      this.token = params['token'] || ''; // 需要上面那個屬性
     });
   }
 
   resetPassword() {
     this.message = '';
+    if (!this.token) {
+      this.message = '!!! 缺少驗證資訊，請重新申請重設密碼';
+      return;
+    }
     if (this.newPassword !== this.confirmPassword) {
       this.message = '兩次輸入的密碼不一致';
       return;
     }
 
     const data = {
-      email: this.email,
+      email: this.email,           // 若後端改為只驗證 token，可拿掉 email
+      token: this.token,           // 帶 token
       newPassword: this.newPassword,
       confirmPassword: this.confirmPassword
     };
 
     this.loading = true;
-
     this.http.post(`${this.apiBase}/reset-password`, data).subscribe({
       next: () => {
         this.message = '密碼重設成功，即將前往登入頁...';
-        setTimeout(() => this.router.navigate(['/show/login']), 2000);
+        setTimeout(() => this.router.navigate(['/show/login']), 1500);
       },
       error: (err) => {
-        this.message = '重設失敗：' + (err.error?.message ?? '請稍後再試');
+        this.message = '重設失敗：' + (err?.error?.message ?? '請稍後再試');
         this.loading = false;
       }
     });
