@@ -120,10 +120,26 @@
                   出去玩
                 </button>
               </div>
+
+              <button
+                type="button"
+                class="btn cat-btn"
+                [routerLink]="['/show/event/calender']"
+              >
+                行事曆
+              </button>
             </div>
 
-            <form class="yotta-search" role="search">
-              <input type="text" placeholder="想找什麼活動？" />
+            <form
+              class="yotta-search"
+              (submit)="$event.preventDefault()"
+              role="search"
+            >
+              <input
+                type="text"
+                [formControl]="searchCtrl"
+                placeholder="想找什麼活動？"
+              />
               <button type="submit">搜尋</button>
             </form>
           </div>
@@ -132,68 +148,112 @@
         <!-- 放卡片的框架 -->
         <div class="col-lg-12">
           <div class="row g-4 justify-content-center">
-            <!-- 卡片- -->
-            <div class="col-md-6 col-xl-3" *ngFor="let e of events">
-              <div class="rounded position-relative fruite-item h-100">
-                <div class="fruite-img fixed-img">
-                  <img
-                    [src]="e.imageUrl"
-                    class="img-fluid w-100 rounded-top"
-                    alt=""
-                  />
-                </div>
-
+            <!-- 放卡片的框架 -->
+            <div class="col-lg-12">
+              <div class="row g-4 justify-content-center">
+                <!-- 只渲染當頁資料 -->
                 <div
-                  class="p-4 border border-secondary border-top-0 rounded-bottom"
+                  class="col-md-6 col-xl-3"
+                  *ngFor="let e of pageItems; trackBy: trackById"
                 >
-                  <h5 class="card-title fw-bold mb-2">{{ e.title }}</h5>
-                  <p class="card-text text-secondary mb-3 subtitle-2lines">
-                    {{ e.subtitle }}
-                  </p>
+                  <div class="rounded position-relative fruite-item h-100">
+                    <div class="fruite-img fixed-img">
+                      <img
+                        [src]="e.imageUrl"
+                        class="img-fluid w-100 rounded-top"
+                        alt=""
+                      />
+                    </div>
 
-                  <p class="text-danger fw-bold fs-6 mb-2">
-                    {{ e.priceText }}
-                  </p>
-                  <p class="mb-3"><strong>主辦方：</strong>{{ e.organizer }}</p>
-                  <p class="mb-3"><strong>時間：</strong>{{ e.date }}</p>
-
-                  <div class="small text-muted d-flex flex-wrap gap-3">
-                    <span>📍 {{ e.location }}</span>
-                    <span>⏱️ {{ e.duration }}</span>
-                    <span>👥 {{ e.attendees }} 人</span>
-                  </div>
-                  <div class="content__mark hide--pad">
                     <div
-                      class="mark__dot"
-                      [ngStyle]="{
-                        'background-color':
-                          e.states === '招生中' ? '#4caf50' : '#ff9800'
-                      }"
-                    ></div>
+                      class="p-4 border border-secondary border-top-0 rounded-bottom"
+                    >
+                      <h5 class="card-title fw-bold mb-2">{{ e.title }}</h5>
+                      <p class="card-text text-secondary mb-3 subtitle-2lines">
+                        {{ e.subtitle }}
+                      </p>
 
-                    <span>狀態：</span>
+                      <p class="text-danger fw-bold fs-6 mb-2">
+                        {{ e.priceText }}
+                      </p>
+                      <p class="mb-3">
+                        <strong>主辦方：</strong>{{ e.organizer }}
+                      </p>
+                      <p class="mb-3">
+                        <strong>時間：</strong>{{ e.eventDateTimeStart }}
+                      </p>
 
-                    <span>{{ e.states }}</span>
+                      <div
+                        class="small text-muted d-flex flex-wrap gap-3 meta-2rows"
+                      >
+                        <span>📍 {{ e.location }}</span>
+                        <span>⏱️ {{ e.duration }}</span>
+                        <span>👥 {{ e.attendees }} 人</span>
+                      </div>
+
+                      <div class="content__mark hide--pad">
+                        <div
+                          class="mark__dot"
+                          [ngStyle]="{
+                            'background-color':
+                              e.states === '招生中' ? '#4caf50' : '#ff9800'
+                          }"
+                        ></div>
+                        <span>狀態：</span>
+                        <span>{{ e.states }}</span>
+                      </div>
+                    </div>
+
+                    <a
+                      class="stretched-link"
+                      *ngIf="e.batchID"
+                      [routerLink]="['/show/event', e.batchID]"
+                    ></a>
                   </div>
                 </div>
-                <a
-                  class="stretched-link"
-                  [routerLink]="['/show/event', e.id]"
-                ></a>
-              </div>
-            </div>
-            <!-- 卡片end- -->
 
-            <div class="col-12">
-              <div class="pagination d-flex justify-content-center mt-5">
-                <a href="#" class="rounded">&laquo;</a>
-                <a href="#" class="active rounded">1</a>
-                <a href="#" class="rounded">2</a>
-                <a href="#" class="rounded">3</a>
-                <a href="#" class="rounded">4</a>
-                <a href="#" class="rounded">5</a>
-                <a href="#" class="rounded">6</a>
-                <a href="#" class="rounded">&raquo;</a>
+                <!-- 分頁器（獨立一塊，根據資料自動產生頁數） -->
+                <div class="col-12" *ngIf="totalPages > 1">
+                  <div class="pagination d-flex justify-content-center mt-5">
+                    <a
+                      href
+                      class="rounded"
+                      [class.disabled]="currentPage === 1"
+                      (click)="$event.preventDefault(); prevPage()"
+                      >&laquo;</a
+                    >
+
+                    <a
+                      href
+                      class="rounded"
+                      *ngFor="let p of pageNumbers"
+                      [class.active]="p === currentPage"
+                      (click)="$event.preventDefault(); goToPage(p)"
+                      >{{ p }}</a
+                    >
+
+                    <a
+                      href
+                      class="rounded"
+                      [class.disabled]="currentPage === totalPages"
+                      (click)="$event.preventDefault(); nextPage()"
+                      >&raquo;</a
+                    >
+                  </div>
+
+                  <div class="text-center small text-muted mt-2">
+                    第 {{ currentPage }} / {{ totalPages }} 頁，共
+                    {{ events.length }} 筆
+                  </div>
+                </div>
+
+                <!-- 沒有資料時 -->
+                <div
+                  class="col-12 text-center text-muted py-5"
+                  *ngIf="events.length === 0"
+                >
+                  目前沒有資料
+                </div>
               </div>
             </div>
           </div>

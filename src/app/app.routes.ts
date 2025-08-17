@@ -24,15 +24,16 @@ import { MemberOrdersComponent } from './pages/member/member-orders/member-order
 import { OrdersComponent } from './pages/backend/orders/orders.component';
 import { MemberEventComponent } from './pages/member/member-event/member-event.component';
 import { LoginLogsComponent } from './pages/member/login-logs/login-logs.component';
+import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
+import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
+import { EventCalendarComponent } from './pages/event/event-calendar/event-calendar.component';
+import { EventListComponent } from './pages/event/event-list/event-list.component';
 
 
 
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
-import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component'
-import { EventListComponent } from './pages/event/event-list/event-list.component';
-import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
-import { EventRegistrationComponent } from './pages/event/event-registration/event-registration.component';
+import { SupplieslistComponent } from './pages/backend/supplieslist/supplieslist.component';
 import { MemberRoomComponent } from './pages/member/member-room/member-room.component';
 import { RoomListComponent } from './pages/room/room-list/room-list.component';
 import { RoomDetailComponent } from './pages/room/room-detail/room-detail.component';
@@ -82,8 +83,10 @@ export const routes: Routes = [
       { path: 'community/:boardID/posts/:postId', component: PostComponent },
 
       { path: 'event', component: EventListComponent },
+      { path: 'event/calender', component: EventCalendarComponent },
       { path: 'event/:slug', component: EventDetailComponent },
       { path: 'event/:slug/register', component: EventRegistrationComponent },
+
       { path: 'room-list', component: RoomListComponent },
       { path: 'room-detail/:id', component: RoomDetailComponent },
       { path: 'room-swiper', component: RoomSwiperComponent },
@@ -98,9 +101,21 @@ export const routes: Routes = [
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
       { path: 'supplieslist', component: SupplieslistComponent },
-      { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
-      { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
-      { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
+      {
+        path: 'employeelist',
+        component: EmployeelistComponent,
+        title: '員工列表',
+      },
+      {
+        path: 'employeelistdetail',
+        component: EmployeelistdetailComponent,
+        title: '詳細資料',
+      },
+      {
+        path: 'employeelistedit',
+        component: EmployeelisteditComponent,
+        title: '編輯員工',
+      },
 
       // 其他後台頁面可以在這裡添加
     ],

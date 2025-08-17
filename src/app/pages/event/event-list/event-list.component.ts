@@ -1,146 +1,239 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, inject, Injectable } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Observable } from 'rxjs';
+import { EventService } from './../../../services/event/event.service';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  EventTemplateDto,
+  EventList,
+  EventBatchDto,
+} from '../../../interfaces/event/event-list';
 
-interface EventItem {
-  id: string;
-  imageUrl: string;
-  title: string;
-  subtitle: string;
-  priceText: string;
-  date: string; // 舉辦日期與時間
-  organizer: string;
-  location: string;
-  duration: string;
-  attendees: number;
-  states: string;
+/* ========== Service ========== */
+@Injectable({ providedIn: 'root' })
+export class EventTemplateService {
+  private http = inject(HttpClient);
+  private readonly base = '/api/EventTemplate';
+
+  list(): Observable<EventTemplateDto[]> {
+    return this.http.get<EventTemplateDto[]>(`${this.base}/list`);
+  }
 }
 
+/* ========== Component（把 @Component 貼在正確的 class 上） ========== */
 @Component({
   standalone: true,
   selector: 'app-event-list',
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, ReactiveFormsModule],
   templateUrl: './event-list.component.html',
   styleUrl: './event-list.component.scss',
 })
-export class EventListComponent {
-  events: EventItem[] = [
-    {
-      id: '1',
-      title: '經典老歌音樂會',
-      subtitle: '歲月如歌，經典再現，一起唱回最美的年代！',
-      priceText: '免費',
-      date: '2025/08/13 13:00',
-      organizer: '希望老人中心',
-      location: '中庭廣場',
-      duration: '2 小時',
-      attendees: 30,
-      imageUrl: 'assets/img/event/老歌01.png',
-      states: '招生中',
-    },
-    {
-      id: '2',
-      title: '長輩手機班',
-      subtitle: '一步一步帶你玩手機與 LINE。',
-      priceText: '免費',
-      date: '2025/08/14 09:30',
-      organizer: '社區發展協會',
-      location: 'B 棟 201',
-      duration: '90 分鐘',
-      attendees: 18,
-      imageUrl: 'assets/img/event/手機02.png',
-      states: '即將額滿',
-    },
-    {
-      id: '3',
-      title: '太極體驗課',
-      subtitle: '放慢步伐，舒展筋骨與身心。',
-      priceText: '$100',
-      date: '2025/08/15 10:00',
-      organizer: '樂齡中心',
-      location: '活動教室',
-      duration: '1 小時',
-      attendees: 22,
-      imageUrl: 'assets/img/event/太極健康班.png',
-      states: '招生中',
-    },
-    {
-      id: '4',
-      title: '懷舊電影夜',
-      subtitle: '一起回味經典黑白片。',
-      priceText: '免費',
-      date: '2025/08/16 18:30',
-      organizer: '松齡協會',
-      location: '小劇場',
-      duration: '2.5 小時',
-      attendees: 54,
-      imageUrl: 'assets/img/event/電影04.png',
-      states: '招生中',
-    },
-    {
-      id: '5',
-      title: '健康飲食講座',
-      subtitle: '營養師教你吃得剛剛好。',
-      priceText: '免費',
-      date: '2025/08/17 14:00',
-      organizer: '衛教團隊',
-      location: '多功能廳',
-      duration: '75 分鐘',
-      attendees: 40,
-      imageUrl: 'assets/img/event/經典老歌.jpg',
-      states: '招生中',
-    },
-    {
-      id: '6',
-      title: '樂齡瑜珈',
-      subtitle: '柔和伸展，友善關節。',
-      priceText: '$150',
-      date: '2025/08/18 10:30',
-      organizer: '身心工坊',
-      location: '瑜珈室',
-      duration: '1 小時',
-      attendees: 16,
-      imageUrl: 'assets/img/event/006.jpg',
-      states: '招生中',
-    },
-    {
-      id: '7',
-      title: '手作香包',
-      subtitle: '動手做療癒香氛小物。',
-      priceText: '$80（含材料）',
-      date: '2025/08/19 09:00',
-      organizer: '手作社',
-      location: '教室 A',
-      duration: '1.5 小時',
-      attendees: 12,
-      imageUrl: 'assets/img/event/007.jpg',
-      states: '招生中',
-    },
-    {
-      id: '8',
-      title: '銀髮合唱團徵選',
-      subtitle: '喜歡唱歌的你別錯過！',
-      priceText: '免費',
-      date: '2025/08/20 15:00',
-      organizer: '合唱團',
-      location: '音樂教室',
-      duration: '2 小時',
-      attendees: 28,
-      imageUrl: 'assets/img/event/008.jpg',
-      states: '招生中',
-    },
-  ];
+export class EventListComponent implements OnInit {
+  private router = inject(Router);
+  private api = inject(EventTemplateService);
+  private eventService = inject(EventService);
 
-  constructor(private router: Router) {}
+  events: EventList[] = [];
+  private allEvents: EventList[] = [];
+  loading = true;
+  error = '';
+  selectedCategory = '所有活動';
+  // 新增：搜尋輸入框
+  searchCtrl = new FormControl<string>('', { nonNullable: true });
+  // === 分頁設定 ===
+  pageSize = 12;
+  currentPage = 1;
+
+  ngOnInit() {
+    this.eventService.getEventTemplates().subscribe({
+      next: (data) => {
+        console.log('[EventTemplate/list] raw =>', data); // ← 看實際回傳長相
+
+        this.events = this.mapToEventItems(data);
+        this.allEvents = this.events;
+        this.currentPage = 1;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.error = '讀取活動清單失敗';
+        this.loading = false;
+      },
+    });
+    this.searchCtrl.valueChanges
+      .pipe(debounceTime(200), distinctUntilChanged()) // 停止輸入 200ms 才觸發（避免每敲一鍵就跑一次）
+      .subscribe((q) => this.applyFilter(q)); // 與上一次相同的字串不重複執行
+  }
+
+  private applyFilter(q: string) {
+    //搜尋功能
+    const kw = (q || '').trim().toLowerCase(); // 去前後空白、轉小寫（不分大小寫）
+    this.events = !kw
+      ? this.allEvents
+      : this.allEvents.filter((x) => x.title.toLowerCase().includes(kw)); // 標題含關鍵字就留下
+    this.currentPage = 1;
+  }
 
   goDetail(eventId: string) {
     this.router.navigate(['/events', eventId]);
   }
 
-  selectedCategory = '所有活動';
+  onImgError(evt: Event) {
+    (evt.target as HTMLImageElement).src = 'assets/img/event/placeholder.jpg';
+  }
 
-  setCategory(cat: string) {
+  /* ===== 映射邏輯 ===== */
+  private mapToEventItems(list: EventTemplateDto[]): EventList[] {
+    const now = Date.now();
+
+    return list.map((t: any) => {
+      const groups = (t.batches ?? t.eventBatches ?? []) as EventBatchDto[];
+      const batches = groups
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(a.eventDateTimeStart).getTime() -
+            new Date(b.eventDateTimeStart).getTime()
+        );
+      const upcoming =
+        batches.find((b) => new Date(b.eventDateTimeStart).getTime() >= now) ??
+        batches[0];
+
+      const start = upcoming?.eventDateTimeStart
+        ? new Date(upcoming.eventDateTimeStart)
+        : null;
+      const end = upcoming?.eventDateTimeEnd
+        ? new Date(upcoming.eventDateTimeEnd)
+        : null;
+
+      // ✅ 從最近梯次抓 batchId（大小寫容錯）
+      const batchIdValue =
+        (upcoming as any)?.batchId ??
+        (upcoming as any)?.BatchId ??
+        (upcoming as any)?.batchID ??
+        (upcoming as any)?.eventBatchID ??
+        (upcoming as any)?.eventBatchId ??
+        null;
+
+      const durationText =
+        t.durationMinutes != null
+          ? this.fmtMinutes(Number(t.durationMinutes))
+          : start && end
+          ? this.fmtMinutes(Math.max(0, Math.round((+end - +start) / 60000)))
+          : '';
+
+      const item: EventList = {
+        id: String(t.eventID ?? t.eventId ?? t.id ?? ''),
+        batchID: batchIdValue != null ? String(batchIdValue) : '', // ✅ 這裡塞好
+        imageUrl: t.coverImageUrl ?? 'assets/img/event/placeholder.jpg',
+        title: t.eventName ?? t.title ?? '',
+        subtitle: t.subtitle ?? '',
+        priceText: (t.amount ?? 0) > 0 ? `$${t.amount}` : '免費',
+        eventDateTimeStart: start ? this.fmtDate(start) : '',
+        organizer: t.organizer ?? '',
+        location: t.eventLocation ?? t.location ?? '',
+        duration: durationText,
+        attendees: upcoming?.quota ?? t.quota ?? 0,
+        states: this.mapStatus(t.status ?? 0),
+        categoryID: Number(t.categoryID ?? t.categoryId ?? 0),
+      };
+      return item;
+    });
+  }
+
+  private fmtDate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${y}/${m}/${day} ${hh}:${mm}`;
+  }
+
+  private fmtMinutes(mins: number): string {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h && m) return `${h} 小時 ${m} 分`;
+    if (h) return `${h} 小時`;
+    return `${m} 分鐘`;
+  }
+
+  private mapStatus(s: number): string {
+    switch (s) {
+      case 1:
+        return '招生中';
+      case 2:
+        return '下架';
+      case 3:
+        return '關閉';
+      default:
+        return '草稿';
+    }
+  }
+  //按鈕塞選類別
+  // 名稱 ↔ ID 對照
+  private readonly CATEGORY_TO_ID: Record<string, number> = {
+    運動類: 1,
+    手作類: 2,
+    講座類: 3,
+    出去玩: 4,
+  };
+
+  public setCategory(cat: string) {
     this.selectedCategory = cat;
-    // TODO: 這裡可接你的事件篩選邏輯
+
+    if (cat === '所有活動') {
+      this.events = this.allEvents;
+      return;
+    }
+    const cid = this.CATEGORY_TO_ID[cat];
+    this.events = this.allEvents.filter((x) => Number(x.categoryID) === cid);
+    this.currentPage = 1;
+  }
+
+  // === 分頁設定 ===
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.events.length / this.pageSize));
+  }
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+  get pageItems(): EventList[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.events.slice(start, start + this.pageSize);
+  }
+
+  goToPage(p: number) {
+    if (p < 1 || p > this.totalPages) return;
+    this.currentPage = p;
+    // 可選：切頁捲回頂部
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  prevPage() {
+    this.goToPage(this.currentPage - 1);
+  }
+  nextPage() {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  // trackBy（效能用，可選）
+  trackById(_: number, e: EventList) {
+    return e.id;
+  }
+
+  toSlug(title: string) {
+    return title
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_]+/g, '-') // 空白/底線 → -
+      .replace(/[^a-z0-9\-]+/g, '') // 去掉非英數與 -
+      .replace(/\-+/g, '-'); // 合併重複 -
+  }
+
+  buildSlug(id: string | number, title: string) {
+    return `${id}-${this.toSlug(title)}`;
   }
 }

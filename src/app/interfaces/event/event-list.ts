@@ -1,0 +1,113 @@
+export interface EventList {
+  //batchID 一律使用這個大小寫
+  /* ========== 前端顯示用型別 ========== */
+
+  id: string;
+  batchID: string;
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  priceText: string;
+  eventDateTimeStart: string; // 舉辦日期與時間
+  organizer: string;
+  location: string;
+  duration: string;
+  attendees: number;
+  states: string;
+  categoryID: number;
+}
+
+export interface EventDetailVM {
+  id: string;
+  batchID: string;
+  title: string;
+  subtitle: string;
+  priceText: string;
+  date: string; // 顯示用時間字串
+  organizer: string;
+  location: string;
+  contactPersonId: string;
+  contactPersonName: string;
+  contactPhone: string;
+  duration: string;
+  attendees: number;
+  imageUrl: string;
+  states: string;
+  description: string;
+}
+
+// 活動報名畫面用的 ViewModel
+export interface EventRegistrationVM {
+  batchID: string;
+  /** 活動標題 */
+  title: string;
+
+  /** 報名紀錄主鍵（RegistrationID） */
+  registrationID: number;
+  /** 報名編號（對外顯示碼） */
+  registrationNum: string;
+  //活動時間
+  date: string;
+
+  /** 會員 ID（MemberID） */
+  memberId: number;
+  memberName: string;
+  memberPhone: string;
+  /** 應付金額（AmountDue） */
+  amountDue: number;
+
+  /** 報名時間（ISO 字串，RegistrationDateTime） */
+  registrationDateTime: string;
+
+  /** 狀態碼（CurrentStatus；0/1/2… 你系統自訂） */
+  currentStatus: number;
+
+  /** 內部備註（InternalRemarks） */
+  internalRemarks?: string | null;
+}
+
+// export interface EventDetail {
+//   /* ========== 前端顯示用型別 ========== */
+
+//   id: string;
+//   imageUrl: string;
+//   title: string;
+//   subtitle: string;
+//   priceText: string;
+//   eventDateTimeStart: string; // 舉辦日期與時間
+//   organizer: string;
+//   location: string;
+//   duration: string;
+//   attendees: number;
+//   states: string;
+//   categoryID: number;
+// }
+
+/* ========== 後端回傳 DTO（請依你的 API 調整） ========== */
+export interface EventBatchDto {
+  batchID: number;
+  eventID: number;
+  eventDateTimeStart: string;
+  eventDateTimeEnd?: string | null;
+  quota?: number | null;
+}
+
+export interface EventTemplateDto {
+  eventID: number;
+  eventName: string;
+  subtitle?: string | null;
+  categoryID: number;
+  status: number;
+  organizer?: string | null;
+  eventLocation?: string | null;
+  quota?: number | null;
+  amount?: number | null;
+  durationMinutes?: number | null;
+  coverImageUrl?: string | null;
+  eventBatches?: EventBatchDto[];
+  batches?: EventBatchDto[];
+  description?: string | null;
+  contactPersonId?: string | null;
+  contactPersonName?: string | null;
+  contactPhone?: string | null;
+}
