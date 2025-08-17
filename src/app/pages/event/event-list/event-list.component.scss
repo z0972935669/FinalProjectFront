@@ -167,6 +167,12 @@
     line-height: 1.4;
     color: #6b7280;
   }
+  .meta-2rows {
+  line-height: 1.25rem;                    /* 依你的實際字體可微調 */
+  min-height: calc(1.25rem * 2 + 1rem);    /* 2 行 + 1 個 row-gap(=gap-3) */
+  max-height: calc(1.25rem * 2 + 1rem);    /* 固定兩行的空間 */
+  overflow: hidden;                         /* 超過兩行就裁掉 */
+}
   /* 卡片圖片調整 */
   .fixed-img {
     height: 200px; /* 依需求可改高度 */
@@ -293,4 +299,9 @@
 
 .breadcrumb-link:hover {
   color: #ddd; /* 滑鼠移過時的顏色 */
+}
+
+.pagination a.disabled {
+  pointer-events: none;
+  opacity: .5;
 }

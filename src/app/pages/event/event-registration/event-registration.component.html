@@ -2,6 +2,7 @@
   <div class="container py-4 max-w-3xl">
     <!-- 頁首：置中 + 日期 -->
     <h3 class="page-title text-center mb-1">活動報名</h3>
+
     <!-- 活動資料 -->
     <div class="card mb-3">
       <div class="card-body">
@@ -11,13 +12,13 @@
             <label class="form-label event-info-label mb-0 me-2"
               >活動名稱：</label
             >
-            <span class="event-info-value">{{ event.eventName }}</span>
+            <span class="event-info-value">{{ event?.title }}</span>
           </div>
           <div class="col-md-6">
             <label class="form-label event-info-label mb-0 me-2"
               >活動日期：</label
             >
-            <span class="event-info-value">{{ event.date }}</span>
+            <span class="event-info-value">{{ event?.date }}</span>
           </div>
         </div>
       </div>
@@ -29,18 +30,30 @@
         <h6 class="fw-bold mb-2">報名人</h6>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">姓名</label>
-            <input class="form-control" [value]="user?.name" disabled />
+            <label class="form-label event-info-label mb-0 me-2">姓名:</label>
+            <span class="event-info-value">{{ event?.memberName }}</span>
           </div>
           <div class="col-md-6">
-            <label class="form-label">聯絡電話</label>
-            <input class="form-control" [value]="user?.phone" disabled />
+            <label class="form-label event-info-label mb-0 me-2"
+              >聯絡電話:</label
+            >
+
+            <span class="event-info-value">{{ event?.memberPhone }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()">
+      <!-- 🔒 隱藏欄位（送到後端用，對齊 EventRegistrationVM） -->
+      <input type="hidden" formControlName="batchID" />
+      <input type="hidden" formControlName="title" />
+      <input type="hidden" formControlName="registrationID" />
+      <input type="hidden" formControlName="registrationNum" />
+      <input type="hidden" formControlName="memberId" />
+      <input type="hidden" formControlName="registrationDateTime" />
+      <input type="hidden" formControlName="currentStatus" />
+
       <!-- 報名資訊 -->
       <div class="card mb-3">
         <div class="card-body">
@@ -136,7 +149,7 @@
               <input
                 class="form-control"
                 formControlName="taxId"
-                maxlength="10"
+                maxlength="8"
               />
             </div>
 

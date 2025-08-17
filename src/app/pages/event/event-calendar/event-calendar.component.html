@@ -1,0 +1,22 @@
+<div class="hero">
+  <!-- 1100*350 -->
+  <img
+    class="hero__img"
+    [src]="heroImgSrc"
+    (error)="heroImgSrc = fallbackHero"
+    alt="本月橫幅"
+  />
+  <div class="hero__overlay"></div>
+  <div class="hero__toolbar">
+    <!-- <div id="heroTitle" class="hero__title">Loading…</div> -->
+    <div class="hero__nav">
+      <button (click)="nav('prev')">〈 上月</button>
+      <button (click)="nav('today')">今天</button>
+      <button (click)="nav('next')">下月 〉</button>
+    </div>
+  </div>
+</div>
+
+<div class="calendar-wrap">
+  <full-calendar #fc [options]="calendarOptions"></full-calendar>
+</div>
