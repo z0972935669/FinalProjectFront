@@ -4,7 +4,7 @@
   <ol class="breadcrumb justify-content-center mb-0">
     <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
     <li class="breadcrumb-item"><a routerLink="/show/shop">商店</a></li>
-    <li class="breadcrumb-item active text-white">葡萄</li>
+    <li class="breadcrumb-item active text-white">{{ product?.productName }}</li>
   </ol>
 </div>
 <!-- Single Page Header End -->
@@ -17,10 +17,10 @@
         <div class="row g-4">
           <div class="col-lg-6">
             <div>
-              <!-- 主圖輪播 -->
+              <!-- 主圖 -->
               <div class="swiper swiper-main mb-3">
                 <div class="swiper-wrapper">
-                  <div class="swiper-slide" *ngFor="let img of images">
+                  <div class="swiper-slide" *ngFor="let img of product?.galleryLargePaths">
                     <img [src]="img" class="img-fluid rounded w-100" />
                   </div>
                 </div>
@@ -31,7 +31,7 @@
               <!-- 縮圖輪播 -->
               <div class="swiper swiper-thumbs">
                 <div class="swiper-wrapper">
-                  <div class="swiper-slide" *ngFor="let img of images">
+                  <div class="swiper-slide" *ngFor="let img of product?.galleryThumbPaths">
                     <img [src]="img" class="img-fluid rounded" style="height: 80px; width: auto;" />
                   </div>
                 </div>
@@ -40,19 +40,24 @@
             </div>
           </div>
           <div class="col-lg-6">
-            <h4 class="fw-bold mb-3">葡萄</h4>
-            <h5 class="fw-bold mb-3">$100</h5>
-            <p class="mb-4">
-              本公司多年來專注於提供高品質的產品與專業的客製化服務，深耕各大產業領域，建立穩固的合作關係。我們秉持誠信經營與創新思維，不斷導入先進技術與高效流程，提升競爭力與服務品質。從市場趨勢分析到產品研發設計，皆由經驗豐富的團隊精心策劃，確保每一項方案皆能符合客戶需求，創造最大價值。我們相信，唯有與客戶攜手成長，才能共創長遠的成功與穩健的未來。選擇我們，即是選擇值得信賴的夥伴。
+            <h4 class="fw-bold mb-3">{{ product?.productName }}</h4>
+            <p class="text-muted" *ngIf="product?.originalPrice">
+              <del>{{ product?.originalPrice | currency:'TWD' }}</del>
             </p>
+            <h5 class="fw-bold mb-3">{{ product?.salePrice | currency:'TWD' }}</h5>
+
+            <p class="mb-4" [innerHTML]="product?.summary"></p>
 
             <app-quantity [(value)]="count1"></app-quantity>
 
             <a routerLink="/show/cart"
-              class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary"><i
-                class="fa fa-shopping-bag me-2 text-primary "></i>加入購物車</a>
-            <button class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary"><i
-                class="fas fa-truck me-2 text-primary"></i>補貨中...</button>
+              class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary">
+              <i class="fa fa-shopping-bag me-2 text-primary"></i>加入購物車
+            </a>
+            <button *ngIf="product?.stock === 0"
+              class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary">
+              <i class="fas fa-truck me-2 text-primary"></i>補貨中...
+            </button>
           </div>
           <div class="col-lg-12">
             <nav>
@@ -69,7 +74,8 @@
             </nav>
             <div class="tab-content mb-5">
               <div class="tab-pane active" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
-                <p>
+                <div [innerHTML]="product?.content"></div>
+                <!-- <p>
                   在這個瞬息萬變的市場環境中，企業唯有持續創新與穩健經營，才能在競爭激烈的產業中脫穎而出。本公司自創立以來，始終秉持「誠信、專業、創新、服務」的核心理念，致力於為客戶打造高效、可靠且具前瞻性的整合解決方案。我們擁有一支充滿熱情與經驗的專業團隊，橫跨業務開發、產品設計、行銷企劃與售後服務等各個領域，能迅速掌握市場動態並提出最佳應對策略。
 
                   我們深知客戶需求多元且快速變化，因此積極導入最新技術與智慧化管理系統，不斷優化流程與提升品質，力求在每一個細節中展現我們的用心與專業。從初步諮詢、方案設計、執行落地到後續維運，我們提供一條龍的完整服務，讓客戶無後顧之憂，專注於核心業務發展。
@@ -77,8 +83,8 @@
                   除了提供優質的產品與服務，我們亦重視永續發展與社會責任。透過環保材料應用、節能減碳措施及社區關懷活動，我們積極實踐企業公民的角色，為社會與環境盡一份心力。
 
                   展望未來，我們將持續強化核心競爭力，擴大全球佈局，攜手客戶共創價值，共築長遠且穩固的合作夥伴關係。選擇我們，就是選擇一個值得信賴、與時俱進的夥伴，讓我們一同邁向更卓越的明天。
-                </p>
-                <div class="px-2">
+                </p> -->
+                <!-- <div class="px-2">
                   <div class="row g-4">
                     <div class="col-6">
                       <div class="row bg-light align-items-center text-center justify-content-center py-2">
@@ -107,7 +113,7 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> -->
               </div>
               <!-- 暫時先不做 -->
               <!-- <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">

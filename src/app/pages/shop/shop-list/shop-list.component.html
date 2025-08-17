@@ -8,7 +8,6 @@
 </div>
 <!-- Single Page Header End -->
 
-<!-- Fruits Shop Start-->
 <div class="container-fluid fruite py-5">
   <div class="container py-5">
     <div class="row g-4">
@@ -40,30 +39,12 @@
               <div class="col-lg-12">
                 <div class="mb-3">
                   <h4>商品分類</h4>
+                  <!-- 商品分類 -->
                   <ul class="list-unstyled fruite-categorie">
-                    <li>
+                    <li *ngFor="let cat of categoryList" (click)="onCategorySelect(cat.categoryID)"
+                      [class.active]="selectedCategoryId === cat.categoryID" style="cursor: pointer;">
                       <div class="d-flex justify-content-between fruite-name">
-                        <a href="#"><i class="fas fa-apple-alt me-2"></i>蘋果</a>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="d-flex justify-content-between fruite-name">
-                        <a href="#"><i class="fas fa-apple-alt me-2"></i>橘子</a>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="d-flex justify-content-between fruite-name">
-                        <a href="#"><i class="fas fa-apple-alt me-2"></i>草莓</a>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="d-flex justify-content-between fruite-name">
-                        <a href="#"><i class="fas fa-apple-alt me-2"></i>香蕉</a>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="d-flex justify-content-between fruite-name">
-                        <a href="#"><i class="fas fa-apple-alt me-2"></i>南瓜</a>
+                        <a href="javascript:void(0);"><i class="fa fa-apple-alt text-primary me-2"></i>{{ cat.categoryName }}</a>
                       </div>
                     </li>
                   </ul>
@@ -183,171 +164,52 @@
           </div>
           <div class="col-lg-9">
             <div class="row g-4 justify-content-center">
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <a [routerLink]="['/show/shop', 'banana-smoothie']" class=" rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>葡萄</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
+              <ng-container *ngIf="!loading; else loadingTpl">
+                <div class="col-md-6 col-lg-6 col-xl-4" *ngFor="let p of productList">
+                  <a [routerLink]="['/show/shop', p.slug]" class="rounded position-relative fruite-item">
+                    <div class="fruite-img">
+                      <img [src]="p.thumbnailPhotoPath" class="img-fluid w-100 rounded-top" alt="{{p.productName}}">
                     </div>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>葡萄</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
+                    <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                      <h4>{{ p.productName }}</h4>
+                      <div class="d-flex justify-content-between flex-lg-wrap">
+                        <p class="text-muted mb-0" *ngIf="p.originalPrice">
+                          <del>{{ p.originalPrice | currency:'TWD' }}</del>
+                        </p>
+                        <p class="text-dark fs-5 fw-bold mb-0">
+                          {{ p.salePrice | currency:'TWD' }}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  </a>
                 </div>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-2.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>覆盆子</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
+              </ng-container>
 
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-4.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>杏子</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-3.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>香蕉</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-1.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>橘子</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-2.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>覆盆子</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>葡萄</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-lg-6 col-xl-4">
-                <div class="rounded position-relative fruite-item">
-                  <div class="fruite-img">
-                    <img src="assets/img/fruite-item-1.jpg" class="img-fluid w-100 rounded-top" alt="">
-                  </div>
-                  <!--<div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                    style="top: 10px; left: 10px;">Fruits</div>-->
-                  <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                    <h4>橘子</h4>
-                    <p>精選好物限時優惠，品質保證，錯過不再有，立即搶購</p>
-                    <div class="d-flex justify-content-between flex-lg-wrap">
-                      <p class="text-dark fs-5 fw-bold mb-0">$100</p>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <!-- 分頁 -->
               <div class="col-12">
                 <div class="pagination d-flex justify-content-center mt-5">
-                  <a href="#" class="rounded">&laquo;</a>
-                  <a href="#" class="active rounded">1</a>
-                  <a href="#" class="rounded">2</a>
-                  <a href="#" class="rounded">3</a>
-                  <a href="#" class="rounded">4</a>
-                  <a href="#" class="rounded">5</a>
-                  <a href="#" class="rounded">6</a>
-                  <a href="#" class="rounded">&raquo;</a>
+                  <!-- 上一頁 -->
+                  <a href="javascript:void(0)" class="rounded" [class.disabled]="page === 1"
+                    (click)="onPageChange(page - 1)">«</a>
+
+                  <!-- 頁碼 -->
+                  <a href="javascript:void(0)" class="rounded" *ngFor="let pg of totalPages"
+                    [class.active]="page === pg" (click)="onPageChange(pg)">
+                    {{ pg }}
+                  </a>
+
+                  <!-- 下一頁 -->
+                  <a href="javascript:void(0)" class="rounded" [class.disabled]="page === totalPages.length"
+                    (click)="onPageChange(page + 1)">»</a>
                 </div>
               </div>
+
+
+              <ng-template #loadingTpl>
+                <div class="text-center py-5">
+                  <div class="spinner-border"></div>
+                </div>
+              </ng-template>
             </div>
           </div>
         </div>
@@ -355,4 +217,3 @@
     </div>
   </div>
 </div>
-<!-- Fruits Shop End-->
