@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router'; // ⬅️ 加這行
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-membermanagement',
   standalone: true,
-  imports: [RouterModule], // ⬅️ 加這行
+  imports: [RouterModule],
   templateUrl: './membermanagement.component.html',
   styleUrl: './membermanagement.component.scss'
 })

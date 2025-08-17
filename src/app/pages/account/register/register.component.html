@@ -11,89 +11,165 @@
                 </p>
 
                 <form class="mx-1 mx-md-4" (ngSubmit)="register()">
-                  <div class="d-flex flex-row align-items-center mb-4">
-                    <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                    <div class="form-outline flex-fill mb-0">
-                      <label class="form-label" for="name">姓名</label>
-                      <input
-                        type="text"
-                        id="name"
-                        class="form-control"
-                        [(ngModel)]="name"
-                        name="name"
-                        required
+                  <!-- 帳號 -->
+                  <div class="mb-3">
+                    <label class="form-label">帳號</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="account"
+                      name="account"
+                      required
+                    />
+                  </div>
+
+                  <!-- 姓名 -->
+                  <div class="mb-3">
+                    <label class="form-label">姓名</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="name"
+                      name="name"
+                      required
+                    />
+                  </div>
+
+                  <!-- 性別 -->
+                  <div class="mb-3">
+                    <label class="form-label">性別</label>
+                    <select
+                      class="form-select"
+                      [(ngModel)]="gender"
+                      name="gender"
+                      required
+                    >
+                      <option value="" disabled selected>請選擇性別</option>
+                      <option value="男">男</option>
+                      <option value="女">女</option>
+                    </select>
+                  </div>
+
+                  <!-- 生日 -->
+                  <div class="mb-3">
+                    <label class="form-label">生日</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      [(ngModel)]="birthDate"
+                      name="birthDate"
+                    />
+                  </div>
+
+                  <!-- 手機 -->
+                  <div class="mb-3">
+                    <label class="form-label">手機</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="phone"
+                      name="phone"
+                    />
+                  </div>
+
+                  <!-- 電子郵件 -->
+                  <div class="mb-3">
+                    <label class="form-label">電子郵件</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      [(ngModel)]="email"
+                      name="email"
+                      required
+                    />
+                  </div>
+
+                  <!-- 密碼 -->
+                  <div class="mb-3 position-relative">
+                    <label class="form-label">密碼</label>
+                    <input
+                      [type]="showPassword ? 'text' : 'password'"
+                      class="form-control"
+                      [(ngModel)]="password"
+                      name="password"
+                      required
+                    />
+                    <i
+                      class="fas"
+                      [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+                      (click)="togglePassword()"
+                      style="
+                        position: absolute;
+                        top: 38px;
+                        right: 15px;
+                        cursor: pointer;
+                      "
+                    ></i>
+                  </div>
+
+                  <!-- 確認密碼 -->
+                  <div class="mb-3 position-relative">
+                    <label class="form-label">確認密碼</label>
+                    <input
+                      [type]="showConfirmPassword ? 'text' : 'password'"
+                      class="form-control"
+                      [(ngModel)]="confirmPassword"
+                      name="confirmPassword"
+                      required
+                    />
+                    <i
+                      class="fas"
+                      [ngClass]="
+                        showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'
+                      "
+                      (click)="toggleConfirmPassword()"
+                      style="
+                        position: absolute;
+                        top: 38px;
+                        right: 15px;
+                        cursor: pointer;
+                      "
+                    ></i>
+                  </div>
+
+                  <!-- 大頭貼上傳與預覽 -->
+                  <div class="mb-3">
+                    <label class="form-label">上傳大頭貼</label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      (change)="onPhotoSelected($event)"
+                    />
+                    <div *ngIf="photoPreview" class="text-center mt-2">
+                      <img
+                        [src]="photoPreview"
+                        class="img-thumbnail"
+                        width="120"
                       />
                     </div>
                   </div>
 
-                  <div class="d-flex flex-row align-items-center mb-4">
-                    <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                    <div class="form-outline flex-fill mb-0">
-                      <label class="form-label" for="email">電子郵件</label>
-                      <input
-                        type="email"
-                        id="email"
-                        class="form-control"
-                        [(ngModel)]="email"
-                        name="email"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div class="d-flex flex-row align-items-center mb-4">
-                    <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                    <div class="form-outline flex-fill mb-0">
-                      <label class="form-label" for="password">密碼</label>
-                      <input
-                        type="password"
-                        id="password"
-                        class="form-control"
-                        [(ngModel)]="password"
-                        name="password"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div class="d-flex flex-row align-items-center mb-4">
-                    <i class="fas fa-key fa-lg me-3 fa-fw"></i>
-                    <div class="form-outline flex-fill mb-0">
-                      <label class="form-label" for="confirmPassword"
-                        >確認密碼</label
-                      >
-                      <input
-                        type="password"
-                        id="confirmPassword"
-                        class="form-control"
-                        [(ngModel)]="confirmPassword"
-                        name="confirmPassword"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    class="form-check d-flex justify-content-center align-items-center mb-5"
-                  >
+                  <!-- 同意條款 -->
+                  <div class="form-check d-flex justify-content-center mb-4">
                     <input
                       class="form-check-input me-2"
                       type="checkbox"
-                      id="terms"
                       required
                     />
-                    <label class="form-check-label" for="terms">
-                      我同意 <a href="#">服務條款</a>
-                    </label>
+                    <label class="form-check-label"
+                      >我同意 <a href="#">服務條款</a></label
+                    >
                   </div>
 
-                  <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                  <!-- 送出 -->
+                  <div class="d-flex justify-content-center">
                     <button type="submit" class="btn btn-primary btn-lg">
                       註冊
                     </button>
                   </div>
                 </form>
               </div>
+
               <div
                 class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2"
               >

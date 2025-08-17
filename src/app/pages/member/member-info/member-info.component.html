@@ -3,15 +3,13 @@
     <h4 class="text-primary fw-bold">我的資料</h4>
   </div>
   <div class="card-body">
-    <!-- 編輯模式 -->
     @if (isEdit) {
+    <!-- 編輯模式 -->
     <form (ngSubmit)="save()" class="row g-3">
       <div class="col-md-3 text-center">
         <img
-          [src]="
-            member.photoPreview ||
-            'https://via.placeholder.com/120x120?text=Photo'
-          "
+          [src]="member.photoUrl"
+          (error)="member.photoUrl = '../../../../assets/img/member/user.png'"
           class="rounded-circle border"
           width="120"
           height="120"
@@ -55,6 +53,14 @@
             name="birth"
           />
         </div>
+        <div class="col-md-6">
+          <label class="form-label">頭貼</label>
+          <input
+            type="file"
+            class="form-control"
+            (change)="onPhotoSelected($event)"
+          />
+        </div>
       </div>
       <div class="col-12 mt-3">
         <button class="btn btn-success px-4" type="submit">儲存</button>
@@ -68,13 +74,12 @@
       </div>
     </form>
     } @else {
+    <!-- 檢視模式 -->
     <div class="row">
       <div class="col-md-3 text-center">
         <img
-          [src]="
-            member.photoPreview ||
-            'https://via.placeholder.com/120x120?text=Photo'
-          "
+          [src]="member.photoUrl"
+          (error)="member.photoUrl = '../../../../assets/img/member/user.png'"
           class="rounded-circle border"
           width="120"
           height="120"
@@ -91,7 +96,163 @@
         </ul>
       </div>
     </div>
-    <button class="btn btn-success mt-4" (click)="toggleEdit()">編輯</button>
+
+    <!-- 編輯按鈕 -->
+    <div class="d-flex justify-content-end gap-2 mt-4" *ngIf="!isEdit">
+      <!-- 編輯按鈕（任何人都可以編輯） -->
+      <button class="btn btn-success w-25" (click)="toggleEdit()">編輯</button>
+
+      <!-- 若是入住會員才顯示下方兩顆按鈕 -->
+      @if (member.residesInCareHome) {
+      <!-- 緊急聯絡人 -->
+      <button
+        class="btn btn-warning w-25"
+        data-bs-toggle="modal"
+        data-bs-target="#emergencyModal"
+        (click)="loadEmergencyContact()"
+      >
+        查看緊急聯絡人
+      </button>
+
+      <!-- 健康檢查 -->
+      <button
+        class="btn btn-primary w-25"
+        data-bs-toggle="modal"
+        data-bs-target="#healthModal"
+        (click)="loadHealthRecords()"
+      >
+        查看近七天健康檢查
+      </button>
+      }
+    </div>
     }
+
+    <!-- 緊急聯絡人 Modal -->
+    <div
+      class="modal fade"
+      id="emergencyModal"
+      tabindex="-1"
+      aria-labelledby="emergencyModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title" id="emergencyModalLabel">緊急聯絡人資訊</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="關閉"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <b>關係：</b> {{ contact.fRelationship }}
+              </li>
+              <li class="list-group-item">
+                <b>姓名：</b> {{ contact.fContactName }}
+              </li>
+              <li class="list-group-item">
+                <b>電話：</b> {{ contact.fPhone }}
+              </li>
+              <li class="list-group-item">
+                <b>Email：</b> {{ contact.fEmail }}
+              </li>
+              <li class="list-group-item">
+                <b>地址：</b> {{ contact.fCity }}{{ contact.fDistrict
+                }}{{ contact.fAddress }}
+              </li>
+              <li class="list-group-item">
+                <b>備註：</b> {{ contact.fNotes }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 健康檢查 Modal -->
+    <div
+      class="modal fade"
+      id="healthModal"
+      tabindex="-1"
+      aria-labelledby="healthModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="healthModalLabel">
+              近七天健康檢查紀錄
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="關閉"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- 健康紀錄表格 -->
+            <div class="card mb-4">
+              <div class="card-body table-responsive">
+                <table class="table table-bordered text-center align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>日期</th>
+                      <th>收縮壓</th>
+                      <th>舒張壓</th>
+                      <th>脈搏</th>
+                      <th>I/O</th>
+                      <th>時段</th>
+                      <th>備註</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (record of healthRecords; track record.recordDate) {
+                    <tr>
+                      <td>{{ record.recordDate | date : "yyyy-MM-dd" }}</td>
+                      <td>{{ record.systolic }}</td>
+                      <td>{{ record.diastolic }}</td>
+                      <td>{{ record.pulse }}</td>
+                      <td>{{ record.ioRecord }}</td>
+                      <td>{{ record.checkPeriod }}</td>
+                      <td>{{ record.notes }}</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 圓餅圖 + 柱狀圖 -->
+            <div class="row my-4">
+              <!-- 左邊圓餅圖 -->
+              <div class="col-md-4 text-center">
+                <h5>今日健康度</h5>
+                <div style="width: 150px; height: 150px; margin: auto">
+                  <canvas id="healthGauge"></canvas>
+                </div>
+                <div class="mt-3">
+                  <i [class]="healthIcon" style="font-size: 2.5rem"></i>
+                  <p class="fw-bold mt-2">{{ healthStatus }}</p>
+                </div>
+              </div>
+
+              <!-- 右邊柱狀圖 -->
+              <div class="col-md-8">
+                <h5 class="text-center">最近一週健康指數</h5>
+                <div style="width: 100%; height: 300px">
+                  <canvas id="healthBarChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- modal-body -->
+        </div>
+      </div>
+    </div>
   </div>
 </div>

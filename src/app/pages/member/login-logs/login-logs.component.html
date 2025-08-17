@@ -1,0 +1,51 @@
+<table class="table table-bordered text-center">
+  <thead class="table-light">
+    <tr>
+      <th>事件</th>
+      <th>登入IP</th>
+      <th>時間</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let log of logs">
+      <td>{{ log.eventType }}</td>
+      <td>{{ getRegion(log) }}</td>
+      <td>{{ log.createdAt | date : "yyyy-MM-dd HH:mm:ss" }}</td>
+    </tr>
+  </tbody>
+</table>
+<nav *ngIf="totalPages > 1" class="d-flex justify-content-center mt-3">
+  <div class="btn-group" role="group" aria-label="Pagination">
+    <button
+      type="button"
+      class="btn btn-outline-primary"
+      [disabled]="currentPage === 1"
+      (click)="changePage(currentPage - 1)"
+    >
+      上一頁
+    </button>
+    <ng-container
+      *ngFor="let page of [].constructor(totalPages); let i = index"
+    >
+      <button
+        type="button"
+        class="btn"
+        [ngClass]="{
+          'btn-primary': currentPage === i + 1,
+          'btn-outline-primary': currentPage !== i + 1
+        }"
+        (click)="changePage(i + 1)"
+      >
+        {{ i + 1 }}
+      </button>
+    </ng-container>
+    <button
+      type="button"
+      class="btn btn-outline-primary"
+      [disabled]="currentPage === totalPages"
+      (click)="changePage(currentPage + 1)"
+    >
+      下一頁
+    </button>
+  </div>
+</nav>
