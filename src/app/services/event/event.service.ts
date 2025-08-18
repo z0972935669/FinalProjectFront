@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EventList, EventTemplateDto } from '../../interfaces/event/event-list';
 
@@ -24,6 +24,7 @@ export class EventService {
     );
   }
 
+  //新增報名資料
   register(body: {
     eventBatchId: number;
     memberId: number;

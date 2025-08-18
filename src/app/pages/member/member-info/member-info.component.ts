@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpClientModule,
+} from '@angular/common/http';
 import { Router } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { EmergencyContact } from '../../../interfaces/member/emergency-contact.interface';
@@ -24,7 +28,6 @@ interface HealthRecord {
   styleUrls: ['./member-info.component.scss'],
 })
 export class MemberInfoComponent implements OnInit {
-
   member = {
     username: '',
     name: '',
@@ -34,7 +37,7 @@ export class MemberInfoComponent implements OnInit {
     gender: '',
     birth: '',
     photoUrl: 'https://localhost:7124/images/members/default-avatar.png',
-    residesInCareHome: false
+    residesInCareHome: false,
   };
 
   contact: EmergencyContact = {
@@ -46,7 +49,7 @@ export class MemberInfoComponent implements OnInit {
     fDistrict: '',
     fAddress: '',
     fNotes: '',
-    canEditContact: false
+    canEditContact: false,
   };
 
   isEdit = false;
@@ -62,20 +65,20 @@ export class MemberInfoComponent implements OnInit {
 
   ngOnInit(): void {
     //  防止 Google 登入後按上一頁還能看到畫面（監聽 bfcache）
-window.addEventListener('pageshow', (e: PageTransitionEvent) => {
-  const token = localStorage.getItem('jwtToken');
-  if (!token) {
-    this.router.navigate(['/show/login']);
-    return;
-  }
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    if (Date.now() > payload.exp * 1000) throw new Error('expired');
-  } catch {
-    localStorage.removeItem('jwtToken');
-    this.router.navigate(['/show/login']);
-  }
-});
+    window.addEventListener('pageshow', (e: PageTransitionEvent) => {
+      const token = localStorage.getItem('jwtToken');
+      if (!token) {
+        this.router.navigate(['/show/login']);
+        return;
+      }
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (Date.now() > payload.exp * 1000) throw new Error('expired');
+      } catch {
+        localStorage.removeItem('jwtToken');
+        this.router.navigate(['/show/login']);
+      }
+    });
 
     //  Token 檢查
     const token = localStorage.getItem('jwtToken');
@@ -107,7 +110,7 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
       gender: '',
       birth: '',
       photoUrl: 'https://localhost:7124/images/members/user.png',
-      residesInCareHome: false
+      residesInCareHome: false,
     };
   }
 
@@ -115,7 +118,8 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
     const token = localStorage.getItem('jwtToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    this.http.get<any>('https://localhost:7124/api/Member/me', { headers })
+    this.http
+      .get<any>('https://localhost:7124/api/Member/me', { headers })
       .subscribe({
         next: (data) => {
           Object.assign(this.member, {
@@ -127,18 +131,20 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
             gender: data.gender,
             birth: data.birthDate,
             photoUrl: data.photoUrl,
-            residesInCareHome: data.residesInCareHome
+            residesInCareHome: data.residesInCareHome,
           });
         },
         error: () => {
           localStorage.removeItem('jwtToken');
           this.resetMember();
           this.router.navigate(['/show/login']);
-        }
+        },
       });
   }
 
-  toggleEdit() { this.isEdit = !this.isEdit; }
+  toggleEdit() {
+    this.isEdit = !this.isEdit;
+  }
 
   save() {
     const token = localStorage.getItem('jwtToken');
@@ -153,7 +159,8 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
     if (this.member.birth) formData.append('BirthDate', this.member.birth);
     if (this.selectedPhoto) formData.append('Photo', this.selectedPhoto);
 
-    this.http.put('https://localhost:7124/api/Member/update', formData, { headers })
+    this.http
+      .put('https://localhost:7124/api/Member/update', formData, { headers })
       .subscribe({
         next: () => {
           alert('會員資料已更新');
@@ -163,7 +170,7 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
         error: () => {
           localStorage.removeItem('jwtToken');
           this.router.navigate(['/show/login']);
-        }
+        },
       });
   }
 
@@ -172,7 +179,9 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
     if (file) {
       this.selectedPhoto = file;
       const reader = new FileReader();
-      reader.onload = () => { this.member.photoUrl = reader.result as string; };
+      reader.onload = () => {
+        this.member.photoUrl = reader.result as string;
+      };
       reader.readAsDataURL(file);
     }
   }
@@ -181,17 +190,26 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
     const token = localStorage.getItem('jwtToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    this.http.get<HealthRecord[]>('https://localhost:7124/api/HealthRecord/my-records', { headers })
+    this.http
+      .get<HealthRecord[]>(
+        'https://localhost:7124/api/HealthRecord/my-records',
+        { headers }
+      )
       .subscribe({
         next: (data) => {
-          const allData = (data ?? []).map(r => ({
+          const allData = (data ?? []).map((r) => ({
             ...r,
-            recordDate: typeof r.recordDate === 'string' ? new Date(r.recordDate) : r.recordDate
+            recordDate:
+              typeof r.recordDate === 'string'
+                ? new Date(r.recordDate)
+                : r.recordDate,
           }));
 
           const oneWeekAgo = new Date();
           oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
-          this.healthRecords = allData.filter(r => r.recordDate >= oneWeekAgo);
+          this.healthRecords = allData.filter(
+            (r) => r.recordDate >= oneWeekAgo
+          );
 
           if (this.healthRecords.length) {
             const latest = this.healthRecords[this.healthRecords.length - 1];
@@ -199,35 +217,43 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
           }
           this.renderBarChart();
         },
-        error: (err) => console.error('讀取健康紀錄失敗', err)
+        error: (err) => console.error('讀取健康紀錄失敗', err),
       });
   }
 
   private renderBarChart() {
-    const canvas = document.getElementById('healthBarChart') as HTMLCanvasElement;
+    const canvas = document.getElementById(
+      'healthBarChart'
+    ) as HTMLCanvasElement;
     if (!canvas) return;
     if (this.barChart) this.barChart.destroy();
 
-    const labels = this.healthRecords.map(r =>
-      (r.recordDate instanceof Date) ? r.recordDate.toISOString().slice(0, 10) : r.recordDate as string
+    const labels = this.healthRecords.map((r) =>
+      r.recordDate instanceof Date
+        ? r.recordDate.toISOString().slice(0, 10)
+        : (r.recordDate as string)
     );
-    const healthIndex = this.healthRecords.map(r => this.calcHealthIndex(r));
+    const healthIndex = this.healthRecords.map((r) => this.calcHealthIndex(r));
 
     this.barChart = new Chart(canvas, {
       type: 'bar',
       data: {
         labels,
-        datasets: [{
-          label: '健康指數',
-          data: healthIndex,
-          backgroundColor: healthIndex.map(v => v >= 80 ? '#4BC0C0' : v >= 60 ? '#FFD700' : '#FF6384')
-        }]
+        datasets: [
+          {
+            label: '健康指數',
+            data: healthIndex,
+            backgroundColor: healthIndex.map((v) =>
+              v >= 80 ? '#4BC0C0' : v >= 60 ? '#FFD700' : '#FF6384'
+            ),
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: { y: { min: 0, max: 100 } }
-      }
+        scales: { y: { min: 0, max: 100 } },
+      },
     });
   }
 
@@ -254,24 +280,28 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
       type: 'doughnut',
       data: {
         labels: ['健康度', '缺口'],
-        datasets: [{
-          data: [value, 100 - value],
-          backgroundColor: ['#4BC0C0', '#E0E0E0'],
-          borderWidth: 0
-        }]
+        datasets: [
+          {
+            data: [value, 100 - value],
+            backgroundColor: ['#4BC0C0', '#E0E0E0'],
+            borderWidth: 0,
+          },
+        ],
       },
       options: {
         responsive: true,
         cutout: '70%',
-        plugins: { legend: { display: false }, tooltip: { enabled: false } }
-      }
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      },
     });
   }
 
   private calcHealthIndex(record: HealthRecord): number {
     let score = 100;
-    if (record.systolic && (record.systolic < 110 || record.systolic > 130)) score -= 10;
-    if (record.diastolic && (record.diastolic < 70 || record.diastolic > 85)) score -= 10;
+    if (record.systolic && (record.systolic < 110 || record.systolic > 130))
+      score -= 10;
+    if (record.diastolic && (record.diastolic < 70 || record.diastolic > 85))
+      score -= 10;
     if (record.pulse && (record.pulse < 60 || record.pulse > 100)) score -= 10;
     return Math.max(score, 0);
   }
@@ -280,9 +310,15 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
     const token = localStorage.getItem('jwtToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    this.http.get<EmergencyContact>('https://localhost:7124/api/MemberEmergencyContact/me', { headers })
+    this.http
+      .get<EmergencyContact>(
+        'https://localhost:7124/api/MemberEmergencyContact/me',
+        { headers }
+      )
       .subscribe({
-        next: (res) => { this.contact = res; },
+        next: (res) => {
+          this.contact = res;
+        },
         error: () => {
           console.log('尚未有緊急聯絡人資料');
           this.contact = {
@@ -294,9 +330,9 @@ window.addEventListener('pageshow', (e: PageTransitionEvent) => {
             fDistrict: '',
             fAddress: '',
             fNotes: '',
-            canEditContact: false
+            canEditContact: false,
           };
-        }
+        },
       });
   }
 }
