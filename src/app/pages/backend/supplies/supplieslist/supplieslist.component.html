@@ -63,75 +63,21 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for (product of suppliesProducts;track $index)
+                    {
                     <tr>
-                      <td class="cell">#15341</td>
-                      <td class="cell">年長者專用綜合維他命</td>
-                      <td class="cell"><span class="truncate">健康寶有限公司</span></td>
-                      <td class="cell">保健品</td>
-                      <td class="cell"><span class="cell-data">500顆</span><span class="note">罐</span></td>
-                      <td class="cell">$800</td>
-                      <td class="cell">159</td>
+                      <td class="cell">{{product.suppliesProductID}}</td>
+                      <td class="cell">{{product.suppliesProductName}}</td>
+                      <td class="cell"><span class="truncate">{{product.suppliesSupplierName}}</span></td>
+                      <td class="cell">{{product.suppliesCategoryName}}</td>
+                      <td class="cell"><span class="cell-data">{{product.quantityPerUnit}}</span><span
+                          class="note"></span></td>
+                      <td class="cell">{{product.pricePerUnit}}</td>
+                      <td class="cell">{{product.pricePerUnit}}</td>
                       <td class="cell"><a class="btn-sm app-btn-secondary me-2" href="#">品項修改</a><a
                           class="btn-sm app-btn-secondary" href="#">詳細時間</a></td>
                     </tr>
-                    <tr>
-                      <td class="cell">#15342</td>
-                      <td class="cell">超細柔抽取式衛生紙</td>
-                      <td class="cell"><span class="truncate">全佳日用品企業社</span></td>
-                      <td class="cell">日用品</td>
-                      <td class="cell"><span class="cell-data">24包</span><span class="note">袋</span></td>
-                      <td class="cell">$200</td>
-                      <td class="cell">50</td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary me-2" href="#">品項修改</a><a
-                          class="btn-sm app-btn-secondary" href="#">詳細時間</a></td>
-                    </tr>
-                    <tr>
-                      <td class="cell">#15343</td>
-                      <td class="cell">細軸棉花棒</td>
-                      <td class="cell"><span class="truncate">安捷貿易有限公司</span></td>
-                      <td class="cell">醫藥品</td>
-                      <td class="cell"><span class="cell-data">600支</span><span class="note">盒</span></td>
-                      <td class="cell">$65</td>
-                      <td class="cell">300</td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary me-2" href="#">品項修改</a><a
-                          class="btn-sm app-btn-secondary" href="#">詳細時間</a></td>
-                    </tr>
-
-                    <tr>
-                      <td class="cell">#15344</td>
-                      <td class="cell">成人醫用口罩</td>
-                      <td class="cell"><span class="truncate">安捷貿易有限公司</span></td>
-                      <td class="cell">醫藥品</td>
-                      <td class="cell"><span class="cell-data">50片</span><span class="note">盒</span></td>
-                      <td class="cell">$150</td>
-                      <td class="cell">100</td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary me-2" href="#">品項修改</a><a
-                          class="btn-sm app-btn-secondary" href="#">詳細時間</a></td>
-                    </tr>
-
-                    <tr>
-                      <td class="cell">#15345</td>
-                      <td class="cell">胃藥 錠狀</td>
-                      <td class="cell"><span class="truncate">健康寶有限公司</span></td>
-                      <td class="cell">醫藥品</td>
-                      <td class="cell"><span class="cell-data">72錠</span><span class="note">盒</span></td>
-                      <td class="cell">$450</td>
-                      <td class="cell">60</td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary me-2" href="#">品項修改</a><a
-                          class="btn-sm app-btn-secondary" href="#">詳細時間</a></td>
-                    </tr>
-
-                    <tr>
-                      <td class="cell">#15346</td>
-                      <td class="cell">經典格紋毛巾</td>
-                      <td class="cell"><span class="truncate">台灣興隆毛巾</span></td>
-                      <td class="cell">日用品</td>
-                      <td class="cell"><span class="cell-data">12條</span><span class="note"></span></td>
-                      <td class="cell">$1500</td>
-                      <td class="cell">20</td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary me-2" href="#">品項修改</a><a
-                          class="btn-sm app-btn-secondary" href="#">詳細時間</a></td>
-                    </tr>
+                    }
 
                   </tbody>
                 </table>

@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { SuppliesListService } from '../../../../services/supplies/supplies-list.service';
+import { Isupplieslist } from '../../../../interfaces/supplies/isupplieslist';
 
 @Component({
   selector: 'app-supplieslist',
@@ -9,5 +11,13 @@ import { RouterModule } from '@angular/router';
   styleUrl: './supplieslist.component.scss'
 })
 export class SupplieslistComponent {
+  suppliesProducts: Isupplieslist[] = [];
 
+  constructor(private suppliesListService: SuppliesListService) { }
+
+  ngOnInit(): void {
+    this.suppliesListService.getSuppliesData().subscribe((data: Isupplieslist[]) => {
+      this.suppliesProducts = data;
+    });
+  }
 }
