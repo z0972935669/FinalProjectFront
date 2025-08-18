@@ -1,0 +1,37 @@
+.view-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .05);
+}
+
+.view-row:last-child {
+  border-bottom: 0;
+}
+
+.view-label {
+  flex: 0 0 160px;
+  font-size: large;
+  /* 標題固定寬度 160px */
+  font-weight: bolder;
+  color: forestgreen;
+}
+
+.view-data {
+  flex: 1 1 auto;
+  /* 內容自適應寬度 */
+  font-size: large;
+  /* 標題固定寬度 160px */
+  // font-weight: bolder;
+  color: rgb(0, 0, 0);
+}
+
+/* 右側兩張卡片直向堆疊、等寬 */
+@media (min-width: 992px) {
+  .right-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+}
