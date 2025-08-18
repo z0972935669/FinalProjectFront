@@ -147,8 +147,6 @@ export const routes: Routes = [
       { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
       { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
       { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
-      // 員工管理
-
       // 其他後台頁面可以在這裡添加
     ],
   },
