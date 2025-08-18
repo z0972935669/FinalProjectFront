@@ -15,21 +15,25 @@
         <div class="row g-4">
           <div class="col-xl-3">
             <!-- 搜尋: 暫時不需要 -->
-            <!-- <div class="input-group w-100 mx-auto d-flex">
-              <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
+            <div class="input-group w-100 mx-auto d-flex mb-3">
+              <input type="search" class="form-control p-3" placeholder="搜尋" aria-describedby="search-icon-1">
               <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-            </div> -->
+            </div>
             <!-- end 搜尋: 暫時不需要 -->
           </div>
           <div class="col-6"></div>
           <div class="col-xl-3">
-            <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
-              <label for="fruits">篩選:</label>
-              <select id="fruits" name="fruitlist" class="border-0 form-select-sm bg-light me-3" form="fruitform">
-                <option value="volvo">價格:低到高</option>
-                <option value="saab">價格:高到低</option>
-                <option value="opel">最新</option>
-              </select>
+            <div class="d-flex align-items-center justify-content-end mb-4">
+              <label class="me-2 fw-bold text-warning">排序：</label>
+              <div class="position-relative">
+                <select class="form-select form-select-sm shadow-sm border rounded-pill px-3 pe-5 custom-select-arrow"
+                  [(ngModel)]="sortOption" (change)="onSortChange()" style="min-width: 160px;">
+                  <option value="latest">最新</option>
+                  <option value="priceAsc">價格：低 → 高</option>
+                  <option value="priceDesc">價格：高 → 低</option>
+                </select>
+                <i class="bi bi-chevron-down position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -44,7 +48,8 @@
                     <li *ngFor="let cat of categoryList" (click)="onCategorySelect(cat.categoryID)"
                       [class.active]="selectedCategoryId === cat.categoryID" style="cursor: pointer;">
                       <div class="d-flex justify-content-between fruite-name">
-                        <a href="javascript:void(0);"><i class="fa fa-apple-alt text-primary me-2"></i>{{ cat.categoryName }}</a>
+                        <a href="javascript:void(0);"><i class="fa fa-apple-alt text-primary me-2"></i>{{
+                          cat.categoryName }}</a>
                       </div>
                     </li>
                   </ul>
@@ -163,7 +168,7 @@
             </div>
           </div>
           <div class="col-lg-9">
-            <div class="row g-4 justify-content-center">
+            <div class="row g-4 justify-content-start">
               <ng-container *ngIf="!loading; else loadingTpl">
                 <div class="col-md-6 col-lg-6 col-xl-4" *ngFor="let p of productList">
                   <a [routerLink]="['/show/shop', p.slug]" class="rounded position-relative fruite-item">

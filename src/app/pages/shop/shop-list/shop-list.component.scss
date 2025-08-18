@@ -1,0 +1,6 @@
+.custom-select-arrow {
+  appearance: none; /* 移除預設箭頭 (Chrome、Safari) */
+  -moz-appearance: none; /* Firefox */
+  -ms-appearance: none; /* IE */
+  background: none !important; /* 移除背景箭頭 */
+}
