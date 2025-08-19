@@ -1,3 +1,4 @@
+import { Isuppliessupplier } from './../../interfaces/supplies/isuppliessupplier';
 import { Injectable } from '@angular/core';
 import { Isupplieslist } from '../../interfaces/supplies/isupplieslist';
 import { HttpClient } from '@angular/common/http';
@@ -11,9 +12,8 @@ export class SuppliesListService {
 
   constructor(private http: HttpClient) { }
 
-  private suppliesData: Isupplieslist[] = []
-
   getSuppliesData(): Observable<Isupplieslist[]> {
     return this.http.get<Isupplieslist[]>(this.apiUrlsup);
   }
+
 }
