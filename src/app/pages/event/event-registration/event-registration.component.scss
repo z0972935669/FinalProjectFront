@@ -46,3 +46,59 @@
   outline: none;
   box-shadow: 0 0 0 4px rgba(255,153,0,.25);
 }
+
+/* 區塊小標題（左側小圓點 + 粗體） */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 800;
+  color: #334155; /* slate-700 */
+  letter-spacing: .5px;
+
+  .dot {
+    width: .6rem; height: .6rem;
+    border-radius: 9999px;
+    background: #f59e0b; /* amber-500 */
+    flex: 0 0 .6rem;
+  }
+}
+
+/* 條款：有序清單，橘色數字、粗體小標題 */
+.term-list {
+  counter-reset: term;
+  list-style: none;
+  padding-left: 0; margin: 0;
+
+  li {
+    counter-increment: term;
+    display: grid;
+    grid-template-columns: 1.75rem auto; /* 左數字、右內容 */
+    column-gap: .5rem;
+    margin-bottom: .5rem;
+    line-height: 1.7;
+
+    &::before {
+      content: counter(term) ".";
+      font-weight: 800;
+      color: #d97706;
+      text-align: right;
+      padding-top: .15rem;
+      grid-column: 1;          /* 明確放在第 1 欄 */
+      grid-row: 1 / span 2;    /* 跨兩列，讓數字置左對齊兩行 */
+    }
+
+    .term-key {                /* 小標 → 第 2 欄 */
+      grid-column: 2;
+      font-weight: 700;
+      color: #1f2937;
+      margin-right: .25rem;
+    }
+    .term-val {                /* 內文 → 也在第 2 欄 */
+      grid-column: 2;
+      color: #374151;
+    }
+  }
+}
+
+

@@ -4,6 +4,7 @@ import {
   ReactiveFormsModule,
   NonNullableFormBuilder,
   Validators,
+  FormGroup,
 } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EventService } from '../../../services/event/event.service';
@@ -11,6 +12,7 @@ import {
   EventBatchDto,
   EventTemplateDto,
   EventRegistrationVM,
+  RegistrationCreateDto,
 } from '../../../interfaces/event/event-list';
 import { finalize } from 'rxjs/operators';
 import { switchMap } from 'rxjs/operators';
@@ -44,6 +46,7 @@ export class EventRegistrationComponent {
     registrationID: [0],
     registrationNum: [''],
     memberId: [0, Validators.required],
+    memberName: [''],
     memberPhone: [''],
     amountDue: [0, Validators.required],
     registrationDateTime: [''],
@@ -65,7 +68,7 @@ export class EventRegistrationComponent {
     const raw = this.route.snapshot.paramMap.get('slug') ?? '';
     const batchId = Number(raw.match(/^\d+/)?.[0]);
     // 從 JWT 取登入者
-    const me = this.getMemberFromToken();
+    const me = this.memberSvc.getMemberFromToken();
     const memberId = 15;
 
     if (!Number.isFinite(batchId)) {
@@ -81,7 +84,7 @@ export class EventRegistrationComponent {
 
         this.eventSvc.getEventByBatch(batchId).subscribe({
           next: (dto: EventTemplateDto) => {
-            const vm = this.mapToVM(dto, batchId, memberId); // ★ 把 name 傳進去（若有）
+            const vm = this.mapToVM(dto, batchId, me); // ★ 把 name 傳進去（若有）
             this.event = vm;
 
             // 回填表單（包含 hidden 欄位）
@@ -91,15 +94,14 @@ export class EventRegistrationComponent {
               registrationID: vm.registrationID,
               registrationNum: vm.registrationNum,
               memberId: memberId,
-              memberPhone: vm.memberPhone,
+              memberName: me.name ?? '未知',
+              memberPhone: me.phone ?? '',
               amountDue: vm.amountDue,
               registrationDateTime: vm.registrationDateTime,
               currentStatus: vm.currentStatus,
               internalRemarks: vm.internalRemarks ?? '',
             });
 
-            console.log('API 原始資料', dto);
-            console.log('映射後 VM', this.event);
             this.loading = false;
           },
           error: (err: unknown) => {
@@ -115,13 +117,14 @@ export class EventRegistrationComponent {
         this.loading = false;
       },
     });
+    this.applyPriceModeValidators();
   }
 
   /** 將後端 DTO → 報名畫面 VM（單一批次版） */
   private mapToVM(
     t: EventTemplateDto,
     routeBatchId: number,
-    memberId: number
+    me: MemberInfo
   ): EventRegistrationVM {
     // 後端 by-batch 通常只回一筆批次；仍兼容 eventBatches/batches 兩種鍵
     const batch =
@@ -133,15 +136,17 @@ export class EventRegistrationComponent {
     const start = batch?.eventDateTimeStart
       ? new Date(batch.eventDateTimeStart)
       : null;
-    console.log('所有資料', t);
+    // console.log('所有資料', t);
     return {
       batchID: String(batchID),
       title: t.eventName ?? '',
       registrationID: 0,
       registrationNum: '',
-      memberId: Number(memberId),
-      memberName: Number(memberId ?? NaN) === 15 ? '林玉婷' : '未知',
-      memberPhone: '0934-567-888',
+      memberId: me.memberId,
+      //調整名稱
+      // memberName: Number(memberId ?? NaN) === 15 ? '林玉婷' : '未知',
+      memberName: me.name ?? '未知',
+      memberPhone: me.phone ?? '',
       amountDue: Number(t.amount ?? 0),
       registrationDateTime: new Date().toISOString(),
       currentStatus: 0,
@@ -160,7 +165,8 @@ export class EventRegistrationComponent {
   }
 
   submit() {
-    if (this.form.invalid) {
+    //免費時，不檢查表單整體 invalid；非免費才檢查
+    if (!this.isFree && this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -187,6 +193,7 @@ export class EventRegistrationComponent {
       internalRemarks: (v.internalRemarks ?? '').trim() || null,
     };
 
+    console.log('➡️ payload', dto);
     this.eventSvc
       .register(dto)
       .pipe(finalize(() => (this.submitting = false)))
@@ -206,25 +213,40 @@ export class EventRegistrationComponent {
       });
   }
 
-  getMemberFromToken(): { memberId: number; name?: string } | null {
-    const token = localStorage.getItem('jwtToken');
-    if (!token) return null;
-    try {
-      const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const json = decodeURIComponent(
-        Array.from(atob(b64))
-          .map((c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
-          .join('')
-      );
-      const payload = JSON.parse(json);
+  // 判斷金額是否為0
+  get isFree(): boolean {
+    return Number(this.form.get('amountDue')?.value ?? 0) <= 0;
+  }
 
-      // 依你的後端 Claim 名稱對齊
-      const id = payload.memberId ?? payload.sub ?? payload.userId;
-      return id
-        ? { memberId: Number(id), name: payload.name ?? payload.username }
-        : null;
-    } catch {
-      return null;
+  //  控制送出按鈕禁用：免費時只看 submitting；非免費時要通過所有驗證
+  get submitDisabled(): boolean {
+    return this.submitting || (!this.isFree && this.form.invalid);
+  }
+  /** 依是否免費動態調整驗證 */
+  private applyPriceModeValidators(): void {
+    const agree = this.form.get('agree');
+    const payGroup = this.form.get('payment') as FormGroup;
+    const method = payGroup?.get('paymentMethod');
+    const invoice = payGroup?.get('invoiceType');
+    const carrier = payGroup?.get('eInvoiceCarrier');
+
+    if (this.isFree) {
+      // 免費：拿掉與付款相關的驗證，條款勾選也不強制
+      agree?.clearValidators();
+      method?.clearValidators();
+      invoice?.clearValidators();
+      carrier?.clearValidators();
+    } else {
+      // 需付費：恢復驗證
+      agree?.setValidators(Validators.requiredTrue);
+      method?.setValidators(Validators.required);
+      invoice?.setValidators(Validators.required);
+      // carrier 留給 submit 時視電子發票再檢查
     }
+
+    agree?.updateValueAndValidity({ emitEvent: false });
+    method?.updateValueAndValidity({ emitEvent: false });
+    invoice?.updateValueAndValidity({ emitEvent: false });
+    carrier?.updateValueAndValidity({ emitEvent: false });
   }
 }

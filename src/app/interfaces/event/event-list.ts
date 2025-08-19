@@ -66,6 +66,16 @@ export interface EventRegistrationVM {
   internalRemarks?: string | null;
 }
 
+//回傳給api的model
+export interface RegistrationCreateDto {
+  eventBatchId: number;
+  memberId: number;
+  amountDue: number | null;
+  registrationDateTime: string; // e.g. "2025-08-17T10:00:00"
+  currentStatus: number;
+  internalRemarks?: string | null;
+}
+
 // export interface EventDetail {
 //   /* ========== 前端顯示用型別 ========== */
 
