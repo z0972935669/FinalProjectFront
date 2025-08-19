@@ -11,7 +11,7 @@ import {
 @Component({
   selector: 'app-shop-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule], // ✅ 加入 FormsModule
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './shop-list.component.html',
   styleUrl: './shop-list.component.scss',
 })

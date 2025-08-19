@@ -4,3 +4,9 @@
   -ms-appearance: none; /* IE */
   background: none !important; /* 移除背景箭頭 */
 }
+
+.shop-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
