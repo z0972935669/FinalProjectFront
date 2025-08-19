@@ -13,10 +13,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(
       routes,
-      withInMemoryScrolling({
-        scrollPositionRestoration: 'top', // ⭐ 換頁回到最上方
-        anchorScrolling: 'enabled',
-      })
     ),
     // 其餘 providers ...
     // ① 讓 HttpClient 從 DI 讀取攔截器
