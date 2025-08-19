@@ -12,4 +12,5 @@ export interface IShopProductList {
   categoryID: number;
   categoryName: string;
   slug: string;
+  createdAt?: string;
 }
