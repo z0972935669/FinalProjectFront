@@ -1,18 +1,25 @@
-<div class="container my-5">
-
-  <div class="nav-header d-flex justify-content-between align-items-center mb-3">
-    <!-- 麵包屑導航 -->
+<div class="container my-5" *ngIf="post">
+  <!-- Breadcrumb 與返回按鈕 -->
+  <div
+    class="nav-header d-flex justify-content-between align-items-center mb-3"
+  >
     <nav aria-label="breadcrumb" class="breadcrumb-container m-0 p-0">
       <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
-        <li class="breadcrumb-item"><a routerLink="/show/community">社群看板</a></li>
+        <li class="breadcrumb-item">
+          <a routerLink="/show/community">社群看板</a>
+        </li>
         <li class="breadcrumb-item active" aria-current="page">
-          {{ boardName }} 
+          <a [routerLink]="['/show/community/', boardID, 'posts']">
+            <!-- 使用管道運算符處理 boardName -->
+          {{ boardName || "未知看板" }}
+        </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ post.title || "未知文章" }}
         </li>
       </ol>
     </nav>
-
-    <!-- 上一頁按鈕 -->
     <button
       type="button"
       class="btn btn-outline-secondary btn-back"
@@ -21,110 +28,192 @@
       ← 上一頁
     </button>
   </div>
-  
+
+  <!-- 文章卡片 -->
   <div class="card post-card shadow-sm p-4 mb-4">
-    <!-- 文章資訊 -->
     <div class="post-header mb-3">
-      <h1 class="post-title">{{ post.title }}</h1>
+      <h1 class="post-title">{{ post.title || "" }}</h1>
       <div class="post-meta text-muted">
         <span>作者：{{ post.author }}</span> |
         <span>{{ post.createdAt | date : "yyyy-MM-dd HH:mm" }}</span>
       </div>
     </div>
 
-    <div class="post-content mb-4">{{ post.content }}</div>
+    <div class="post-content mb-4">{{ post.content || "" }}</div>
 
-    <div class="post-actions d-flex gap-3 mb-4">
-      <button class="btn btn-outline-primary">
-        <i class="bi bi-heart"></i> 喜歡 {{ post.likes }}
+    <!-- 附件圖片 -->
+    <div *ngIf="post.attachments?.length" class="post-attachments mb-4">
+      <div class="attachments-container d-flex flex-wrap gap-2">
+        <div *ngFor="let file of post.attachments" class="attachment-item">
+          <img
+            [src]="file.AttachmentUrl"
+            alt="附件圖片"
+            class="attachment-img cursor-pointer"
+            (click)="openPreview(file.AttachmentUrl)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Lightbox 預覽 -->
+    <div
+      *ngIf="currentPreviewImage"
+      class="image-preview-overlay"
+      (click)="closePreview()"
+    >
+      <button class="btn-prev" (click)="prevImage(); $event.stopPropagation()">
+        ‹
       </button>
-      <button class="btn btn-outline-secondary">
-        <i class="bi bi-bookmark"></i> 收藏
-      </button>
-      <button class="btn btn-outline-success">
-        <i class="bi bi-share"></i> 分享
+      <img [src]="currentPreviewImage" class="image-preview-img" />
+      <button class="btn-next" (click)="nextImage(); $event.stopPropagation()">
+        ›
       </button>
     </div>
 
-    <!-- 每個樓層一張卡片 -->
+    <!-- 互動按鈕 -->
+    <div
+      class="post-actions d-flex flex-wrap align-items-center mt-3 pt-3 border-top"
+    >
+      <button
+        type="button"
+        class="btn-action like-btn"
+        [class.active]="userInteractions.hasLiked"
+        (click)="toggleInteraction('Like')"
+      >
+        ❤️ 喜歡 <span>{{ post.likes }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn-action favorite-btn"
+        [class.active]="userInteractions.hasFavorited"
+        (click)="toggleInteraction('Favorite')"
+      >
+        ⭐ 收藏 <span>{{ post.favorites }}</span>
+      </button>
+
+      <button type="button" class="btn-action share-btn" (click)="sharePost()">
+        🔗 分享
+      </button>
+    </div>
+  </div>
+
+  <!-- 留言區 -->
+  <div class="comments-section mb-4">
+    <h4 class="mb-3">留言</h4>
+
     <div *ngFor="let comment of comments" class="card comment-item mb-4 p-3">
-      <!-- 樓層標籤和主留言 -->
       <div class="d-flex align-items-center mb-2">
         <div class="floor-tag badge bg-primary me-3">
-          {{ comment.floorTag }}
+          {{ comment.floorTag || "" }}
         </div>
-        <img
-          [src]="comment.avatar"
+        <!-- <img
+          [src]="comment.avatar || '/assets/img/default-avatar.png'"
           alt="avatar"
           class="rounded-circle"
           width="40"
           height="40"
-        />
+        /> -->
         <div class="ms-3">
-          <strong>{{ comment.name }}</strong>
+          <strong>{{ comment.name || "訪客" }}</strong>
           <div class="text-muted small">
             {{ comment.createdAt | date : "yyyy-MM-dd HH:mm" }}
           </div>
         </div>
       </div>
-      <div class="comment-content mb-3">{{ comment.content }}</div>
 
-      <!-- 這則主留言的所有回覆 -->
+      <div class="comment-content mb-3">{{ comment.content || "" }}</div>
+      <!-- 留言喜歡按鈕 -->
+      <div class="comment-actions mb-2">
+        <button
+          type="button"
+          class="btn-action like-btn"
+          [class.active]="comment.hasLiked"
+          (click)="toggleReplyLike(comment)"
+        >
+          ❤️ 喜歡 <span>{{ comment.likes || 0 }}</span>
+        </button>
+      </div>
+
+      <!-- 回覆 -->
       <div
         *ngIf="comment.replies?.length"
         class="replies ps-4 border-start border-2 border-secondary"
       >
-        <div
-          *ngFor="let reply of comment.replies"
-          class="reply-item mb-3"
-          [hidden]="!comment.showAllReplies"
-        >
-          <div class="d-flex align-items-center mb-1">
-            <div class="floor-tag badge bg-secondary me-2">
-              {{ reply.floorTag }}
-            </div>
-            <img
-              [src]="reply.avatar"
-              alt="avatar"
-              class="rounded-circle"
-              width="30"
-              height="30"
-            />
-            <div class="ms-2">
-              <strong>{{ reply.name }}</strong>
-              <div class="text-muted small">
-                {{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}
+        <div *ngIf="comment.showAllReplies" class="reply-list">
+          <div *ngFor="let reply of comment.replies" class="reply-item mb-3">
+            <div class="d-flex align-items-center mb-1">
+              <div class="floor-tag badge bg-secondary me-2">
+                {{ reply.floorTag || "" }}
+              </div>
+              <!-- <img
+                [src]="reply.avatar || '/assets/img/default-avatar.png'"
+                alt="avatar"
+                class="rounded-circle"
+                width="30"
+                height="30"
+              /> -->
+              <div class="ms-2">
+                <strong>{{ reply.name || "訪客" }}</strong>
+                <div class="text-muted small">
+                  {{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}
+                </div>
               </div>
             </div>
+            <div class="reply-content">{{ reply.content || "" }}</div>
+            <!-- 子回覆喜歡按鈕 -->
+            <div class="reply-actions mt-1">
+              <button
+                type="button"
+                class="btn-action like-btn"
+                [class.active]="reply.hasLiked"
+                (click)="toggleReplyLike(reply)"
+              >
+                ❤️ 喜歡 <span>{{ reply.likes || 0 }}</span>
+              </button>
+            </div>
           </div>
-          <div class="reply-content">{{ reply.content }}</div>
         </div>
 
-        <button
-          *ngIf="comment.replies && comment.replies.length > 0"
-          class="btn btn-link p-0"
-          (click)="toggleReplies(comment)"
-        >
+        <button class="btn btn-link p-0" (click)="toggleReplies(comment)">
           {{
             comment.showAllReplies
               ? "收起留言"
-              : "查看其他 " + comment.replies.length + " 則留言"
+              : "展開 " + comment.replies?.length + " 則回覆"
           }}
         </button>
       </div>
 
-      <!-- 新增留言區 -->
-      <div class="mt-4">
+      <!-- 回覆輸入框 -->
+      <div class="mt-3" *ngIf="isLoggedIn; else loginToReply">
         <textarea
           class="form-control mb-2"
-          rows="3"
-          [(ngModel)]="newComment"
-          placeholder="寫下你的留言..."
+          rows="2"
+          [(ngModel)]="comment.draftReply"
+          placeholder="回覆這則留言..."
         ></textarea>
-        <button class="btn btn-primary" (click)="submitComment()">
-          送出留言
+        <button class="btn btn-sm btn-primary" (click)="submitComment(comment)">
+          送出回覆
         </button>
       </div>
+      <ng-template #loginToReply>
+        <div class="text-muted small">請先登入才能回覆</div>
+      </ng-template>
     </div>
   </div>
+
+  <!-- 新增留言 -->
+  <div class="card p-3" *ngIf="isLoggedIn; else loginToComment">
+    <h5 class="mb-3">新增留言</h5>
+    <textarea
+      class="form-control mb-2"
+      rows="3"
+      [(ngModel)]="newPostComment"
+      placeholder="寫下你的留言..."
+    ></textarea>
+    <button class="btn btn-primary" (click)="submitComment()">送出留言</button>
+  </div>
+  <ng-template #loginToComment>
+    <div class="text-muted small">請先登入才能留言</div>
+  </ng-template>
 </div>

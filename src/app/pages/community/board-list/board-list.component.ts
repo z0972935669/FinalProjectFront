@@ -1,76 +1,63 @@
+// board-list.component.ts
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { BoardService, Board } from '../../../services/community/board.service';
+
+interface BoardView {
+  id: string;
+  name: string;
+  description: string;
+  coverImageUrl: string;
+  postCount: number;
+}
 
 @Component({
   selector: 'app-board-list',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './board-list.component.html',
-  styleUrl: './board-list.component.scss',
+  styleUrls: ['./board-list.component.scss'],
 })
-export class BoardListComponent {
-  boards = [
-    {
-      id: '1',
-      name: '健康養生',
-      description: '分享健康知識與生活方式，關注長者身心健康',
-      coverImageUrl: '/assets/img/component/1.png',
-      postCount: 342,
-    },
-    {
-      id: '2',
-      name: '退休生活',
-      description: '退休規劃、旅遊與理財經驗交流',
-      coverImageUrl: '/assets/img/component/2.png',
-      postCount: 128,
-    },
-    {
-      id: '3',
-      name: '親子家庭',
-      description: '家庭關係與親子互動分享',
-      coverImageUrl: '/assets/img/component/3.png',
-      postCount: 215,
-    },
-    {
-      id: '4',
-      name: '懷舊時光',
-      description: '回憶年少時光，分享老照片與過往故事',
-      coverImageUrl: '/assets/img/component/4.png',
-      postCount: 98,
-    },
-    {
-      id: '5',
-      name: '美食與料理',
-      description: '家常菜、養生食譜、長輩分享拿手好菜',
-      coverImageUrl: '/assets/img/component/5.png',
-      postCount: 174,
-    },
-    {
-      id: '6',
-      name: '銀髮學習',
-      description: '長者學習新知，如手機操作、數位技能等',
-      coverImageUrl: '/assets/img/component/6.png',
-      postCount: 67,
-    },
-    {
-      id: '7',
-      name: '手作與園藝',
-      description: '喜歡動手做的小物、園藝種植與心得交流',
-      coverImageUrl: '/assets/img/component/7.png',
-      postCount: 89,
-    },
-    {
-      id: '8',
-      name: '運動與復健',
-      description: '銀髮運動、簡易復健操與身體保健技巧分享',
-      coverImageUrl: '/assets/img/component/8.png',
-      postCount: 123,
-    },
-  ];
+export class BoardListComponent implements OnInit {
+  boards: BoardView[] = [];
+  loading: boolean = true;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private boardService: BoardService) {}
 
-  goToBoardPosts(boardID: string) {
-    this.router.navigate(['show/community', boardID, 'posts']);
+  ngOnInit(): void {
+    this.loadBoards();
+  }
+
+  loadBoards(): void {
+    this.loading = true;
+    this.boardService.getBoards().subscribe({
+      next: (boardsFromApi: Board[]) => {
+        // 將 API 回傳資料映射成 template 可用格式
+        this.boards = boardsFromApi.map((b: any) => ({
+          id: b.boardId.toString(),
+          name: b.boardName ?? '未知看板',
+          description: b.boardDescription ?? '',
+          coverImageUrl: `/assets/img/component/${b.boardId}.png`, // 預設圖片
+          postCount: 0, // 文章數
+        }));
+        // console.log('boards:', this.boards); // 確認映射結果
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('取得看板資料失敗', err);
+        this.loading = false;
+      },
+    });
+  }
+
+  goToBoardPosts(boardID: string | number) {
+    const id = Number(boardID);
+    if (isNaN(id) || id <= 0) {
+      console.error('無效的 boardID:', boardID);
+      return;
+    }
+    // console.log('點擊的 boardID:', id);
+    this.router.navigate(['show/community', id, 'posts']);
   }
 }

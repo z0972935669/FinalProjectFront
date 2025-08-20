@@ -1,6 +1,15 @@
 <div class="container my-5">
   <h2 class="text-center mb-4">社群看板列表</h2>
-  <div class="row">
+
+  <!-- Loading 狀態 -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-secondary" role="status">
+      <span class="visually-hidden">載入中...</span>
+    </div>
+  </div>
+
+  <!-- 看板列表 -->
+  <div class="row" *ngIf="!loading && boards.length > 0">
     <div
       class="col-12 col-md-6 col-lg-4 mb-4"
       *ngFor="let board of boards"
@@ -19,11 +28,13 @@
         <div class="board-info p-3">
           <h3 class="board-name">{{ board.name }}</h3>
           <p class="board-description mb-2">{{ board.description }}</p>
-          <p class="board-post-count text-muted">
-            文章數：{{ board.postCount }}
-          </p>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- 無資料 -->
+  <div *ngIf="!loading && boards.length === 0" class="text-center py-5">
+    <p class="text-muted">目前沒有任何看板資料</p>
   </div>
 </div>
