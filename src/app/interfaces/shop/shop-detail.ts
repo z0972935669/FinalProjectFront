@@ -2,8 +2,8 @@ export interface IShopProductDetail {
   productID: number;
   productName: string;
   slug: string;
-  originalPrice?: number;
-  salePrice?: number;
+  originalPrice: number;
+  salePrice: number;
   summary?: string;
   content?: string;
   quantity?: number;

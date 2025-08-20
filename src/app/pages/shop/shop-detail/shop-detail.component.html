@@ -20,9 +20,11 @@
               <!-- 主圖 -->
               <div class="swiper swiper-main mb-3">
                 <div class="swiper-wrapper">
-                  <div class="swiper-slide" *ngFor="let img of product?.galleryLargePaths">
-                    <img [src]="img" class="img-fluid rounded w-100" />
-                  </div>
+                  @for (img of product?.galleryLargePaths; track $index) {
+                    <div class="swiper-slide">
+                      <img [src]="img" class="img-fluid rounded w-100" />
+                    </div>
+                  }
                 </div>
                 <div class="swiper-button-next"></div>
                 <div class="swiper-button-prev"></div>
@@ -31,9 +33,11 @@
               <!-- 縮圖輪播 -->
               <div class="swiper swiper-thumbs">
                 <div class="swiper-wrapper">
-                  <div class="swiper-slide" *ngFor="let img of product?.galleryThumbPaths">
-                    <img [src]="img" class="img-fluid rounded" style="height: 80px; width: auto;" />
-                  </div>
+                  @for (img of product?.galleryThumbPaths; track $index) {
+                    <div class="swiper-slide">
+                      <img [src]="img" class="img-fluid rounded" style="height: 80px; width: auto;" />
+                    </div>
+                  }
                 </div>
               </div>
 
@@ -41,22 +45,36 @@
           </div>
           <div class="col-lg-6">
             <h4 class="fw-bold mb-3">{{ product?.productName }}</h4>
-            <p class="text-muted" *ngIf="product?.originalPrice">
-              <del>{{ product?.originalPrice | currency:'TWD' }}</del>
-            </p>
-            <h5 class="fw-bold mb-3">{{ product?.salePrice | currency:'TWD' }}</h5>
+            <div class="d-flex align-items-baseline gap-3 mb-2">
+              @if (product && product.originalPrice > product.salePrice) {
+                <p class="text-muted">
+                  <del>{{ product.originalPrice | currency:'TWD':'symbol':'1.0-0' }}</del>
+                </p>
+              }
+              <h5 class="fw-bold mb-3">{{ product?.salePrice | currency:'TWD':'symbol':'1.0-0' }}</h5>
+            </div>
+
+            <div class="mb-3">
+              @if(inStock) {
+                <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
+                  庫存：{{ product?.stock }}
+                </span>
+              }
+              @if(!inStock) {
+                <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2">
+                  缺貨
+                </span>
+              } 
+            </div>
 
             <p class="mb-4" [innerHTML]="product?.summary"></p>
 
-            <app-quantity [(value)]="count1"></app-quantity>
+            <app-quantity [(value)]="count1" [disabled]="!inStock"></app-quantity>
 
-            <a routerLink="/show/cart"
-              class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary">
-              <i class="fa fa-shopping-bag me-2 text-primary"></i>加入購物車
-            </a>
-            <button *ngIf="product?.stock === 0"
-              class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-5 text-primary">
-              <i class="fas fa-truck me-2 text-primary"></i>補貨中...
+            <button class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-4 text-primary"
+              [class.disabled]="!inStock" [attr.aria-disabled]="!inStock" (click)="addToCart()">
+              <i class="fa fa-shopping-bag me-2 text-primary"></i>
+              {{ inStock ? '加入購物車' : '缺貨中' }}
             </button>
           </div>
           <div class="col-lg-12">
@@ -75,45 +93,6 @@
             <div class="tab-content mb-5">
               <div class="tab-pane active" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
                 <div [innerHTML]="product?.content"></div>
-                <!-- <p>
-                  在這個瞬息萬變的市場環境中，企業唯有持續創新與穩健經營，才能在競爭激烈的產業中脫穎而出。本公司自創立以來，始終秉持「誠信、專業、創新、服務」的核心理念，致力於為客戶打造高效、可靠且具前瞻性的整合解決方案。我們擁有一支充滿熱情與經驗的專業團隊，橫跨業務開發、產品設計、行銷企劃與售後服務等各個領域，能迅速掌握市場動態並提出最佳應對策略。
-
-                  我們深知客戶需求多元且快速變化，因此積極導入最新技術與智慧化管理系統，不斷優化流程與提升品質，力求在每一個細節中展現我們的用心與專業。從初步諮詢、方案設計、執行落地到後續維運，我們提供一條龍的完整服務，讓客戶無後顧之憂，專注於核心業務發展。
-
-                  除了提供優質的產品與服務，我們亦重視永續發展與社會責任。透過環保材料應用、節能減碳措施及社區關懷活動，我們積極實踐企業公民的角色，為社會與環境盡一份心力。
-
-                  展望未來，我們將持續強化核心競爭力，擴大全球佈局，攜手客戶共創價值，共築長遠且穩固的合作夥伴關係。選擇我們，就是選擇一個值得信賴、與時俱進的夥伴，讓我們一同邁向更卓越的明天。
-                </p> -->
-                <!-- <div class="px-2">
-                  <div class="row g-4">
-                    <div class="col-6">
-                      <div class="row bg-light align-items-center text-center justify-content-center py-2">
-                        <div class="col-6">
-                          <p class="mb-0">淨重</p>
-                        </div>
-                        <div class="col-6">
-                          <p class="mb-0">1 kg</p>
-                        </div>
-                      </div>
-                      <div class="row text-center align-items-center justify-content-center py-2">
-                        <div class="col-6">
-                          <p class="mb-0">出產地</p>
-                        </div>
-                        <div class="col-6">
-                          <p class="mb-0">台灣</p>
-                        </div>
-                      </div>
-                      <div class="row bg-light text-center align-items-center justify-content-center py-2">
-                        <div class="col-6">
-                          <p class="mb-0">數量</p>
-                        </div>
-                        <div class="col-6">
-                          <p class="mb-0">10000</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div> -->
               </div>
               <!-- 暫時先不做 -->
               <!-- <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
@@ -167,181 +146,46 @@
               <!-- end 暫時先不做 -->
             </div>
           </div>
+          <!-- 相關商品 -->
+          @if(related.length) {
+            <div class="col-lg-12">
+              <h5 class="fw-bold mb-3">相關商品</h5>
+  
+              <div class="swiper related-swiper">
+                <div class="swiper-wrapper">
+                  @for (r of related; track $index) {
+                    <div class="swiper-slide">
+                      <a [routerLink]="['/show/shop', r.slug]" class="rounded position-relative fruite-item d-block h-100">
+                        <div class="fruite-img">
+                          <img [src]="r.thumbnailPhotoPath" class="img-fluid w-100 rounded-top" alt="{{ r.productName }}">
+                        </div>
+                        <div class="p-3 border border-secondary border-top-0 rounded-bottom h-100">
+                          <div class="small text-muted mb-1">{{ r.categoryName }}</div>
+                          <h6 class="mb-2 text-truncate">{{ r.productName }}</h6>
+                          <div class="d-flex align-items-baseline gap-2">
+                            @if(r.originalPrice && r.originalPrice > (r.salePrice ?? 0)) {
+                              <small class="text-muted">
+                                <del>{{ r.originalPrice | currency:'TWD':'symbol':'1.0-0' }}</del>
+                              </small>
+                            }
+                            <span class="fw-bold">{{ r.salePrice | currency:'TWD':'symbol':'1.0-0' }}</span>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  }
+                </div>
+  
+                <!-- Swiper navigation -->
+                <div class="related-next swiper-button-next"></div>
+                <div class="related-prev swiper-button-prev"></div>
+              </div>
+            </div>
+          }
+
+          <!-- /相關商品 -->
         </div>
       </div>
-      <!-- <div class="col-lg-4 col-xl-3">
-        <div class="row g-4 fruite">
-          <div class="col-lg-12">
-            <div class="input-group w-100 mx-auto d-flex mb-4">
-              <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
-              <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-            </div>
-            <div class="mb-4">
-              <h4>Categories</h4>
-              <ul class="list-unstyled fruite-categorie">
-                <li>
-                  <div class="d-flex justify-content-between fruite-name">
-                    <a href="#"><i class="fas fa-apple-alt me-2"></i>Apples</a>
-                    <span>(3)</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="d-flex justify-content-between fruite-name">
-                    <a href="#"><i class="fas fa-apple-alt me-2"></i>Oranges</a>
-                    <span>(5)</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="d-flex justify-content-between fruite-name">
-                    <a href="#"><i class="fas fa-apple-alt me-2"></i>Strawbery</a>
-                    <span>(2)</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="d-flex justify-content-between fruite-name">
-                    <a href="#"><i class="fas fa-apple-alt me-2"></i>Banana</a>
-                    <span>(8)</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="d-flex justify-content-between fruite-name">
-                    <a href="#"><i class="fas fa-apple-alt me-2"></i>Pumpkin</a>
-                    <span>(5)</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="col-lg-12">
-            <h4 class="mb-4">Featured products</h4>
-            <div class="d-flex align-items-center justify-content-start">
-              <div class="rounded" style="width: 100px; height: 100px;">
-                <img src="assets/img/featur-1.jpg" class="img-fluid rounded" alt="Image">
-              </div>
-              <div>
-                <h6 class="mb-2">Big Banana</h6>
-                <div class="d-flex mb-2">
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star"></i>
-                </div>
-                <div class="d-flex mb-2">
-                  <h5 class="fw-bold me-2">2.99 $</h5>
-                  <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center justify-content-start">
-              <div class="rounded" style="width: 100px; height: 100px;">
-                <img src="assets/img/featur-2.jpg" class="img-fluid rounded" alt="">
-              </div>
-              <div>
-                <h6 class="mb-2">Big Banana</h6>
-                <div class="d-flex mb-2">
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star"></i>
-                </div>
-                <div class="d-flex mb-2">
-                  <h5 class="fw-bold me-2">2.99 $</h5>
-                  <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center justify-content-start">
-              <div class="rounded" style="width: 100px; height: 100px;">
-                <img src="assets/img/featur-3.jpg" class="img-fluid rounded" alt="">
-              </div>
-              <div>
-                <h6 class="mb-2">Big Banana</h6>
-                <div class="d-flex mb-2">
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star"></i>
-                </div>
-                <div class="d-flex mb-2">
-                  <h5 class="fw-bold me-2">2.99 $</h5>
-                  <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center justify-content-start">
-              <div class="rounded me-4" style="width: 100px; height: 100px;">
-                <img src="assets/img/vegetable-item-4.jpg" class="img-fluid rounded" alt="">
-              </div>
-              <div>
-                <h6 class="mb-2">Big Banana</h6>
-                <div class="d-flex mb-2">
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star"></i>
-                </div>
-                <div class="d-flex mb-2">
-                  <h5 class="fw-bold me-2">2.99 $</h5>
-                  <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center justify-content-start">
-              <div class="rounded me-4" style="width: 100px; height: 100px;">
-                <img src="assets/img/vegetable-item-5.jpg" class="img-fluid rounded" alt="">
-              </div>
-              <div>
-                <h6 class="mb-2">Big Banana</h6>
-                <div class="d-flex mb-2">
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star"></i>
-                </div>
-                <div class="d-flex mb-2">
-                  <h5 class="fw-bold me-2">2.99 $</h5>
-                  <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex align-items-center justify-content-start">
-              <div class="rounded me-4" style="width: 100px; height: 100px;">
-                <img src="assets/img/vegetable-item-6.jpg" class="img-fluid rounded" alt="">
-              </div>
-              <div>
-                <h6 class="mb-2">Big Banana</h6>
-                <div class="d-flex mb-2">
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star text-secondary"></i>
-                  <i class="fa fa-star"></i>
-                </div>
-                <div class="d-flex mb-2">
-                  <h5 class="fw-bold me-2">2.99 $</h5>
-                  <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex justify-content-center my-4">
-              <a href="#" class="btn border border-secondary px-4 py-3 rounded-pill text-primary w-100">Vew More</a>
-            </div>
-          </div>
-          <div class="col-lg-12">
-            <div class="position-relative">
-              <img src="assets/img/banner-fruits.jpg" class="img-fluid w-100 rounded" alt="">
-              <div class="position-absolute" style="top: 50%; right: 10px; transform: translateY(-50%);">
-                <h3 class="text-secondary fw-bold">Fresh <br> Fruits <br> Banner</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
     </div>
   </div>
 </div>

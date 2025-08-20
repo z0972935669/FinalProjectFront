@@ -1,13 +1,14 @@
 <div class="input-group quantity mt-4" style="width: 100px;">
   <div class="input-group-btn">
-    <button class="btn btn-sm btn-minus rounded-circle bg-light border" (click)="decrement()">
+    <button class="btn btn-sm btn-minus rounded-circle bg-light border" (click)="decrement()" [disabled]="disabled">
       <i class="fa fa-minus"></i>
     </button>
   </div>
   <input type="text" class="form-control form-control-sm text-center border-0 input-value" [(ngModel)]="value"
-    (blur)="onBlur()" />
+    (blur)="onBlur()"
+    [disabled]="disabled" />
   <div class="input-group-btn">
-    <button class="btn btn-sm btn-plus rounded-circle bg-light border" (click)="increment()">
+    <button class="btn btn-sm btn-plus rounded-circle bg-light border" (click)="increment()" [disabled]="disabled">
       <i class="fa fa-plus"></i>
     </button>
   </div>
