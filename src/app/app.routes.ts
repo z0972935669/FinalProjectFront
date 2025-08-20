@@ -54,7 +54,17 @@ import { EquipmentsupplierlistComponent } from './pages/backend/equipment/equipm
 import { EmployeelistComponent } from './pages/backend/employeelist/employeelist.component';
 import { EmployeelistdetailComponent } from './pages/backend/employeelistdetail/employeelistdetail.component';
 import { EmployeelisteditComponent } from './pages/backend/employeelistedit/employeelistedit.component';
-
+import { EmployeeapprovalflowComponent } from './pages/backend/employeeapprovalflow/employeeapprovalflow.component';
+import { EmployeeapprovallistComponent } from './pages/backend/employeeapprovallist/employeeapprovallist.component';
+import { EmployeeattendanceComponent } from './pages/backend/employeeattendance/employeeattendance.component';
+import { EmployeeattendancerecordsComponent } from './pages/backend/employeeattendancerecords/employeeattendancerecords.component';
+import { EmployeeleaveformComponent } from './pages/backend/employeeleaveform/employeeleaveform.component';
+import { EmployeemissingpunchformComponent } from './pages/backend/employeemissingpunchform/employeemissingpunchform.component';
+import { EmployeepasswordresetComponent } from './pages/backend/employeepasswordreset/employeepasswordreset.component';
+import { EmployeescheduleComponent } from './pages/backend/employeeschedule/employeeschedule.component';
+import { EmployeeRegisterComponent } from './pages/backend/employeeregister/employeeregister.component';
+import { EmployeehomeComponent } from './pages/backend/employeehome/employeehome.component';
+import { employeeAuthGuard } from './core/employee-auth.guard';
 
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
@@ -76,7 +86,7 @@ export const routes: Routes = [
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', loadComponent: () => import('./pages/account/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
-      { path: 'reset-password',loadComponent: ()=>import('./pages/account/reset-password/reset-password.component').then(m=>m.ResetPasswordComponent)},
+      { path: 'reset-password', loadComponent: () => import('./pages/account/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) },
       {
         path: 'member-management',
         component: MembermanagementComponent,
@@ -110,26 +120,11 @@ export const routes: Routes = [
     // 後台
     path: 'erp',
     component: BackendComponent,
+    canActivate: [employeeAuthGuard],
     children: [
-      // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
-      { path: 'supplieslist', component: SupplieslistComponent },
-      {
-        path: 'employeelist',
-        component: EmployeelistComponent,
-        title: '員工列表',
-      },
-      {
-        path: 'employeelistdetail',
-        component: EmployeelistdetailComponent,
-        title: '詳細資料',
-      },
-      {
-        path: 'employeelistedit',
-        component: EmployeelisteditComponent,
-        title: '編輯員工',
-      },
+
       // 物料管理
       { path: 'supplieslist', component: SupplieslistComponent, title: '物品列表' },
       { path: 'suppliespurchasinglist', component: SuppliespurchasinglistComponent, title: '進貨單' },
@@ -142,11 +137,22 @@ export const routes: Routes = [
       { path: 'equipmentrentlist', component: EquipmentrentlistComponent, title: '借出單' },
       { path: 'equipmentmaintenancelist', component: EquipmentmaintenancelistComponent, title: '檢修單' },
       { path: 'equipmentsupplierlist', component: EquipmentsupplierlistComponent, title: '供應商列表' },
-      // 物料管理
+
       // 員工管理
       { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
       { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
       { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
+      { path: 'employeeapprovalflow', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
+      { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
+      { path: 'employeeattendance', component: EmployeeattendanceComponent, title: '員工考勤' },
+      { path: 'employeeattendancerecords', component: EmployeeattendancerecordsComponent, title: '考勤紀錄' },
+      { path: 'employeeleaveform', component: EmployeeleaveformComponent, title: '請假表單' },
+      { path: 'employeemissingpunchform', component: EmployeemissingpunchformComponent, title: '補打卡表單' },
+      { path: 'employeepasswordreset', component: EmployeepasswordresetComponent, title: '重設密碼' },
+      { path: 'employeeschedule', component: EmployeescheduleComponent, title: '排班管理' },
+      { path: 'employeeregister', component: EmployeeRegisterComponent, title: '員工註冊' },
+      { path: 'employeehome', component: EmployeehomeComponent, title: '員工首頁' },
+
       // 其他後台頁面可以在這裡添加
     ],
   },

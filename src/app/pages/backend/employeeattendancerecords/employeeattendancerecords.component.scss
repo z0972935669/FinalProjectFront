@@ -1,0 +1,125 @@
+.main-content {
+  border-left: 1px solid #ddd;
+  /* 淡灰色分隔線 */
+  padding-left: 20px;
+  /* 與分隔線保持距離 */
+}
+
+.content-area {
+  border-left: 1px solid #ccc;
+  background-color: #fff;
+}
+
+/* 側邊欄寬度（桌面） */
+:root {
+  --sidebar-w: 260px;
+}
+
+/* 外層留白：用 clamp 讓間距隨螢幕變化 */
+.schedule-shell {
+  padding-inline: clamp(12px, 2vw, 28px);
+  padding-block: clamp(12px, 2vw, 20px);
+}
+
+/* 預留側邊欄空間（>=992px） */
+@media (min-width: 992px) {
+  .schedule-shell {
+    margin-left: var(--sidebar-w);
+  }
+}
+
+/* 內容最大寬度：不超出視窗，也不會太窄 */
+.content-wrap {
+  /* 核心：以視窗寬扣掉側邊欄與外距後取最小值 */
+  width: min(1320px, calc(100vw - var(--sidebar-w) - 48px));
+  margin-inline: auto;
+}
+
+/* 卡片防溢出 & 圓角 */
+.calendar-card {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* ===== 7 欄 Grid（避免 .row 的負邊距） ===== */
+.grid-7 {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(110px, 1fr));
+  /* 單格最小 110px，否則均分 */
+  gap: .5rem;
+}
+
+/* 讓月曆在超窄螢幕可水平捲動（而不是擠爆版面） */
+.calendar-viewport {
+  overflow-x: auto;
+  /* 避免出現雙捲軸 */
+  padding-bottom: .25rem;
+}
+
+/* 日期格外觀 */
+.calendar-grid .day-cell {
+  min-height: clamp(110px, 16vh, 160px);
+  /* 高度隨螢幕變動 */
+  border: 1px solid #e9ecef;
+  border-radius: .5rem;
+  padding: .5rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  box-sizing: border-box;
+  /* 避免邊界陰影把格子撐出容器 */
+  overflow: hidden;
+}
+
+.calendar-grid .day-cell.muted {
+  background: #f8f9fa;
+  color: #adb5bd;
+}
+
+.calendar-grid .day-cell.today {
+  border-color: #198754;
+  box-shadow: 0 0 0 2px rgba(25, 135, 84, .15) inset;
+}
+
+.day-number {
+  font-weight: 600;
+  margin-bottom: .25rem;
+}
+
+/* 週標題 */
+.weekdays>div {
+  padding: .25rem 0;
+}
+
+/* 柔色徽章 */
+.bg-primary-soft {
+  background: rgba(13, 110, 253, .10);
+}
+
+.bg-success-soft {
+  background: rgba(25, 135, 84, .12);
+}
+
+.bg-warning-soft {
+  background: rgba(255, 193, 7, .15);
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+/* 更窄的螢幕（<=768px）：把單格最小寬降到 90px 以減少水平捲動 */
+@media (max-width: 768px) {
+  .grid-7 {
+    grid-template-columns: repeat(7, minmax(90px, 1fr));
+  }
+}

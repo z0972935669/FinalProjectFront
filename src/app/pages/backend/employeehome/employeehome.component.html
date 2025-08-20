@@ -1,0 +1,262 @@
+<div class="app-wrapper">
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+      <div class="row g-3 mb-4 align-items-center justify-content-between">
+        <div class="col-auto">
+          <h2 class="badge bg-primary mb-0" style="font-size:x-large;">員工管理</h2>
+        </div>
+      </div><!--//row-->
+
+      <div class="row g-3">
+        <!-- 員工列表 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-people text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">員工列表</div>
+            <a routerLink="/erp/employeelist" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 個人資料 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-person-circle text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">個人資料</div>
+            <a routerLink="/erp/employeelistdetail" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 打卡系統 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-clock-history text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">打卡系統</div>
+            <a routerLink="/erp/employeeattendance" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 班表 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-calendar-week text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">班表</div>
+            <a routerLink="/erp/employeeschedule" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 考勤記錄 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-clipboard-data text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">考勤記錄</div>
+            <a routerLink="/erp/employeeattendancerecords" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 請休假申請單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-file-earmark-text text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">請休假申請單</div>
+            <a routerLink="/erp/employeeleaveform" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 忘卡申請單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-card-list text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">忘卡申請單</div>
+            <a routerLink="/erp/employeemissingpunchform" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 簽核系統 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-check2-square text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">簽核系統</div>
+            <a routerLink="/erp/employeeapprovallist" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 修改密碼 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-key text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">修改密碼</div>
+            <a routerLink="/erp/employeepasswordreset" routerLinkActive="active" class="stretched-link"></a>
+          </div>
+        </div>
+      </div><!--//row-->
+      <hr>
+      <!-- 物料管理：標題 -->
+      <div class="row g-3 mt-2 mb-2">
+        <div class="col-auto">
+          <h2 class="badge bg-primary mb-0" style="font-size:x-large;">物料管理</h2>
+        </div>
+      </div>
+
+      <!-- 物料管理：卡片群 -->
+      <div class="row g-3">
+
+        <!-- 物品列表 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-box-seam text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">物品列表</div>
+            <a routerLink="/erp/supplieslist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 進貨單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-truck text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">進貨單</div>
+            <a routerLink="/erp/suppliespurchasinglist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 銷貨單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-receipt text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">銷貨單</div>
+            <a routerLink="/erp/suppliessaleslist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 轉倉單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-arrow-left-right text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">轉倉單</div>
+            <a routerLink="/erp/transferlist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 供應商列表 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-building text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">供應商列表</div>
+            <a routerLink="/erp/suppliessupplierlist" class="stretched-link"></a>
+          </div>
+        </div>
+
+      </div>
+      <hr>
+
+      <!-- 設備管理：標題 -->
+      <div class="row g-3 mt-2 mb-2">
+        <div class="col-auto">
+          <h2 class="badge bg-primary mb-0" style="font-size:x-large;">設備管理</h2>
+        </div>
+      </div>
+
+      <!-- 設備管理：卡片群（一定要有 row） -->
+      <div class="row g-3">
+
+        <!-- 設備列表 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-hdd-network text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">設備列表</div>
+            <a routerLink="/erp/equipmentlist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 購置單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-basket text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">購置單</div>
+            <a routerLink="/erp/equipmentpurchasinglist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 借出單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-box-arrow-up-right text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">借出單</div>
+            <a routerLink="/erp/equipmentrentlist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 檢修單 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-tools text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">檢修單</div>
+            <a routerLink="/erp/equipmentmaintenancelist" class="stretched-link"></a>
+          </div>
+        </div>
+
+        <!-- 供應商列表 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-people text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">供應商列表</div>
+            <a routerLink="/erp/equipmentsupplierlist" class="stretched-link"></a>
+          </div>
+        </div>
+
+      </div>
+
+      <nav class="app-pagination mt-5">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav><!--//app-pagination-->
+
+    </div><!--//container-xl-->
+  </div><!--//app-content-->
+</div><!--//app-wrapper-->
