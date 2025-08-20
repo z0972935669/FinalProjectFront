@@ -1,0 +1,18 @@
+.main-content {
+  border-left: 1px solid #ddd;
+  /* 淡灰色分隔線 */
+  padding-left: 20px;
+  /* 與分隔線保持距離 */
+}
+
+.content-area {
+  border-left: 1px solid #ccc;
+  background-color: #fff;
+}
+
+label,
+input {
+  color: forestgreen;
+  font-weight: bolder;
+  font-size: large;
+}
