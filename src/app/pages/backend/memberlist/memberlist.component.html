@@ -1,1 +1,237 @@
-<p>memberlist works!</p>
+<div class="container mt-5">
+  <h2>會員管理</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>序號</th>
+        <th>頭像</th>
+        <th>姓名</th>
+        <th>出生日期</th>
+        <th>入住狀態</th>
+        <th>帳號狀態</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let member of members; let i = index">
+        <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+        <td>
+          <img
+            [src]="getImageUrl(member.fProfilePictureUrl)"
+            width="50"
+            height="50"
+            class="rounded-circle border"
+            (error)="
+              member.fProfilePictureUrl = '/images/members/default-avatar.png'
+            "
+          />
+        </td>
+        <td>{{ member.fName }}</td>
+        <td>{{ member.fBirthDate || "-" }}</td>
+        <td>{{ member.fResidesInCareHomeStatus ? "是" : "否" }}</td>
+        <td>{{ member.fAccountStatus ? "啟用" : "停權" }}</td>
+        <td>
+          <button class="btn btn-primary btn-sm" (click)="editMember(member)">
+            編輯
+          </button>
+          <button
+            class="btn btn-warning btn-sm ms-2"
+            (click)="toggleAccountStatus(member)"
+          >
+            {{ member.fAccountStatus ? "停權" : "啟用" }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <nav *ngIf="totalPages > 1" class="d-flex justify-content-center mt-3">
+    <div class="btn-group" role="group" aria-label="Pagination">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)"
+      >
+        上一頁
+      </button>
+      <ng-container
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+      >
+        <button
+          type="button"
+          class="btn"
+          [ngClass]="{
+            'btn-primary': currentPage === i + 1,
+            'btn-outline-primary': currentPage !== i + 1
+          }"
+          (click)="changePage(i + 1)"
+        >
+          {{ i + 1 }}
+        </button>
+      </ng-container>
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        [disabled]="currentPage === totalPages"
+        (click)="changePage(currentPage + 1)"
+      >
+        下一頁
+      </button>
+    </div>
+  </nav>
+
+  <!-- Edit Member Modal -->
+  <div
+    class="modal fade"
+    id="editMemberModal"
+    tabindex="-1"
+    aria-labelledby="editMemberModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editMemberModalLabel">
+            編輯會員 - {{ selectedMember?.fName }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeModal()"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedMember">
+          <form>
+            <div class="mb-3">
+              <label for="fName" class="form-label">姓名</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fName"
+                [(ngModel)]="selectedMember.fName"
+                name="fName"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="fGender" class="form-label">性別</label>
+              <select
+                class="form-select"
+                id="fGender"
+                [(ngModel)]="selectedMember.fGender"
+                name="fGender"
+              >
+                <option value="男">男</option>
+                <option value="女">女</option>
+                <option value="其他">其他</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="fBirthDate" class="form-label">出生日期</label>
+              <input
+                type="date"
+                class="form-control"
+                id="fBirthDate"
+                [(ngModel)]="selectedMember.fBirthDate"
+                name="fBirthDate"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="fPhone" class="form-label">電話</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fPhone"
+                [(ngModel)]="selectedMember.fPhone"
+                name="fPhone"
+                placeholder="請輸入手機號碼"
+                pattern="^09[0-9]{8}$"
+                maxlength="10"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="fCity" class="form-label">縣市</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fCity"
+                [(ngModel)]="selectedMember.fCity"
+                name="fCity"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="fDistrict" class="form-label">區域</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fDistrict"
+                [(ngModel)]="selectedMember.fDistrict"
+                name="fDistrict"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="fRoadAddress" class="form-label">地址</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fRoadAddress"
+                [(ngModel)]="selectedMember.fRoadAddress"
+                name="fRoadAddress"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="fResidesInCareHomeStatus" class="form-label"
+                >入住狀態</label
+              >
+              <select
+                class="form-select"
+                id="fResidesInCareHomeStatus"
+                [(ngModel)]="selectedMember.fResidesInCareHomeStatus"
+                name="fResidesInCareHomeStatus"
+              >
+                <option [ngValue]="true">是</option>
+                <option [ngValue]="false">否</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="fProfilePictureUrl" class="form-label">頭像</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fProfilePictureUrl"
+                [(ngModel)]="selectedMember.fProfilePictureUrl"
+                name="fProfilePictureUrl"
+              />
+              <input
+                type="file"
+                class="form-control mt-2"
+                (change)="onFileChange($event)"
+                accept=".jpg,.jpeg,.png"
+              />
+              <img
+                *ngIf="selectedMember.fProfilePictureUrl"
+                [src]="getImageUrl(selectedMember.fProfilePictureUrl)"
+                alt="Profile Picture"
+                class="img-thumbnail rounded-circle mt-2"
+                style="max-width: 100px"
+              />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="closeModal()"
+          >
+            取消
+          </button>
+          <button type="button" class="btn btn-primary" (click)="saveMember()">
+            儲存
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
