@@ -9,6 +9,7 @@ import {
 import { Router } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { EmergencyContact } from '../../../interfaces/member/emergency-contact.interface';
+import { MemberService } from '../../../services/member/member.service';
 
 interface HealthRecord {
   recordDate: string | Date;
@@ -61,10 +62,13 @@ export class MemberInfoComponent implements OnInit {
   healthIcon = '';
   healthStatus = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private memberService: MemberService
+  ) {}
 
   ngOnInit(): void {
-    //  防止 Google 登入後按上一頁還能看到畫面（監聽 bfcache）
     window.addEventListener('pageshow', (e: PageTransitionEvent) => {
       const token = localStorage.getItem('jwtToken');
       if (!token) {
@@ -80,7 +84,6 @@ export class MemberInfoComponent implements OnInit {
       }
     });
 
-    //  Token 檢查
     const token = localStorage.getItem('jwtToken');
     if (!token) {
       this.router.navigate(['/show/login']);
@@ -115,31 +118,21 @@ export class MemberInfoComponent implements OnInit {
   }
 
   loadMemberData() {
-    const token = localStorage.getItem('jwtToken');
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-    this.http
-      .get<any>('https://localhost:7124/api/Member/me', { headers })
-      .subscribe({
-        next: (data) => {
-          Object.assign(this.member, {
-            username: data.username,
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            idnumber: data.idNumber,
-            gender: data.gender,
-            birth: data.birthDate,
-            photoUrl: data.photoUrl,
-            residesInCareHome: data.residesInCareHome,
-          });
-        },
-        error: () => {
-          localStorage.removeItem('jwtToken');
-          this.resetMember();
-          this.router.navigate(['/show/login']);
-        },
-      });
+    this.memberService.getMemberInfo().subscribe({
+      next: (data) => {
+        Object.assign(this.member, {
+          username: data.name, // 根據你回傳的欄位名做對應
+          name: data.name,
+          email: data.email,
+          // 若未來需要 phone、gender 等欄位，可補上
+        });
+      },
+      error: () => {
+        localStorage.removeItem('jwtToken');
+        this.resetMember();
+        this.router.navigate(['/show/login']);
+      },
+    });
   }
 
   toggleEdit() {
