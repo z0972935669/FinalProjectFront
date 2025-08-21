@@ -58,6 +58,7 @@ ngOnInit(): void {
       .subscribe({
         next: res => {
           localStorage.setItem('jwtToken', res.token);
+          localStorage.setItem('memberName', res.name);
           this.loading = false;
           this.router.navigate(['/member-info']);
         },
