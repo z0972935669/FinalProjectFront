@@ -96,18 +96,6 @@ export class SupplieslistComponent {
     this.resetNewProduct();
   }
   // 修改品項
-  editedProduct: Isupplieslist = {
-    suppliesProductID: this.newProduct.suppliesProductID,
-    suppliesProductName: this.newProduct.suppliesProductName,
-    quantityPerUnit: this.newProduct.quantityPerUnit,
-    unitsInStock: this.newProduct.unitsInStock,
-    pricePerUnit: this.newProduct.pricePerUnit,
-    supplierId: this.newProduct.supplierId,
-    suppliesSupplierName: this.newProduct.suppliesSupplierName,
-    suppliesCategoryId: this.newProduct.suppliesCategoryId,
-    suppliesCategoryName: this.newProduct.suppliesCategoryName,
-    exist: true
-  };
   submitEditProduct() {
     this.suppliesListService.editSuppliesProduct(this.newProduct).subscribe({
       next: (res) => {

@@ -77,17 +77,22 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for(suppliers of suppliesSuppliers;track $index){
                     <tr>
-                      <td class="cell">SuppliesSupplierID</td>
-                      <td class="cell"><span class="truncate">SuppliesSupplierName</span></td>
-                      <td class="cell">SuppliesSupplierGUI</td>
-                      <td class="cell">ContactPerson</td>
-                      <td class="cell">ContactNumber</td>
-                      <td class="cell"><span class="truncate">Address</span></td>
-                      <td class="cell">SupplierKeyword</td>
-                      <td class="cell"><span class="badge bg-success">Continued</span></td>
+                      <td class="cell">{{suppliers.suppliesSupplierId}}</td>
+                      <td class="cell"><span class="truncate">{{suppliers.suppliesSupplierName}}</span></td>
+                      <td class="cell">{{suppliers.suppliesSupplierGui}}</td>
+                      <td class="cell">{{suppliers.contactPerson}}</td>
+                      <td class="cell">{{suppliers.contactNumber}}</td>
+                      <td class="cell"><span class="truncate">{{suppliers.address}}</span></td>
+                      <td class="cell">{{suppliers.supplierKeyword}}</td>
+                      <td class="cell"><span class="badge"
+                          [ngClass]="suppliers.continued ? 'bg-success' : 'bg-secondary'">{{suppliers.continued ?
+                          '合約中':'已解約'}}</span>
+                      </td>
                       <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
                     </tr>
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
@@ -131,15 +136,23 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <!-- 合約中的分頁 -->
+                    @for(suppliers of suppliesSuppliers;track $index){
+                    @if(suppliers.continued){
                     <tr>
-                      <td class="cell">#15346</td>
-                      <td class="cell"><span class="truncate">Lorem ipsum dolor sit amet eget volutpat erat</span></td>
-                      <td class="cell">John Sanders</td>
-                      <td class="cell"><span>17 Oct</span><span class="note">2:16 PM</span></td>
-                      <td class="cell">$259.35</td>
-                      <td class="cell"><span class="badge bg-success">合約中</span></td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                      <td class="cell">{{suppliers.suppliesSupplierId}}</td>
+                      <td class="cell"><span class="truncate">{{suppliers.suppliesSupplierName}}</span></td>
+                      <td class="cell">{{suppliers.suppliesSupplierGui}}</td>
+                      <td class="cell">{{suppliers.contactPerson}}</td>
+                      <td class="cell">{{suppliers.contactNumber}}</td>
+                      <td class="cell"><span class="truncate">{{suppliers.address}}</span></td>
+                      <td class="cell">{{suppliers.supplierKeyword}}</td>
+                      <td class="cell"><span class="badge bg-success">合約中</span>
+                      </td>
+                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
                     </tr>
+                    }
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
@@ -167,15 +180,23 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <!-- 已解約的分頁 -->
+                    @for(suppliers of suppliesSuppliers;track $index){
+                    @if(!suppliers.continued){
                     <tr>
-                      <td class="cell">#15345</td>
-                      <td class="cell"><span class="truncate">Consectetur adipiscing elit</span></td>
-                      <td class="cell">Dylan Ambrose</td>
-                      <td class="cell"><span class="cell-data">16 Oct</span><span class="note">03:16 AM</span></td>
-                      <td class="cell">$96.20</td>
-                      <td class="cell"><span class="badge bg-secondary">已解約</span></td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                      <td class="cell">{{suppliers.suppliesSupplierId}}</td>
+                      <td class="cell"><span class="truncate">{{suppliers.suppliesSupplierName}}</span></td>
+                      <td class="cell">{{suppliers.suppliesSupplierGui}}</td>
+                      <td class="cell">{{suppliers.contactPerson}}</td>
+                      <td class="cell">{{suppliers.contactNumber}}</td>
+                      <td class="cell"><span class="truncate">{{suppliers.address}}</span></td>
+                      <td class="cell">{{suppliers.supplierKeyword}}</td>
+                      <td class="cell"><span class="badge bg-secondary">已解約</span>
+                      </td>
+                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
                     </tr>
+                    }
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
