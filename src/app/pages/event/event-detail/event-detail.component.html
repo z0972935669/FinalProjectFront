@@ -69,21 +69,28 @@
       <div class="fs-2 fw-bold text-primary mb-4">{{ ev.priceText }}</div>
       <div class="mb-4">
         <button
+          *ngIf="!isRegistered; else registeredBtn"
           type="button"
           class="btn btn-cta"
           [routerLink]="['/show/event', ev.batchID, 'register']"
-          [queryParams]="{ memberId: form.memberId }"
         >
           立即報名
         </button>
-      </div>
 
-      <!-- <div class="d-flex flex-wrap gap-2">
-        <span class="chip">太極</span>
-        <span class="chip">運動</span>
-        <span class="chip">入門</span>
-        <span class="chip">舒展</span>
-      </div> -->
+        <!-- 已報名（灰色禁用） -->
+        <ng-template #registeredBtn>
+          <button type="button" class="btn btn-cta btn-disabled" disabled>
+            已報名
+          </button>
+        </ng-template>
+        <a
+          href="javascript:void(0)"
+          class="text-danger fw-bold fs-5"
+          (click)="cancelRegistration()"
+        >
+          取消報名
+        </a>
+      </div>
     </div>
   </div>
 </div>

@@ -4,7 +4,7 @@
     <h3 class="page-title text-center mb-1">活動報名</h3>
 
     <!-- 活動資料 -->
-    <div class="card mb-3">
+    <div class="card mb-4">
       <div class="card-body">
         <h6 class="fw-bold mb-3">報名活動</h6>
         <div class="row g-3 align-items-center">
@@ -55,9 +55,9 @@
       <input type="hidden" formControlName="currentStatus" />
 
       <!-- 報名資訊 -->
-      <div class="card mb-3">
+      <div class="card mb-3" *ngIf="!isFree">
         <div class="card-body">
-          <h6 class="fw-bold mb-2">報名資訊</h6>
+          <h6 class="fw-bold mb-2">繳費資訊</h6>
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label">應繳金額</label>
@@ -87,7 +87,7 @@
       </div>
 
       <!-- 繳費方式 -->
-      <div class="card mb-3" formGroupName="payment">
+      <div class="card mb-3" formGroupName="payment" *ngIf="!isFree">
         <div class="card-body">
           <h6 class="fw-bold mb-2">付款與發票</h6>
 
@@ -167,13 +167,50 @@
           </div>
         </div>
       </div>
+      <!-- 說明條款（免費活動） -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="section-title mb-3">
+            <span class="dot"></span> 活動報名說明與條款
+          </h6>
+          <ol class="term-list">
+            <li>
+              <span class="term-key">適用範圍與資格</span>
+              <span class="term-val"
+                >本條款適用於本單位之免費活動；參與者應具備完全行為能力或經法定代理人同意。名額有限，額滿為止。</span
+              >
+            </li>
+            <li>
+              <span class="term-key">報名程序</span>
+              <span class="term-val"
+                >依頁面完成送出並收到系統／簡訊／Email
+                通知視為成功；資料不實或不全得取消資格。</span
+              >
+            </li>
+            <li>
+              <span class="term-key">變更與取消</span>
+              <span class="term-val"
+                >主辦得因天候、安全、場地或人數調整內容或取消；將以報名聯絡方式通知。</span
+              >
+            </li>
+            <li>
+              <span class="term-key">個資與影像</span>
+              <span class="term-val"
+                >為報名、通知與保險將蒐集必要個資並依法保存；活動影像得作為紀錄與非營利宣傳使用，不同意者請於現場告知並避開拍攝區域。</span
+              >
+            </li>
+            <li>
+              <span class="term-key">安全與責任</span>
+              <span class="term-val"
+                >請自我評估身心狀況並遵守現場指示；個人物品自行保管。除法律規定或主辦重大過失外，對個人意外或財損不負賠償責任。</span
+              >
+            </li>
+          </ol>
+        </div>
+      </div>
 
-      <div class="d-grid mt-3">
-        <button
-          type="submit"
-          class="btn btn-cta"
-          [disabled]="form.invalid || submitting"
-        >
+      <div class="mt-3 d-flex justify-content-center">
+        <button type="submit" class="btn btn-cta" [disabled]="submitDisabled">
           {{ submitting ? "送出中…" : "確定報名" }}
         </button>
       </div>

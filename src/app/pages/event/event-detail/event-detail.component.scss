@@ -87,3 +87,23 @@
   outline: none;
   box-shadow: 0 0 0 4px rgba(255,153,0,.25);
 }
+//顯示已報名
+.btn-cta.btn-disabled {
+  background-color: #ccc !important; /* 灰色背景 */
+  color: #666 !important;            /* 字體顏色淡灰 */
+  cursor: not-allowed;               /* 滑鼠指標 */
+  border: none;
+}
+
+//取消報名
+.cancel-link {
+  font-size: 1.25rem;       /* 相當於 Bootstrap fs-5 */
+  font-weight: bold;        /* 加粗 */
+  color: #dc3545;           /* Bootstrap 的紅色 danger */
+  text-decoration: underline; /* 預設有底線 */
+  cursor: pointer;
+}
+
+.cancel-link:hover {
+  color: #a71d2a;           /* 滑鼠移上去更深紅 */
+}

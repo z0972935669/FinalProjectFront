@@ -9,9 +9,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface MemberInfo {
+  username: number;
   memberId: number;
   name: string;
   email: string;
+  phone: string;
 }
 
 @Injectable({ providedIn: 'root' })
