@@ -20,7 +20,7 @@ interface Member {
 }
 
 interface HealthRecordPayload {
-  recordDate: string;            // yyyy-MM-dd
+  recordDate: string; // yyyy-MM-dd
   systolic: number | null;
   diastolic: number | null;
   pulse: number | null;
@@ -55,7 +55,7 @@ export class MemberlistComponent implements OnInit {
 
   /** 新增健康紀錄（卡片） */
   selectedHealthMember: Member | null = null;
-  showHealthForm = false;
+  // showHealthForm = false;
   healthRecord: HealthRecordPayload = {
     recordDate: this.todayString(),
     systolic: null,
@@ -94,7 +94,8 @@ export class MemberlistComponent implements OnInit {
   /** 讀取會員 */
   loadMembers(): void {
     this.isLoading = true;
-    this.http.get<any>(`${this.apiUrl}?page=${this.currentPage}&pageSize=${this.pageSize}`, this.getAuthHeaders())
+    this.http
+      .get<any>(`${this.apiUrl}?page=${this.currentPage}&pageSize=${this.pageSize}`, this.getAuthHeaders())
       .subscribe({
         next: (res) => {
           this.members = res.members ?? [];
@@ -120,23 +121,29 @@ export class MemberlistComponent implements OnInit {
 
   /** 開啟編輯會員 Modal */
   editMember(member: Member): void {
-    this.http.get<Member>(`${this.apiUrl}/${member.fMemberId}`, this.getAuthHeaders())
-      .subscribe({
-        next: (res) => {
-          this.selectedMember = {
-            ...res,
-            fBirthDate: res.fBirthDate ? new Date(res.fBirthDate).toISOString().split('T')[0] : null
-          };
-          const el = document.getElementById('editMemberModal');
-          if (!el) return;
-          const modal = bootstrap.Modal.getOrCreateInstance(el);
-          modal.show();
-        },
-        error: (err) => {
-          console.error('載入會員資料失敗', err);
-          alert('載入會員資料失敗');
+    this.http.get<Member>(`${this.apiUrl}/${member.fMemberId}`, this.getAuthHeaders()).subscribe({
+      next: (res) => {
+        this.selectedMember = {
+          ...res,
+          fBirthDate: res.fBirthDate ? new Date(res.fBirthDate).toISOString().split('T')[0] : null
+        };
+
+        const el = document.getElementById('editMemberModal');
+        if (!el) return;
+
+        // ✅ 保底：確保 Modal 節點掛在 <body>，避免被父層 display:none 影響
+        if (el.parentElement !== document.body) {
+          document.body.appendChild(el);
         }
-      });
+
+        const modal = bootstrap.Modal.getOrCreateInstance(el);
+        modal.show();
+      },
+      error: (err) => {
+        console.error('載入會員資料失敗', err);
+        alert('載入會員資料失敗');
+      }
+    });
   }
 
   /** 儲存會員 */
@@ -156,28 +163,27 @@ export class MemberlistComponent implements OnInit {
       fProfilePictureUrl: this.selectedMember.fProfilePictureUrl ?? ''
     };
 
-    this.http.put<any>(`${this.apiUrl}/${id}`, updateData, this.getAuthHeaders())
-      .subscribe({
-        next: () => {
-          this.http.get<Member>(`${this.apiUrl}/${id}`, this.getAuthHeaders())
-            .subscribe({
-              next: (fresh) => {
-                const idx = this.members.findIndex(m => m.fMemberId === fresh.fMemberId);
-                if (idx !== -1) this.members[idx] = fresh;
-                alert('資料更新成功');
-                this.closeModal();
-              },
-              error: (e) => {
-                console.error('更新後重新抓取資料失敗', e);
-                alert('已更新但無法重新載入會員資料');
-              }
-            });
-        },
-        error: (err) => {
-          console.error('更新失敗:', err);
-          alert('更新失敗：' + (err.error?.message ?? '請稍後再試'));
-        }
-      });
+    this.http.put<any>(`${this.apiUrl}/${id}`, updateData, this.getAuthHeaders()).subscribe({
+      next: () => {
+        // 更新成功後重新抓單筆刷新列表資料
+        this.http.get<Member>(`${this.apiUrl}/${id}`, this.getAuthHeaders()).subscribe({
+          next: (fresh) => {
+            const idx = this.members.findIndex((m) => m.fMemberId === fresh.fMemberId);
+            if (idx !== -1) this.members[idx] = fresh;
+            alert('資料更新成功');
+            this.closeModal();
+          },
+          error: (e) => {
+            console.error('更新後重新抓取資料失敗', e);
+            alert('已更新但無法重新載入會員資料');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('更新失敗:', err);
+        alert('更新失敗：' + (err.error?.message ?? '請稍後再試'));
+      }
+    });
   }
 
   /** 上傳頭像 */
@@ -189,32 +195,30 @@ export class MemberlistComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', file);
 
-    this.http.post<any>(`${this.apiUrl}/upload-profile-picture`, formData, this.getAuthHeaders())
-      .subscribe({
-        next: (res) => {
-          this.selectedMember!.fProfilePictureUrl = res.url;
-        },
-        error: (err) => {
-          console.error('頭像上傳失敗', err);
-          alert('頭像上傳失敗');
-        }
-      });
+    this.http.post<any>(`${this.apiUrl}/upload-profile-picture`, formData, this.getAuthHeaders()).subscribe({
+      next: (res) => {
+        this.selectedMember!.fProfilePictureUrl = res.url;
+      },
+      error: (err) => {
+        console.error('頭像上傳失敗', err);
+        alert('頭像上傳失敗');
+      }
+    });
   }
 
   /** 啟用/停權 */
   toggleAccountStatus(member: Member): void {
     const memberId = member.fMemberId;
-    this.http.patch<any>(`${this.apiUrl}/${memberId}/toggle-status`, {}, this.getAuthHeaders())
-      .subscribe({
-        next: (res) => {
-          member.fAccountStatus = !!res.status;
-          alert(`${member.fName} 的帳號狀態：${res.message ?? (member.fAccountStatus ? '啟用' : '停權')}`);
-        },
-        error: (err) => {
-          console.error('帳號狀態更新失敗', err);
-          alert('更新失敗，請稍後再試');
-        }
-      });
+    this.http.patch<any>(`${this.apiUrl}/${memberId}/toggle-status`, {}, this.getAuthHeaders()).subscribe({
+      next: (res) => {
+        member.fAccountStatus = !!res.status;
+        alert(`${member.fName} 的帳號狀態：${res.message ?? (member.fAccountStatus ? '啟用' : '停權')}`);
+      },
+      error: (err) => {
+        console.error('帳號狀態更新失敗', err);
+        alert('更新失敗，請稍後再試');
+      }
+    });
   }
 
   /** 關閉編輯 Modal */
@@ -227,45 +231,55 @@ export class MemberlistComponent implements OnInit {
   }
 
   /** 開啟新增表單卡片（僅入住者會看到按鈕） */
-  openHealthModal(member: Member): void {
-    this.selectedHealthMember = member;
-    this.showHealthForm = true;
-    this.healthRecord = {
-      recordDate: this.todayString(),
-      systolic: null,
-      diastolic: null,
-      pulse: null,
-      ioRecord: '',
-      checkPeriod: '',
-      notes: ''
-    };
-  }
+openHealthModal(member: Member): void {
+  this.selectedHealthMember = member;
+  this.healthRecord = {
+    recordDate: this.todayString(),
+    systolic: null,
+    diastolic: null,
+    pulse: null,
+    ioRecord: '',
+    checkPeriod: '',
+    notes: ''
+  };
+
+  const el = document.getElementById('addHealthRecordModal');
+  if (!el) return;
+  const modal = bootstrap.Modal.getOrCreateInstance(el);
+  modal.show();
+}
 
   /** 關閉新增表單卡片 */
-  cancelHealthRecord(): void {
-    this.showHealthForm = false;
-    this.selectedHealthMember = null;
-  }
+  // cancelHealthRecord(): void {
+  //   this.showHealthForm = false;
+  //   this.selectedHealthMember = null;
+  // }
 
   /** 送出健康紀錄（你後端收 querystring 的 memberId） */
-  submitHealthRecord(): void {
-    if (!this.selectedHealthMember) return;
+ submitHealthRecord(): void {
+  if (!this.selectedHealthMember) return;
 
-    const url = `${this.healthApi}?memberId=${this.selectedHealthMember.fMemberId}`;
-    const payload = { ...this.healthRecord };
+  const url = `${this.healthApi}?memberId=${this.selectedHealthMember.fMemberId}`;
+  const payload = { ...this.healthRecord };
 
-    this.http.post<any>(url, payload, this.getAuthHeaders()).subscribe({
-      next: () => {
-        alert('健康紀錄新增成功');
-        this.showHealthForm = false;
-        this.selectedHealthMember = null;
-      },
-      error: (err) => {
-        console.error('健康紀錄新增失敗', err);
-        alert('健康紀錄新增失敗：' + (err?.error?.message ?? '請稍後再試'));
+  this.http.post<any>(url, payload, this.getAuthHeaders()).subscribe({
+    next: () => {
+      alert('健康紀錄新增成功');
+
+      // 關閉 Modal
+      const el = document.getElementById('addHealthRecordModal');
+      if (el) {
+        const modal = bootstrap.Modal.getInstance(el);
+        modal?.hide();
       }
-    });
-  }
+
+      this.selectedHealthMember = null;
+    },
+    error: (err) => {
+      alert('健康紀錄新增失敗：' + (err?.error?.message ?? '請稍後再試'));
+    }
+  });
+}
 
   /** 檢視近 7 天健康紀錄（Bootstrap Modal） */
   openHealthList(member: Member): void {
@@ -276,46 +290,42 @@ export class MemberlistComponent implements OnInit {
     this.healthListMember = member;
     this.isHealthListLoading = true;
 
-    this.http.get<any[]>(`${this.healthApi}/by-member/${member.fMemberId}`, this.getAuthHeaders())
-      .subscribe({
-        next: (rows) => {
-          console.log('健康紀錄 rows:', rows);
-          this.healthList = rows ?? [];
-          this.isHealthListLoading = false;
+    this.http.get<any[]>(`${this.healthApi}/by-member/${member.fMemberId}`, this.getAuthHeaders()).subscribe({
+      next: (rows) => {
+        this.healthList = rows ?? [];
+        this.isHealthListLoading = false;
 
-          const el = document.getElementById('healthListModal');
-          if (!el) return;
-          const modal = bootstrap.Modal.getOrCreateInstance(el);
-          modal.show();
-        },
-        error: (err) => {
-          console.error('載入健康紀錄失敗', err);
-          alert('載入健康紀錄失敗');
-          this.isHealthListLoading = false;
-        }
-      });
+        const el = document.getElementById('healthListModal');
+        if (!el) return;
+        const modal = bootstrap.Modal.getOrCreateInstance(el);
+        modal.show();
+      },
+      error: (err) => {
+        console.error('載入健康紀錄失敗', err);
+        alert('載入健康紀錄失敗');
+        this.isHealthListLoading = false;
+      }
+    });
   }
 
   /** 儲存單筆（行內編輯） */
-saveRecord(r: any): void {
-  console.log('要更新的紀錄 r:', r);
-  if (!r.id) {
-    alert('缺少紀錄 ID，無法更新');
-    return;
-  }
+  saveRecord(r: any): void {
+    if (!r.id) {
+      alert('缺少紀錄 ID，無法更新');
+      return;
+    }
 
-  const payload = {
-    recordDate: r.recordDate,
-    systolic: r.systolic,
-    diastolic: r.diastolic,
-    pulse: r.pulse,
-    ioRecord: r.ioRecord,
-    checkPeriod: r.checkPeriod,
-    notes: r.notes
-  };
+    const payload = {
+      recordDate: r.recordDate,
+      systolic: r.systolic,
+      diastolic: r.diastolic,
+      pulse: r.pulse,
+      ioRecord: r.ioRecord,
+      checkPeriod: r.checkPeriod,
+      notes: r.notes
+    };
 
-  this.http.put(`${this.healthApi}/${r.id}`, payload, this.getAuthHeaders())
-    .subscribe({
+    this.http.put(`${this.healthApi}/${r.id}`, payload, this.getAuthHeaders()).subscribe({
       next: () => {
         r._edit = false;
         alert('已更新');
@@ -325,22 +335,22 @@ saveRecord(r: any): void {
         alert('更新失敗');
       }
     });
-}
-
-
+  }
 
   /** 刪除單筆 */
   deleteRecord(id: number): void {
     if (!confirm('確定刪除這筆紀錄？')) return;
 
-    this.http.delete(`${this.healthApi}/${id}`, this.getAuthHeaders())
-      .subscribe({
-        next: () => {
-          this.healthList = this.healthList.filter(x => x.id !== id);
-          alert('已刪除');
-        },
-        error: (e) => { console.error(e); alert('刪除失敗'); }
-      });
+    this.http.delete(`${this.healthApi}/${id}`, this.getAuthHeaders()).subscribe({
+      next: () => {
+        this.healthList = this.healthList.filter((x) => x.id !== id);
+        alert('已刪除');
+      },
+      error: (e) => {
+        console.error(e);
+        alert('刪除失敗');
+      }
+    });
   }
 
   /** 頭像網址處理（更嚴謹） */
