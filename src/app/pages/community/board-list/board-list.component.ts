@@ -32,16 +32,16 @@ export class BoardListComponent implements OnInit {
   loadBoards(): void {
     this.loading = true;
     this.boardService.getBoards().subscribe({
-      next: (boardsFromApi: Board[]) => {
-        // 將 API 回傳資料映射成 template 可用格式
+      next: (boardsFromApi: any[]) => {
         this.boards = boardsFromApi.map((b: any) => ({
           id: b.boardId.toString(),
           name: b.boardName ?? '未知看板',
           description: b.boardDescription ?? '',
-          coverImageUrl: `/assets/img/component/${b.boardId}.png`, // 預設圖片
-          postCount: 0, // 文章數
+          coverImageUrl: b.boardUrl
+            ? `https://localhost:7124${b.boardUrl}` // <-- 這裡
+            : `/assets/img/component/board-${b.boardId}.png`,
+          postCount: 0,
         }));
-        // console.log('boards:', this.boards); // 確認映射結果
         this.loading = false;
       },
       error: (err) => {

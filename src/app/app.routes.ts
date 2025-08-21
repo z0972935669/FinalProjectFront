@@ -55,6 +55,9 @@ import { EmployeelistComponent } from './pages/backend/employeelist/employeelist
 import { EmployeelistdetailComponent } from './pages/backend/employeelistdetail/employeelistdetail.component';
 import { EmployeelisteditComponent } from './pages/backend/employeelistedit/employeelistedit.component';
 
+// 社群
+import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
+
 
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
@@ -147,6 +150,8 @@ export const routes: Routes = [
       { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
       { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
       { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
+      // 社群管理
+      { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
       // 其他後台頁面可以在這裡添加
     ],
   },

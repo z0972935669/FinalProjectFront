@@ -20,10 +20,9 @@
     >
       <div class="board-card h-100 shadow-sm rounded">
         <img
-          *ngIf="board.coverImageUrl"
           [src]="board.coverImageUrl"
-          [alt]="board.name"
           class="board-cover img-fluid rounded-top"
+          [alt]="board.name"
         />
         <div class="board-info p-3">
           <h3 class="board-name">{{ board.name }}</h3>
