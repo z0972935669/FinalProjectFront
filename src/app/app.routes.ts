@@ -38,6 +38,8 @@ import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.compon
 
 // 後台
 import { BackendComponent } from './layout/backend/backend.component';
+//會員管理
+import { MemberlistComponent } from './pages/backend/memberlist/memberlist.component';
 // 物料管理
 import { SupplieslistComponent } from './pages/backend/supplies/supplieslist/supplieslist.component';
 import { SuppliespurchasinglistComponent } from './pages/backend/supplies/suppliespurchasinglist/suppliespurchasinglist.component';
@@ -111,6 +113,7 @@ export const routes: Routes = [
     path: 'erp',
     component: BackendComponent,
     children: [
+      {path: 'memberlist',component: MemberlistComponent},
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },

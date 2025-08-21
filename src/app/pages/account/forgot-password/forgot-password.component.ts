@@ -1,41 +1,54 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
-  templateUrl: './forgot-password.component.html'
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  templateUrl: './forgot-password.component.html',
+  styleUrls: ['./forgot-password.component.scss'],
 })
 export class ForgotPasswordComponent {
   email = '';
+  message = '';
   loading = false;
-  errorMessage = '';
-  successMessage = '';
+  cooldown = 0; // 剩餘秒數
+  cooldownTimer: any;
 
-  private readonly apiUrl = 'https://localhost:7124/api/Account/forgot-password';
+  private readonly apiBase = 'https://localhost:7124/api/account';
 
   constructor(private http: HttpClient) {}
 
-  submit() {
-    this.errorMessage = '';
-    this.successMessage = '';
+  sendResetLink() {
+    if (this.cooldown > 0) return;
 
     if (!this.email) {
-      this.errorMessage = '請輸入 Email';
+      this.message = '請輸入 Email';
       return;
     }
 
+    this.message = '';
     this.loading = true;
-    this.http.post(this.apiUrl, { email: this.email }).subscribe({
-      next: () => {
-        this.successMessage = '已寄出重設密碼連結，請查看您的信箱。';
+
+    this.http.post(`${this.apiBase}/forgot-password`, { email: this.email }).subscribe({
+      next: (res: any) => {
+        this.message = res.message;
         this.loading = false;
+
+        // 冷卻時間開始
+        this.cooldown = 30;
+        this.cooldownTimer = setInterval(() => {
+          this.cooldown--;
+          if (this.cooldown <= 0) {
+            clearInterval(this.cooldownTimer);
+          }
+        }, 1000);
       },
-      error: err => {
-        this.errorMessage = err?.error?.message ?? '發送失敗，請稍後再試';
+      error: (err) => {
+        this.message = '寄送失敗：' + (err?.error?.message ?? '請稍後再試');
         this.loading = false;
       }
     });
