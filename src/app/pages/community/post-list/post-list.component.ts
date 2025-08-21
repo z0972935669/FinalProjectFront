@@ -1,19 +1,14 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
+import { PostService, Post } from '../../../services/community/post.service';
+import { BoardService, Board } from '../../../services/community/board.service';
+import { PostStateService } from '../../../services/community/PostState.service';
 
-interface Post {
-  id: string;
-  boardId: string;
-  title: string;
-  excerpt: string;
-  createdAt: string;
-  likes: number;
-  replies: number;
-  bookmarks: number;
+// 擴展 Post 型別，加上 excerpt
+export interface PostWithExcerpt extends Post {
+  excerpt?: string;
 }
 
 @Component({
@@ -24,154 +19,120 @@ interface Post {
   styleUrls: ['./post-list.component.scss'],
 })
 export class PostListComponent implements OnInit {
-  boardID!: string;
-  posts: any[] = [];
+  boardID: string = '';
+  posts: PostWithExcerpt[] = [];
+  filteredPosts: PostWithExcerpt[] = [];
   searchKeyword: string = '';
-  filteredPosts: any[] = [];
-
-  allPosts: Post[] = [
-    {
-      id: 'p1',
-      boardId: '1',
-      title: '第一篇文章',
-      excerpt: '文章摘要...',
-      createdAt: '2025-08-01',
-      likes: 12,
-      replies: 5,
-      bookmarks: 8,
-    },
-    {
-      id: 'p2',
-      boardId: '1',
-      title: '第二篇文章',
-      excerpt: '文章摘要...',
-      createdAt: '2025-08-02',
-      likes: 20,
-      replies: 7,
-      bookmarks: 10,
-    },
-    {
-      id: 'p3',
-      boardId: '2',
-      title: '退休族旅遊攻略',
-      excerpt: '一起出發去旅行...',
-      createdAt: '2025-08-03',
-      likes: 8,
-      replies: 2,
-      bookmarks: 4,
-    },
-    {
-      id: 'p4',
-      boardId: '3',
-      title: '親子共讀推薦書單',
-      excerpt: '這些繪本很適合孩子...',
-      createdAt: '2025-08-04',
-      likes: 15,
-      replies: 3,
-      bookmarks: 6,
-    },
-    {
-      id: 'p5',
-      boardId: '4',
-      title: '那些年我們追的電視劇',
-      excerpt: '懷念經典連續劇與綜藝節目...',
-      createdAt: '2025-08-05',
-      likes: 30,
-      replies: 12,
-      bookmarks: 14,
-    },
-    {
-      id: 'p6',
-      boardId: '5',
-      title: '健康養生粥食譜分享',
-      excerpt: '一碗營養又暖心的早餐...',
-      createdAt: '2025-08-05',
-      likes: 25,
-      replies: 6,
-      bookmarks: 9,
-    },
-    {
-      id: 'p7',
-      boardId: '6',
-      title: '手機怎麼加好友？一步步教你',
-      excerpt: '適合初學者的手機操作教學...',
-      createdAt: '2025-08-06',
-      likes: 40,
-      replies: 18,
-      bookmarks: 21,
-    },
-    {
-      id: 'p8',
-      boardId: '7',
-      title: '陽台小花園打造心得',
-      excerpt: '從零開始種出自己的療癒天地...',
-      createdAt: '2025-08-06',
-      likes: 22,
-      replies: 9,
-      bookmarks: 11,
-    },
-    {
-      id: 'p9',
-      boardId: '8',
-      title: '每日簡易復健操（附圖解）',
-      excerpt: '幫助活動筋骨與平衡訓練...',
-      createdAt: '2025-08-07',
-      likes: 35,
-      replies: 14,
-      bookmarks: 17,
-    },
-    {
-      id: 'p10',
-      boardId: '2',
-      title: '長者旅遊注意事項',
-      excerpt: '旅途中有哪些照護小技巧...',
-      createdAt: '2025-08-07',
-      likes: 10,
-      replies: 3,
-      bookmarks: 5,
-    },
-    {
-      id: 'p11',
-      boardId: '3',
-      title: '祖孫互動的小遊戲',
-      excerpt: '適合祖孫一起玩的簡單遊戲介紹...',
-      createdAt: '2025-08-07',
-      likes: 18,
-      replies: 4,
-      bookmarks: 8,
-    },
-    {
-      id: 'p12',
-      boardId: '6',
-      title: 'LINE 群組怎麼使用？',
-      excerpt: '幫你搞懂群組建立與發訊息...',
-      createdAt: '2025-08-07',
-      likes: 28,
-      replies: 10,
-      bookmarks: 13,
-    },
-  ];
+  isLoading: boolean = true;
+  boardNameValue: string = '未知看板';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private location: Location
+    private location: Location,
+    private postService: PostService,
+    private boardService: BoardService,
+    private postStateService: PostStateService // 注入 PostStateService
   ) {}
 
-  goToPost(postId: string) {
-    const boardID = this.route.snapshot.paramMap.get('boardID');
-    this.router.navigate(['show/community', boardID, 'posts', postId]);
-  }
-  // 上一頁按鈕功能
-  goBack(): void {
-    this.location.back();
+  ngOnInit() {
+    const boardIDParam = this.route.snapshot.paramMap.get('boardID');
+    // console.log('ngOnInit boardIDParam:', boardIDParam); // 除錯用
+
+    if (!boardIDParam) {
+      console.error('boardID 從路由無法取得！');
+      return;
+    }
+
+    this.boardID = boardIDParam;
+    const boardIdNumber = +this.boardID;
+
+    this.fetchPostsByBoard(boardIdNumber);
+    this.fetchBoardName(boardIdNumber);
   }
 
-  ngOnInit() {
-    this.boardID = this.route.snapshot.paramMap.get('boardID') || '';
-    // 篩選出該看板的文章
-    this.posts = this.allPosts.filter((post) => post.boardId === this.boardID);
-    this.filteredPosts = this.posts;
+  // 取得文章計數
+  getPostCounts(postId: string) {
+    return this.postStateService.getPostCounts(postId);
+  }
+
+  // 取得文章
+  fetchPostsByBoard(boardID: number) {
+    this.isLoading = true;
+
+    this.postService.getPostsByBoard(boardID).subscribe({
+      next: (res: Post[]) => {
+        this.posts = res.map((post) => ({
+          ...post,
+          excerpt:
+            post.content && post.content.length > 100
+              ? post.content.slice(0, 100) + '...'
+              : post.content,
+        }));
+
+        // 修正：確保 comments 為數字型別
+        this.posts.forEach((post) => {
+          this.postStateService.updatePostCounts(post.postId.toString(), {
+            likes: post.likes || 0,
+            favorites: post.favorites || 0,
+            comments: Array.isArray(post.comments)
+              ? post.comments.length
+              : post.comments || 0,
+          });
+        });
+
+        this.filteredPosts = this.posts;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('取得文章失敗', err);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  // 清理文章計數
+  ngOnDestroy() {
+    this.postStateService.clearAllPostCounts();
+  }
+
+  // 取得看板名稱
+  fetchBoardName(boardID: number) {
+    this.boardService.getBoard(boardID).subscribe({
+      next: (board: Board) => {
+        // console.log('取得看板名稱:', board); // 除錯用
+        if (board.boardName) {
+          this.boardNameValue = board.boardName;
+        }
+      },
+      error: (err) => {
+        console.error('取得看板名稱失敗', err);
+      },
+    });
+  }
+
+  // 導向文章
+  goToPost(post: PostWithExcerpt) {
+    if (!this.boardID) {
+      console.warn('boardID 未定義');
+      return;
+    }
+    if (post.postId == null) {
+      console.warn('postID 未定義', post);
+      return;
+    }
+
+    this.router.navigate([
+      'show/community',
+      this.boardID,
+      'posts',
+      post.postId.toString(),
+    ]);
+  }
+
+  // 上一頁按鈕，回社區看板
+  goBack(): void {
+    this.router.navigate([`/show/community/`]);
   }
 
   onSearchChange() {
@@ -182,31 +143,45 @@ export class PostListComponent implements OnInit {
       this.filteredPosts = this.posts.filter(
         (post) =>
           post.title.toLowerCase().includes(keyword) ||
-          post.excerpt.toLowerCase().includes(keyword)
+          post.excerpt?.toLowerCase().includes(keyword)
       );
     }
   }
 
   navigateToCreatePost() {
-    const boardID = this.route.snapshot.paramMap.get('boardID');
-    if (boardID) {
-      this.router.navigate(['show', 'community', boardID, 'create']);
-    } else {
-      this.router.navigate(['show', 'community', 'create']);
+    if (!this.boardID) {
+      console.warn('boardID 未定義，無法導向新增文章');
+      return;
+    }
+
+    const token = localStorage.getItem('jwtToken');
+    // console.log('JWT token:', token); // 除錯用
+
+    if (!token) {
+      alert('請先登入會員');
+      this.router.navigate(['show/community', this.boardID, 'posts']);
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (Date.now() > payload.exp * 1000) {
+        alert('登入已過期，請重新登入');
+        localStorage.removeItem('jwtToken');
+        this.router.navigate(['show/community', this.boardID, 'posts']);
+        return;
+      }
+
+      this.router.navigate(['show/community', this.boardID, 'create']);
+    } catch (err) {
+      console.error('JWT 解析錯誤', err);
+      alert('登入資訊錯誤，請重新登入');
+      localStorage.removeItem('jwtToken');
+      this.router.navigate(['show/community', this.boardID, 'posts']);
     }
   }
 
   get boardName(): string {
-    const boardNames: { [key: string]: string } = {
-      '1': '健康養生',
-      '2': '退休生活',
-      '3': '親子家庭',
-      '4': '懷舊時光',
-      '5': '美食與料理',
-      '6': '銀髮學習',
-      '7': '手作與園藝',
-      '8': '運動與復健',
-    };
-    return boardNames[this.boardID] || '未知看板';
+    return this.boardNameValue;
   }
 }

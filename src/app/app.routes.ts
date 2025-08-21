@@ -68,6 +68,10 @@ import { EmployeeRegisterComponent } from './pages/backend/employeeregister/empl
 import { EmployeehomeComponent } from './pages/backend/employeehome/employeehome.component';
 import { employeeAuthGuard } from './core/employee-auth.guard';
 
+// 社群
+import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
+
+
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -157,6 +161,8 @@ export const routes: Routes = [
       { path: 'employeeregister', component: EmployeeRegisterComponent, title: '員工註冊' },
       { path: 'employeehome', component: EmployeehomeComponent, title: '員工首頁' },
 
+      // 社群管理
+      { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
       // 其他後台頁面可以在這裡添加
     ],
   },

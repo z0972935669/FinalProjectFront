@@ -1,13 +1,16 @@
 <div class="container my-5">
-
-  <div class="nav-header d-flex justify-content-between align-items-center mb-3">
+  <div
+    class="nav-header d-flex justify-content-between align-items-center mb-3"
+  >
     <!-- 麵包屑導航 -->
     <nav aria-label="breadcrumb" class="breadcrumb-container m-0 p-0">
       <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item"><a routerLink="/show/">首頁</a></li>
-        <li class="breadcrumb-item"><a routerLink="/show/community">社群看板</a></li>
+        <li class="breadcrumb-item">
+          <a routerLink="/show/community">社群看板</a>
+        </li>
         <li class="breadcrumb-item active" aria-current="page">
-          {{ boardName }} 
+          {{ boardName }}
         </li>
       </ol>
     </nav>
@@ -56,30 +59,34 @@
           tabindex="0"
           role="button"
           [attr.aria-label]="'文章 ' + post.title"
-          (click)="goToPost(post.id)"
+          (click)="goToPost(post)"
         >
           <div class="flex-grow-1">
             <h5 class="post-title mb-1">{{ post.title }}</h5>
-            <p class="post-excerpt mb-2">{{ post.excerpt }}</p>
+            <p class="post-excerpt mb-2">
+              {{ post.excerpt || post.content }}
+            </p>
             <small class="post-date text-muted">{{
               post.createdAt | date : "yyyy/MM/dd HH:mm"
             }}</small>
 
+            <!-- 修改文章互動區域 -->
             <div class="post-actions mt-2 d-flex gap-4 align-items-center">
               <button type="button" class="action-btn" aria-label="喜歡文章">
-                <i class="bi bi-heart"></i> <span>{{ post.likes || 0 }}</span>
+                <i class="bi bi-heart"></i>
+                <span>{{ (getPostCounts(post.postId.toString()) | async)?.likes || 0 }}</span>
               </button>
               <button type="button" class="action-btn" aria-label="回覆文章">
                 <i class="bi bi-chat-left-text"></i>
-                <span>{{ post.replies || 0 }}</span>
+                <span>{{ (getPostCounts(post.postId.toString()) | async)?.comments || 0 }}</span>
               </button>
               <button type="button" class="action-btn" aria-label="收藏文章">
                 <i class="bi bi-bookmark"></i>
-                <span>{{ post.bookmarks || 0 }}</span>
+                <span>{{ (getPostCounts(post.postId.toString()) | async)?.favorites || 0 }}</span>
               </button>
-              <button type="button" class="action-btn" aria-label="轉發文章">
+              <!-- <button type="button" class="action-btn" aria-label="轉發文章">
                 <i class="bi bi-share"></i>
-              </button>
+              </button> -->
             </div>
           </div>
         </div>

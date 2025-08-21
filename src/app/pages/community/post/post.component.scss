@@ -1,3 +1,4 @@
+/* 留言區回覆容器 */
 .replies {
   margin-top: 1rem;
   padding-left: 1rem;
@@ -128,5 +129,209 @@ button.btn-primary {
   .breadcrumb-item.active {
     color: #a3b66f;
     font-weight: 600;
+  }
+}
+
+// 附件
+.attachments-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; // 圖片間距
+}
+
+// 每個附件
+.attachment-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100px; // 每個附件寬度
+}
+
+// 每個附件的圖片
+.attachment-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+// 預覽圖片
+.image-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+
+  .image-preview-img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    border-radius: 5px;
+  }
+
+  .btn-prev, .btn-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #fff;
+    background: rgba(0,0,0,0.3);
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+  }
+
+  .btn-prev { left: 2%; }
+  .btn-next { right: 2%; }
+}
+
+/* 統一互動按鈕樣式 */
+.post-actions,
+.comment-actions,
+.reply-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem; /* 按鈕之間間距 */
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.2rem;
+  border: 2px solid #ccc;
+  border-radius: 50px; /* 膠囊效果 */
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #666;
+  background-color: #fff;
+  transition: all 0.25s ease-in-out;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: #3498db;
+    color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+  }
+
+  &.active {
+    animation: pop 0.3s ease;
+  }
+
+  span {
+    font-size: 0.9em;
+  }
+}
+
+// 喜歡按鈕
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #ccc;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #666;
+  background-color: #fff;
+  transition: all 0.25s ease-in-out;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.4);
+  }
+  &.active {
+    background-color: #e74c3c;
+    color: #fff;
+    border-color: #e74c3c;
+    animation: heartbeat 0.6s ease;
+  }
+
+  span {
+    margin-left: 0.3rem;
+    font-size: 0.9em;
+  }
+}
+
+// 收藏按鈕
+.favorite-btn {
+
+  &:hover {
+    border-color: #f1c40f;
+    color: #f1c40f;
+    box-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
+  }
+
+  &.active {
+    background-color: #f1c40f;
+    color: #fff;
+    border-color: #f1c40f;
+  }
+}
+
+// 分享按鈕
+.share-btn {
+  background-color: #d6eaf8;
+  color: #3498db;
+
+  &:hover {
+    border-color: #2ecc71;
+    color: #2ecc71;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+  }
+
+  &.active {
+    background-color: #2ecc71;
+    color: #fff;
+    border-color: #2ecc71;
+  }
+}
+
+/* like-btn */
+.like-btn.active {
+  background-color: #ff6b6b; /* 柔和紅色 */
+  color: #fff;
+  border-color: #ff6b6b;
+  animation: heartbeat 0.6s ease;
+}
+
+/* favorite-btn */
+.favorite-btn.active {
+  background-color: #f1c40f;
+  color: #fff;
+  border-color: #f1c40f;
+  animation: sparkle 0.5s ease;
+}
+
+/* share-btn */
+.share-btn.active {
+  background-color: #2ecc71;
+  color: #fff;
+  border-color: #2ecc71;
+  animation: spin 0.6s ease;
+}
+
+// 調整留言區域的按鈕大小
+.comment-actions,
+.reply-actions {
+  .btn-action {
+    padding: 3px 10px;
+    font-size: 0.85em;
   }
 }

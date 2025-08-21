@@ -1,0 +1,73 @@
+<div class="app-wrapper">
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+
+      <!-- 標題與新增按鈕 -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="app-page-title mb-0">看板管理</h1>
+        <button class="btn btn-success" (click)="newBoard(); openModal()">新增看板</button>
+      </div>
+
+      <!-- 列表 -->
+      <div class="board-list">
+        <div class="board-item d-flex align-items-center p-3 mb-2 shadow-sm rounded" *ngFor="let board of boards">
+          <div class="board-img me-3">
+            <img [src]="board.boardUrl" [alt]="board.boardName" />
+          </div>
+          <div class="board-info flex-grow-1">
+            <h5 class="board-title mb-1">{{ board.boardName }}</h5>
+            <p class="board-desc mb-0">{{ board.boardDescription }}</p>
+          </div>
+          <div class="board-status me-3">
+            <span class="badge" [ngClass]="board.boardStatus === 'active' ? 'bg-success' : 'bg-secondary'">
+              {{ board.boardStatus === 'active' ? '啟用' : '停用' }}
+            </span>
+          </div>
+          <div class="board-actions">
+            <button class="btn btn-sm btn-warning me-1" (click)="editBoard(board); openModal()">編輯</button>
+            <button *ngIf="board.boardStatus === 'active'" class="btn btn-sm btn-danger" (click)="toggleBoardStatus(board)">停用</button>
+            <button *ngIf="board.boardStatus === 'inactive'" class="btn btn-sm btn-success" (click)="toggleBoardStatus(board)">啟用</button>
+          </div>
+        </div>
+
+        <div *ngIf="boards.length === 0" class="text-center text-muted py-5">
+          目前沒有任何看板資料
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="boardModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form (ngSubmit)="saveBoard()">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ isEdit ? '編輯看板' : '新增看板' }}</h5>
+          <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">名稱</label>
+            <input type="text" class="form-control" [(ngModel)]="currentBoard.boardName" name="boardName" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">描述</label>
+            <textarea class="form-control" [(ngModel)]="currentBoard.boardDescription" name="boardDescription"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">圖片</label>
+            <input type="file" class="form-control" (change)="onBoardImageSelected($event)" />
+            <img *ngIf="imagePreview" [src]="imagePreview" class="mt-2" style="max-height: 120px; border-radius:0.25rem;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">取消</button>
+          <button type="submit" class="btn btn-primary">{{ isEdit ? '更新' : '新增' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
