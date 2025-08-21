@@ -1,22 +1,19 @@
-<div class="swiper room-swiper" #swiperRef>
+<div class="swiper" #swiperRef>
   <div class="swiper-wrapper">
-    <div class="swiper-slide" *ngFor="let item of items">
-      <div class="vesitable-item">
-        <div class="vesitable-img">
-          <img [src]="item.image" class="img-fluid w-100 rounded-top" [alt]="item.fRoomAlias" />
-        </div>
-        <div class="p-4 rounded-bottom">
-          <h5>{{ item.fRoomAlias }}</h5>
-          <p class="description">{{ item.fRoomDescription }}</p>
-          <h5 class="text-primary">${{ item.fRoomPrice }}</h5>
-          <a [routerLink]="['/show/room-detail', item.fRoomId]"
-            class="btn border border-secondary rounded-pill px-3 text-primary">
-            <i class="fa fa-shopping-bag me-2 text-primary"></i> 即刻入住
-          </a>
+    <div class="swiper-slide" *ngFor="let item of displayedItems">
+      <div class="room-item rounded overflow-hidden pb-4">
+        <img src="{{staticUrl + item.image}}" loading="lazy" class="room-image" (error)="handleImageError($event)"
+          alt="房間圖片">
+
+        <div class="p-4">
+          <h4 class="text-uppercase mb-3">{{ item.fRoomAlias }}</h4>
+          <p class="mb-3">{{ item.fRoomDescription }}</p>
+          <div class="price mb-3">${{ item.fRoomPrice }}</div>
+          <a [routerLink]="['/room-detail', item.fRoomId]" class="btn btn-primary">即刻入住</a>
         </div>
       </div>
     </div>
   </div>
-  <div class="swiper-button-prev"></div>
   <div class="swiper-button-next"></div>
+  <div class="swiper-button-prev"></div>
 </div>

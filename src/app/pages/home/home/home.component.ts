@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SwiperComponent } from '../../../components/shared/swiper/swiper.component';
 import { BannerSwiperComponent } from '../../../components/shared/banner-swiper/banner-swiper.component';
 import { RoomSwiperComponent } from '../../room/room-swiper/room-swiper.component';
+import { Room } from '../../../interfaces/room/room.interface';
+import { RoomSwiperService } from '../../../services/room/room-swiper.service';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -10,131 +13,65 @@ import { RoomSwiperComponent } from '../../room/room-swiper/room-swiper.componen
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
-  vegetableItems = [
-    {
-      img: 'assets/img/vegetable-item-1.jpg',
-      title: 'Parsley',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-    {
-      img: 'assets/img/vegetable-item-5.jpg',
-      title: 'Carrot',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-    {
-      img: 'assets/img/vegetable-item-6.jpg',
-      title: 'Carrot',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-    {
-      img: 'assets/img/vegetable-item-4.jpg',
-      title: 'Carrot',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-    {
-      img: 'assets/img/vegetable-item-1.jpg',
-      title: 'Parsley',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-    {
-      img: 'assets/img/vegetable-item-6.jpg',
-      title: 'Carrot',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-    {
-      img: 'assets/img/vegetable-item-5.jpg',
-      title: 'Carrot',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-    {
-      img: 'assets/img/vegetable-item-4.jpg',
-      title: 'Carrot',
-      description: 'Lorem ipsum dolor sit amet...',
-      category: 'Vegetable',
-      price: 100,
-    },
-  ];
-  room = [
+export class HomeComponent implements OnInit {
+  roomItems: Room[] = [];
+
+  // 修正後的後備資料，符合 Room 介面
+  private fallbackRoomItems: Room[] = [
     {
       fRoomId: 1,
-      fRoomAlias: '松竹紅單人房',
-      image: 'assets/img/room/n1.jpg',
-      fRoomDescription: '典雅紅色調設計，溫暖的居住氛圍。',
+      fRoomAlias: '松柏單人房',
+      fRoomDescription: '舒適單人房，提供寧靜環境。',
       fRoomPrice: 56000,
+      image: 'rooms/9375a375-3fbd-4019-9897-ec3e14910866.jpg' // n1.jpg
     },
     {
       fRoomId: 2,
-      fRoomAlias: '松竹籃單人房',
-      image: '/assets/img/room/n1bule.jpg',
-      fRoomDescription: '清新藍色調設計，融入現代化設施。',
+      fRoomAlias: '松柏藍單人房',
+      fRoomDescription: '藍色調單人房，適合長期居住。',
       fRoomPrice: 56000,
+      image: 'rooms/b2550cab-bf91-4eeb-8df2-6094646a6954.jpg' // n1bule.jpg
     },
     {
       fRoomId: 3,
-      fRoomAlias: '松竹秋單人房',
-      image: '/assets/img/room/n1red.jpg',
-      fRoomDescription: '秋季暖色設計，搭配溫馨燈光。',
+      fRoomAlias: '松柏紅單人房',
+      fRoomDescription: '紅色調單人房，溫暖舒適。',
       fRoomPrice: 56000,
+      image: 'rooms/6766bfb3-7995-4181-8a0f-874e5631ba94.jpg' // n1red.jpg
     },
     {
       fRoomId: 4,
-      fRoomAlias: '夏雨雙人房',
-      image: '/assets/img/room/n2.jpg',
-      fRoomDescription: '寬敞明亮的雙人房，溫馨布置搭配。',
-      fRoomPrice: 42000,
-    },
-    {
-      fRoomId: 5,
-      fRoomAlias: '夏雨奢華雙人房',
-      image: '/assets/img/room/n2pro.jpg',
-      fRoomDescription: '精緻裝潢，寬敞空間。',
-      fRoomPrice: 49000,
-    },
-    {
-      fRoomId: 6,
-      fRoomAlias: '夏雨綠雙人房',
-      image: '/assets/img/room/n2up.jpg',
-      fRoomDescription: '自然綠色調設計，寬敞明亮。',
-      fRoomPrice: 42000,
-    },
-    {
-      fRoomId: 7,
-      fRoomAlias: '秋康四人房',
-      image: '/assets/img/room/n4.jpg',
-      fRoomDescription: '豪華四人套房，設施齊全。',
-      fRoomPrice: 38000,
-    },
-    {
-      fRoomId: 8,
-      fRoomAlias: '明星六人房',
-      image: '/assets/img/room/n6.jpg',
-      fRoomDescription: '寬敞六人房，現代化設計。',
-      fRoomPrice: 32000,
-    },
-    {
-      fRoomId: 9,
-      fRoomAlias: '明星奢華六人房',
-      image: '/assets/img/room/n6pro.jpg',
-      fRoomDescription: '專為多人入住設計。',
-      fRoomPrice: 36000,
-    },
+      fRoomAlias: '松柏雙人房',
+      fRoomDescription: '寬敞雙人房，適合夫妻。',
+      fRoomPrice: 56000,
+      image: 'rooms/a8ff935a-ba66-4904-815a-c91b9ac715db.jpg' // n2.jpg
+    }
   ];
+
+  constructor(private roomService: RoomSwiperService) { }
+
   ngOnInit() {
-    console.log('room data:', this.room);  // 檢查 room 是否有值
+    this.roomService.getRooms().subscribe({
+      next: (response) => {
+        this.roomItems = response.data || [];
+        console.log('API room data:', this.roomItems);
+        if (response.message) {
+          console.log('API message:', response.message);
+        }
+        if (this.roomItems.length === 0) {
+          console.warn('API 返回空資料，使用後備');
+          this.roomItems = this.fallbackRoomItems;
+          console.log('使用 fallback，第一筆名稱:', this.fallbackRoomItems[0]?.fRoomAlias); // 驗證 fallback
+        } else {
+          console.log('使用 API，第一筆名稱:', this.roomItems[0]?.fRoomAlias); // 驗證 API
+        }
+      },
+      error: (err) => {
+        console.error('API 錯誤:', err);
+        this.roomItems = this.fallbackRoomItems;
+        console.log('使用後備 room data:', this.roomItems);
+        console.log('使用 fallback，第一筆名稱:', this.fallbackRoomItems[0]?.fRoomAlias); // 驗證 fallback
+      }
+    });
   }
 }
