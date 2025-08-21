@@ -6,16 +6,13 @@ import {
   Validators,
   FormGroup,
 } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { EventService } from '../../../services/event/event.service';
 import {
-  EventBatchDto,
   EventTemplateDto,
   EventRegistrationVM,
   RegistrationCreateDto,
 } from '../../../interfaces/event/event-list';
-import { finalize } from 'rxjs/operators';
-import { switchMap } from 'rxjs/operators';
 import {
   MemberInfo,
   MemberService,
@@ -29,10 +26,12 @@ import {
   styleUrls: ['./event-registration.component.scss'],
 })
 export class EventRegistrationComponent {
-  private fb = inject(NonNullableFormBuilder);
+  private fb = inject(NonNullableFormBuilder); //保證型別不會是 null（所以不用再寫 string | null 這種型別）。
   private route = inject(ActivatedRoute);
   private eventSvc = inject(EventService);
   private memberSvc = inject(MemberService);
+  private me?: MemberInfo;
+  private router = inject(Router);
 
   loading = true;
   error = '';
@@ -40,12 +39,12 @@ export class EventRegistrationComponent {
   submitting = false;
 
   form = this.fb.group({
-    // ⚠️ 你的 VM / 後端用的是 batchID（大寫 ID），這裡維持一致
-    batchID: [''],
+    //有需填寫的欄位才需要的欄位對弈設定
+    batchID: [''], //告訴表單：這個欄位的初始值是多少。
     title: [''],
     registrationID: [0],
     registrationNum: [''],
-    memberId: [0, Validators.required],
+    memberId: [0, Validators.required], // Validators.required是 Angular 內建的 表單驗證器 (Validator)。檢查該欄位是否有填值。
     memberName: [''],
     memberPhone: [''],
     amountDue: [0, Validators.required],
@@ -65,11 +64,8 @@ export class EventRegistrationComponent {
 
   ngOnInit(): void {
     // 1) 取 batchId（從 slug 抓開頭數字）
-    const raw = this.route.snapshot.paramMap.get('slug') ?? '';
+    const raw = this.route.snapshot.paramMap.get('slug') ?? ''; //snapshot 抓取參數  paramMap.get('slug') 看路由那邊的設定
     const batchId = Number(raw.match(/^\d+/)?.[0]);
-    // 從 JWT 取登入者
-    const me = this.memberSvc.getMemberFromToken();
-    const memberId = 15;
 
     if (!Number.isFinite(batchId)) {
       this.error = '缺少活動編號';
@@ -79,12 +75,12 @@ export class EventRegistrationComponent {
     // 2) 先取得登入者 → Console 顯示 → 再取活動
     this.memberSvc.getMemberInfo().subscribe({
       next: (me: MemberInfo) => {
-        console.log('✅ 登入者資料', me); // ★ 這裡會顯示登入者資料
-        const memberId = me.memberId;
+        console.log('✅ 登入者資料', me);
+        this.me = me;
 
         this.eventSvc.getEventByBatch(batchId).subscribe({
           next: (dto: EventTemplateDto) => {
-            const vm = this.mapToVM(dto, batchId, me); // ★ 把 name 傳進去（若有）
+            const vm = this.mapToVM(dto, batchId, me); //  把 name 傳進去（若有）
             this.event = vm;
 
             // 回填表單（包含 hidden 欄位）
@@ -93,7 +89,7 @@ export class EventRegistrationComponent {
               title: vm.title,
               registrationID: vm.registrationID,
               registrationNum: vm.registrationNum,
-              memberId: memberId,
+              memberId: Number(me.memberId ?? me.memberId),
               memberName: me.name ?? '未知',
               memberPhone: me.phone ?? '',
               amountDue: vm.amountDue,
@@ -113,7 +109,9 @@ export class EventRegistrationComponent {
       },
       error: (err) => {
         console.error('❌ 無法取得登入者資料', err);
-        this.error = '請先登入後再報名';
+        // ⚠️ 直接跳到登入頁
+        this.router.navigate(['/show/login']);
+        // this.error = '請先登入後再報名';
         this.loading = false;
       },
     });
@@ -142,7 +140,7 @@ export class EventRegistrationComponent {
       title: t.eventName ?? '',
       registrationID: 0,
       registrationNum: '',
-      memberId: me.memberId,
+      memberId: Number(me.memberId),
       //調整名稱
       // memberName: Number(memberId ?? NaN) === 15 ? '林玉婷' : '未知',
       memberName: me.name ?? '未知',
@@ -165,12 +163,28 @@ export class EventRegistrationComponent {
   }
 
   submit() {
+    // 先把 memberId 轉成 number
+    const memberIdNum = Number(
+      this.me?.memberId ?? this.me?.memberId ?? this.form.get('memberId')?.value
+    );
+
+    if (!Number.isFinite(memberIdNum) || memberIdNum <= 0) {
+      console.error(
+        'memberId is invalid:',
+        this.me,
+        this.form.get('memberId')?.value
+      );
+      this.submitting = false;
+      alert('會員資料異常，請重新登入後再試。');
+      return;
+    }
+
     //免費時，不檢查表單整體 invalid；非免費才檢查
     if (!this.isFree && this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-
+    // 電子發票載具（付費且選電子發票才檢查）
     const invType = this.form.get('payment.invoiceType')?.value;
     if (
       invType === '電子發票' &&
@@ -184,33 +198,40 @@ export class EventRegistrationComponent {
     this.submitting = true;
     const v = this.form.getRawValue();
 
-    const dto = {
-      eventBatchId: Number(v.batchID), // ← 直接用單一批次
-      memberId: Number(v.memberId),
-      amountDue: v.amountDue ?? null,
-      registrationDateTime: v.registrationDateTime || new Date().toISOString(),
-      currentStatus: Number(v.currentStatus ?? 1),
-      internalRemarks: (v.internalRemarks ?? '').trim() || null,
+    const payload: RegistrationCreateDto = {
+      eventBatchId: Number(v.batchID), // number
+      memberId: Number(this.me?.memberId), // number
+      amountDue: this.isFree ? 0 : Number(v.amountDue ?? 0), // number
+      registrationDateTime: new Date().toISOString(), // ISO 字串
+      currentStatus: 1, // 建議固定 1=報名成功
+      internalRemarks: (v.internalRemarks || '').trim() || null,
     };
+    // ★ 在這裡印：你送給 API 的內容
+    console.log('[POST] /api/EventRegistration payload =', payload);
+    console.log('payload JSON =', JSON.stringify(payload));
 
-    console.log('➡️ payload', dto);
-    this.eventSvc
-      .register(dto)
-      .pipe(finalize(() => (this.submitting = false)))
-      .subscribe({
-        next: (res) => {
-          this.form.patchValue({
-            registrationID: res.registrationId ?? 0,
-            registrationNum: res.registrationNum ?? '',
-            // memberId: memberId,
-          });
-          alert(`報名成功！您的編號：${res.registrationNum || '—'}`);
-        },
-        error: (err) => {
-          console.error('報名失敗', err);
-          this.error = err?.error?.message ?? '報名失敗，請稍後再試';
-        },
-      });
+    this.eventSvc.register(payload).subscribe({
+      next: (res) => {
+        this.form.patchValue({
+          registrationID: res.registrationId ?? 0,
+          registrationNum: res.registrationNum ?? '',
+        });
+        console.log('編號：' + res.registrationNum);
+        alert('報名成功！');
+
+        this.router.navigate(['../'], {
+          relativeTo: this.route,
+          queryParams: { reg: res.registrationNum }, // 可選：帶編號回去顯示提示
+        });
+      },
+      error: (err) => {
+        console.error('報名失敗', err);
+        console.log('status:', err.status);
+        console.log('title:', err.error?.title);
+        console.log('errors:', err.error?.errors); // << 關鍵：顯示是哪個欄位不合格
+        this.error = err?.error?.message ?? '報名失敗，請稍後再試';
+      },
+    });
   }
 
   // 判斷金額是否為0
@@ -248,5 +269,16 @@ export class EventRegistrationComponent {
     method?.updateValueAndValidity({ emitEvent: false });
     invoice?.updateValueAndValidity({ emitEvent: false });
     carrier?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private toLocalIsoSeconds(d = new Date()): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const y = d.getFullYear();
+    const m = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mm = pad(d.getMinutes());
+    const ss = pad(d.getSeconds());
+    return `${y}-${m}-${day}T${hh}:${mm}:${ss}`;
   }
 }

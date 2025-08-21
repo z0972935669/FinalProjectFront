@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { EventListComponent } from '../event-list/event-list.component';
 import { CommonModule } from '@angular/common';
 import { EventService } from '../../../services/event/event.service';
@@ -8,6 +8,11 @@ import {
   EventTemplateDto,
   EventDetailVM,
 } from '../../../interfaces/event/event-list';
+import { catchError, of, switchMap, forkJoin } from 'rxjs';
+import {
+  MemberInfo,
+  MemberService,
+} from '../../../services/member/member.service';
 
 @Component({
   selector: 'app-event-detail',
@@ -18,16 +23,20 @@ import {
 export class EventDetailComponent {
   private route = inject(ActivatedRoute);
   private eventSvc = inject(EventService);
+  private router = inject(Router);
+  private memberSvc = inject(MemberService);
+  private me?: MemberInfo;
 
+  //會用到的參數
   loading = true;
   error = '';
   event?: EventDetailVM;
-  form = { memberId: 15 };
   public batchID!: number;
+  isRegistered = false;
 
   ngOnInit(): void {
     const raw = this.route.snapshot.paramMap.get('slug') ?? '';
-    this.batchID = Number(raw.match(/^\d+/)?.[0]); // 取開頭的數字
+    this.batchID = Number(raw.match(/^\d+/)?.[0]); // 取開頭數字
 
     if (!Number.isFinite(this.batchID)) {
       this.error = '缺少活動編號';
@@ -35,19 +44,46 @@ export class EventDetailComponent {
       return;
     }
 
-    this.eventSvc.getEventByBatch(this.batchID).subscribe({
-      next: (dto: EventTemplateDto) => {
-        this.event = this.mapToVM(dto);
-        this.loading = false;
-      },
-      error: (err: unknown) => {
-        console.error('getEventByBatch error:', err);
-        this.error = '讀取活動失敗';
-        this.loading = false;
-      },
-    });
-  }
+    // 1) 取登入者 → 2) 同步取活動 & 是否已報名
+    this.memberSvc
+      .getMemberInfo()
+      .pipe(
+        switchMap((me: MemberInfo) => {
+          this.me = me;
 
+          return forkJoin({
+            dto: this.eventSvc.getEventByBatch(this.batchID),
+            has: this.eventSvc.getHasRegistered(
+              Number(me.memberId),
+              this.batchID
+            ),
+          });
+        }),
+        catchError((err) => {
+          // 取不到登入者就導去登入頁
+          console.error('❌ 無法取得登入者資料', err);
+          this.router.navigate(['/show/login']);
+          return of({ dto: null, has: false });
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          if (!res.dto) {
+            this.error = '讀取活動失敗';
+            this.loading = false;
+            return;
+          }
+          this.event = this.mapToVM(res.dto);
+          this.isRegistered = !!res.has;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('getEventByBatch / getHasRegistered error:', err);
+          this.error = '讀取活動失敗';
+          this.loading = false;
+        },
+      });
+  }
   // ====== 將後端 DTO → 你的畫面 VM ======
   private mapToVM(t: EventTemplateDto): EventDetailVM {
     const now = Date.now();
@@ -136,5 +172,12 @@ export class EventDetailComponent {
       default:
         return '草稿';
     }
+  }
+  cancelRegistration() {
+    if (!this.me || !this.event) return;
+
+    if (!confirm('確定要取消報名嗎？')) return;
+
+    //0821取消報名回傳api還沒寫
   }
 }

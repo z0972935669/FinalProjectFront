@@ -101,7 +101,7 @@ export interface EventBatchDto {
   eventDateTimeEnd?: string | null;
   quota?: number | null;
 }
-
+//傳送給api 報名資料
 export interface EventTemplateDto {
   eventID: number;
   eventName: string;
@@ -120,4 +120,24 @@ export interface EventTemplateDto {
   contactPersonId?: string | null;
   contactPersonName?: string | null;
   contactPhone?: string | null;
+}
+//api回應的 報名資料
+export interface RegistrationResDto {
+  registrationId: number;
+  registrationNum: string;
+}
+
+//
+export interface RegistrationListDto {
+  registrationId: number;
+  registrationNum: string;
+  eventBatchId: number;
+  memberId: number;
+  amountDue: number | null;
+  registrationDateTime: string;
+  currentStatus: number;
+  internalRemarks: string | null;
+  EventName: string;
+  EventDateTimeStart: string;
+  EventLocation: string;
 }
