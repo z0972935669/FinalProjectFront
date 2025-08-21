@@ -16,4 +16,10 @@ export class SuppliesListService {
     return this.http.get<Isupplieslist[]>(this.apiUrlsup);
   }
 
+  addSuppliesProduct(product: Isupplieslist): Observable<Isupplieslist> {
+    return this.http.post<Isupplieslist>(this.apiUrlsup, product);
+  }
+  editSuppliesProduct(product: Isupplieslist): Observable<Isupplieslist> {
+    return this.http.put<Isupplieslist>(this.apiUrlsup, product);
+  }
 }

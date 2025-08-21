@@ -57,7 +57,7 @@ export class SupplieslistComponent {
   newProduct: Isupplieslist = {
     suppliesProductID: 0,
     suppliesProductName: '',
-    quantityPerUnit: 0,
+    quantityPerUnit: '',
     unitsInStock: 0,
     pricePerUnit: 0,
     supplierId: 0,
@@ -76,18 +76,66 @@ export class SupplieslistComponent {
     const selected = this.categories.find(c => c.suppliesCategoryId === this.newProduct.suppliesCategoryId);
     this.newProduct.suppliesCategoryName = selected ? selected.suppliesCategoryName : '';
   }
-
+  // 新增品項
   submitAddProduct() {
-    // 儲存時 supplierId、suppliesCategoryId 及名稱都會被記錄
-    console.log('新增品項資料:', this.newProduct);
-    // 這裡可以串接 API 新增品項
-    // this.suppliesListService.addSuppliesProduct(this.newProduct).subscribe();
+    this.suppliesListService.addSuppliesProduct(this.newProduct).subscribe({
+      next: (res) => {
+        // 新增成功後可重新載入列表或顯示訊息
+        this.suppliesListService.getSuppliesData().subscribe((data: Isupplieslist[]) => {
+          this.suppliesProducts = data;
+          this.filteredProducts = data;
+        });
+      },
+      error: (err) => {
+        // 錯誤處理
+        alert('新增失敗');
+      }
 
+    });
     // 清空輸入欄位
+    this.resetNewProduct();
+  }
+  // 修改品項
+  editedProduct: Isupplieslist = {
+    suppliesProductID: this.newProduct.suppliesProductID,
+    suppliesProductName: this.newProduct.suppliesProductName,
+    quantityPerUnit: this.newProduct.quantityPerUnit,
+    unitsInStock: this.newProduct.unitsInStock,
+    pricePerUnit: this.newProduct.pricePerUnit,
+    supplierId: this.newProduct.supplierId,
+    suppliesSupplierName: this.newProduct.suppliesSupplierName,
+    suppliesCategoryId: this.newProduct.suppliesCategoryId,
+    suppliesCategoryName: this.newProduct.suppliesCategoryName,
+    exist: true
+  };
+  submitEditProduct() {
+    this.suppliesListService.editSuppliesProduct(this.newProduct).subscribe({
+      next: (res) => {
+        // 修改成功後可重新載入列表或顯示訊息
+        this.suppliesListService.getSuppliesData().subscribe((data: Isupplieslist[]) => {
+          this.suppliesProducts = data;
+          this.filteredProducts = data;
+        });
+      },
+      error: (err) => {
+        // 錯誤處理
+        alert('修改失敗');
+      }
+    });
+    // 清空輸入欄位
+    this.resetNewProduct();
+  }
+
+  editProduct(product: Isupplieslist) {
+    // 複製物品資料到 newProduct
+    this.newProduct = { ...product };
+  }
+
+  resetNewProduct() {
     this.newProduct = {
       suppliesProductID: 0,
       suppliesProductName: '',
-      quantityPerUnit: 0,
+      quantityPerUnit: '',
       unitsInStock: 0,
       pricePerUnit: 0,
       supplierId: 0,
