@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withInMemoryScrolling({
-        scrollPositionRestoration: 'top', // ⭐ 換頁回到最上方
+        scrollPositionRestoration: 'top',
         anchorScrolling: 'enabled',
       })
     ),
