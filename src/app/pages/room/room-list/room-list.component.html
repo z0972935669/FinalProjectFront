@@ -20,7 +20,8 @@
   <div class="row g-4">
     <div class="col-lg-4 col-md-6" *ngFor="let room of rooms">
       <div class="card h-100 shadow-sm">
-        <img [src]="room.image" class="card-img-top" alt="{{ room.fRoomAlias }}">
+        <img [src]="staticUrl + room.image" class="card-img-top" alt="{{ room.fRoomAlias }}"
+          (error)="handleImageError($event)">
         <div class="card-body">
           <h5 class="card-title">{{ room.fRoomAlias }}</h5>
           <p class="card-text">{{ room.fRoomDescription }}</p>

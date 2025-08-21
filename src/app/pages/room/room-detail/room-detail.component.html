@@ -8,7 +8,6 @@
   </ol>
 </div>
 <!-- Single Page Header End -->
-<!-- src/app/pages/room/room-detail/room-detail.component.html -->
 <div class="container py-5" *ngIf="room; else notFound">
   <h1 class="text-primary mb-4">即刻入住</h1>
   <div class="row g-5">
@@ -17,7 +16,8 @@
       <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
           <div class="carousel-item" *ngFor="let image of room.images; let i = index" [ngClass]="{ active: i === 0 }">
-            <img [src]="image" class="d-block w-100" alt="{{ room.fRoomAlias }}" error="handleImageError($event)">
+            <img [src]="staticUrl + image" class="d-block w-100" alt="{{ room.fRoomAlias }}"
+              (error)="handleImageError($event)" loading="lazy">
           </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
@@ -72,9 +72,17 @@
             </div>
           </div>
 
-          <div class="mb-3" *ngIf="room">
-            <p class="text-primary fw-bold">付款金額: NT${{ (room.fRoomPrice * 0.1) | number }} (訂金 10%)</p>
-          </div>
+          <ng-container *ngIf="room; else noRoom">
+            <div class="mb-3" *ngIf="room.fRoomPrice !== null && room.fRoomPrice !== undefined; else noPrice">
+              <p class="text-primary fw-bold">付款金額: NT${{ (room.fRoomPrice * 0.1) | number }} (訂金 10%)</p>
+            </div>
+            <ng-template #noPrice>
+              <p class="text-warning">價格資訊不可用，請聯繫客服。</p>
+            </ng-template>
+          </ng-container>
+          <ng-template #noRoom>
+            <p>房間資料加載中...</p>
+          </ng-template>
 
           <div class="mb-3">
             <h6>您要如何付款?</h6>

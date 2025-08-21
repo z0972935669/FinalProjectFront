@@ -1,19 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-interface Room {
-  fRoomId: number;
-  fRoomAlias: string;
-  image: string;
-  fRoomDescription: string;
-}
-interface RoomVisitReservation {
-  fName: string;
-  fEmail: string;
-  fPhoneOrLineId: string;
-  fReservationDate: string;
-}
+import { RouterModule } from '@angular/router';
+import { RoomListService } from '../../../services/room/room-list.service';
+import { Room, RoomVisitReservation } from '../../../interfaces/room/room.interface';
+import { timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'app-room-list',
@@ -23,46 +14,54 @@ interface RoomVisitReservation {
   styleUrl: './room-list.component.scss',
 })
 export class RoomListComponent implements OnInit {
-  rooms: Room[] = [
-    { fRoomId: 1, fRoomAlias: '松竹紅單人房', image: 'assets/img/room/n1.jpg', fRoomDescription: '典雅紅色調設計，營造溫暖氛圍，專為喜愛寧靜的長者打造私人休憩空間。' },
-    { fRoomId: 2, fRoomAlias: '松竹籃單人房', image: 'assets/img/room/n1bule.jpg', fRoomDescription: '清新藍色調，搭配現代化設施，提供舒適與寧靜兼具的獨居體驗。' },
-    { fRoomId: 3, fRoomAlias: '松竹秋單人房', image: 'assets/img/room/n1red.jpg', fRoomDescription: '秋季暖色設計，溫馨舒適，適合追求高品質生活的獨居長者。' },
-    { fRoomId: 4, fRoomAlias: '夏雨雙人房', image: 'assets/img/room/n2.jpg', fRoomDescription: '寬敞明亮的雙人房，溫馨布置，適合親友共享的溫暖時光。' },
-    { fRoomId: 5, fRoomAlias: '夏雨奢華雙人房', image: 'assets/img/room/n2pro.jpg', fRoomDescription: '高級傢俱與精緻裝潢，打造尊貴雙人入住體驗，享受奢華生活。' },
-    { fRoomId: 6, fRoomAlias: '夏雨綠雙人房', image: 'assets/img/room/n2up.jpg', fRoomDescription: '自然綠色調，空間寬敞，帶來舒適與活力的雙人居住環境。' },
-    { fRoomId: 7, fRoomAlias: '秋康四人房', image: 'assets/img/room/n4.jpg', fRoomDescription: '豪華四人套房，設施齊全，適合家庭或朋友共享尊榮生活。' },
-    { fRoomId: 8, fRoomAlias: '明星六人房', image: 'assets/img/room/n6.jpg', fRoomDescription: '寬敞六人房，現代化設計，適合團體入住，享受熱鬧與舒適兼得的時光。' },
-    { fRoomId: 9, fRoomAlias: '明星奢華六人房', image: 'assets/img/room/n6pro.jpg', fRoomDescription: '頂級設施與奢華空間，專為多人入住設計，體驗無與倫比的尊貴享受。' },
-  ];
-  RoomVisitReservation: RoomVisitReservation = {
-    fName: '',
-    fEmail: '',
-    fPhoneOrLineId: '',
-    fReservationDate: ''
-  };
-
+  rooms: Room[] = [];
+  RoomVisitReservation: RoomVisitReservation = { fName: '', fEmail: '', fPhoneOrLineId: '', fReservationDate: '' };
   minDate: string;
+  staticUrl = 'https://localhost:7124/'; // 基於後端根路徑
 
-  constructor() {
+  constructor(private roomService: RoomListService) {
     const today = new Date();
     const fifteenDaysLater = new Date(today);
-    fifteenDaysLater.setDate(today.getDate() + 15); // 2025-08-24
-    this.minDate = fifteenDaysLater.toISOString().split('T')[0]; // 設置最小日期為2025-08-24
+    fifteenDaysLater.setDate(today.getDate() + 15);
+    this.minDate = fifteenDaysLater.toISOString().split('T')[0];
   }
 
-  ngOnInit(): void { }
-
-  onSubmit(RoomVisitReservation: RoomVisitReservation) {
-    if (RoomVisitReservation.fName && RoomVisitReservation.fEmail && RoomVisitReservation.fPhoneOrLineId && RoomVisitReservation.fReservationDate) {
-      const confirmation = confirm(
-        `確認預約資訊：\n\n姓名: ${RoomVisitReservation.fName}\n電子郵件: ${RoomVisitReservation.fEmail}\n電話/LINE ID: ${RoomVisitReservation.fPhoneOrLineId}\n預約日期: ${RoomVisitReservation.fReservationDate}\n\n是否確認？`
-      );
-      if (confirmation) {
-        console.log('預約提交成功', RoomVisitReservation);
-        // 這裡可以添加後端提交邏輯
-        alert('預約成功！');
-        this.resetForm();
+  ngOnInit(): void {
+    this.roomService.getRooms().pipe(
+      timeout(5000)
+    ).subscribe({
+      next: (response) => {
+        this.rooms = response.data.filter(room => room.image && room.image.trim() !== '');
+        this.rooms.forEach(room => {
+          const fullUrl = this.staticUrl + 'images/' + room.image.replace(/\\/g, '/').toLowerCase(); // 修正路徑
+          console.log('API 回傳路徑:', room.image);
+          console.log('最終拼接的圖片URL:', fullUrl);
+          const img = new Image();
+          img.src = fullUrl;
+          img.onload = () => console.log('圖片載入成功:', fullUrl);
+          img.onerror = (e) => console.error('預檢查圖片失敗:', fullUrl, '可能因 CORS 或伺服器', e);
+        });
+      },
+      error: (err) => {
+        console.error('API 或圖片載入錯誤:', err);
+        this.rooms = [];
+        alert('載入房間列表超時或失敗，請檢查網路或聯繫客服');
       }
+    });
+  }
+
+  onSubmit(reservation: RoomVisitReservation) {
+    if (reservation.fName && reservation.fEmail && reservation.fPhoneOrLineId && reservation.fReservationDate) {
+      this.roomService.submitReservation(reservation).subscribe({
+        next: (response) => {
+          alert(`預約成功！ID: ${response.data}`);
+          this.resetForm();
+        },
+        error: (err) => {
+          console.error('完整錯誤:', err);
+          alert('預約失敗：' + (err.error?.message || err.message));
+        }
+      });
     } else {
       alert('請填寫所有必填欄位！');
     }
@@ -70,5 +69,18 @@ export class RoomListComponent implements OnInit {
 
   resetForm() {
     this.RoomVisitReservation = { fName: '', fEmail: '', fPhoneOrLineId: '', fReservationDate: '' };
+  }
+
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    console.error('圖片載入失敗:', imgElement.src, ' - 檢查 CORS 或伺服器狀態');
+    imgElement.src = this.staticUrl + 'images/assets/default-room-image.jpg'; // 修正後備路徑
+    imgElement.onerror = null;
+    setTimeout(() => {
+      if (!imgElement.complete) {
+        console.warn('後備圖片載入超時:', imgElement.src);
+        imgElement.src = this.staticUrl + 'images/assets/alternative-default.jpg'; // 第二備用
+      }
+    }, 2000);
   }
 }
