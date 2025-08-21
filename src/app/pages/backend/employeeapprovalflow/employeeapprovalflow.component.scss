@@ -1,0 +1,91 @@
+.main-content {
+  border-left: 1px solid #ddd;
+  /* 淡灰色分隔線 */
+  padding-left: 20px;
+  /* 與分隔線保持距離 */
+}
+
+.content-area {
+  border-left: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table th {
+  font-size: large;
+  font-weight: bolder;
+  color: forestgreen;
+  /* 綠色 */
+  width: 150px;
+  /* 固定欄寬 */
+}
+
+/* === 水平時間軸（點一定在軸上） === */
+.timeline {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 110px;
+  /* 固定高度：可依需要調整 */
+  margin: 8px 0 24px;
+}
+
+/* 軸線：和 .dot 的 top 值保持一致 */
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50px;
+  /* ← 軸線高度（下面 .dot 也會用這個值） */
+  height: 2px;
+  background: #e9ecef;
+  z-index: 1;
+}
+
+.timeline-step {
+  position: relative;
+  flex: 1;
+  text-align: center;
+  z-index: 2;
+  /* 保證在軸線上方 */
+}
+
+/* 圓點：中心壓在時間軸上 */
+.timeline-step .dot {
+  position: absolute;
+  top: 50px;
+  /* ← 跟 ::before 的 top 完全一樣 */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #adb5bd;
+  /* 預設灰色（未開始） */
+}
+
+/* 狀態色 */
+.timeline-step.done .dot {
+  background: #28a745;
+  /* 綠：已完成 */
+}
+
+.timeline-step.active .dot {
+  background: #0d6efd;
+  /* 藍：進行中 */
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, .2);
+}
+
+/* 文字區：拉到圓點下方 */
+.timeline-step .title {
+  margin-top: 64px;
+  /* 讓標題在圓點下方（110 高度 - 50 軸線 ~ 大概這個距離）*/
+  font-weight: 600;
+}
+
+.timeline-step .sub {
+  margin-top: 4px;
+  color: #6c757d;
+  font-size: .9rem;
+}

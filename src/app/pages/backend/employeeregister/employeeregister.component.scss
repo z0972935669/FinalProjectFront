@@ -10,9 +10,13 @@
   background-color: #fff;
 }
 
-label,
-input {
+label {
   color: forestgreen;
   font-weight: bolder;
+  font-size: large;
+}
+
+input {
+  color: rgb(0, 0, 0);
   font-size: large;
 }

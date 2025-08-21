@@ -1,0 +1,128 @@
+<div class="app-wrapper">
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+      <h1 class="badge bg-primary mb-3" style="font-size: xx-large;">員工註冊帳號</h1>
+
+      <div class="row gy-4">
+        <div class="col-12 col-lg-6">
+          <div class="app-card app-card-account shadow-lg">
+            <div class="app-card-header p-2 border-bottom-0">
+              <h4 class="app-card-title mb-0"></h4>
+            </div>
+
+            <div class="app-card-body px-4">
+              <!-- src/app/pages/backend/employeeregister/employeeregister.component.html -->
+              <form #f="ngForm" (ngSubmit)="register(f)">
+                <!-- Employee 基本資料 -->
+                <div class="mb-3">
+                  <label class="form-label">姓名</label>
+                  <input class="form-control form-control-lg" name="name" [(ngModel)]="vm.name" required maxlength="100"
+                    placeholder="輸入姓名">
+                </div>
+
+                <!-- 身分證號：第一碼英文 + 9 碼數字；輸入時自動轉大寫 -->
+                <div class="mb-3">
+                  <label class="form-label">身分證號</label>
+                  <input class="form-control form-control-lg" name="identityNumber" [(ngModel)]="vm.identityNumber"
+                    (ngModelChange)="vm.identityNumber = ($event || '').toUpperCase()" #idn="ngModel" required
+                    pattern="^[A-Za-z][0-9]{9}$" maxlength="10" autocomplete="off" placeholder="例如：A123456789">
+                  <div class="text-danger mt-1" *ngIf="idn.invalid && (idn.dirty || idn.touched)">
+                    需為「英文1碼 + 數字9碼」，例如 A123456789
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">手機/電話</label>
+                  <input class="form-control form-control-lg" name="phone" [(ngModel)]="vm.phone" maxlength="20"
+                    placeholder="輸入電話">
+                </div>
+
+                <!-- Email：HTML5 驗證（包含 &#64; 與基本格式） -->
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input class="form-control form-control-lg" type="email" name="email" [(ngModel)]="vm.email"
+                    #em="ngModel" required maxlength="100" autocomplete="email" placeholder="XXXX&#64;gmail.com">
+                  <div class="text-danger mt-1" *ngIf="em.invalid && (em.dirty || em.touched)">
+                    請輸入有效的 Email（需包含 &#64;）
+                  </div>
+                </div>
+
+                <!-- 帳號：6–12 位英數 -->
+                <div class="mb-3">
+                  <label class="form-label">帳號</label>
+                  <input class="form-control form-control-lg" name="username" [(ngModel)]="vm.username" #un="ngModel"
+                    required pattern="^[A-Za-z0-9]{6,12}$" maxlength="12" autocomplete="username"
+                    placeholder="6–12 位英數">
+                  <div class="text-danger mt-1" *ngIf="un.invalid && (un.dirty || un.touched)">
+                    帳號需為 6–12 位英數字
+                  </div>
+                </div>
+
+                <!-- 密碼 -->
+                <div class="mb-3">
+                  <label class="form-label">密碼</label>
+                  <div class="input-group">
+                    <input [type]="showPwd ? 'text' : 'password'" class="form-control form-control-lg" name="password"
+                      [(ngModel)]="vm.password" #pw="ngModel" required pattern="^[A-Za-z0-9]{4,12}$" maxlength="12"
+                      autocomplete="new-password" placeholder="4–12 位英數">
+                    <button type="button" class="btn btn-outline-secondary" (click)="showPwd = !showPwd" tabindex="-1"
+                      aria-label="切換顯示密碼">
+                      <i class="bi" [ngClass]="showPwd ? 'bi-eye-slash' : 'bi-eye'"></i>
+                    </button>
+                  </div>
+                  <!-- 只要 touched 或 dirty 就顯示錯誤 -->
+                  <div class="text-danger mt-1" *ngIf="pw.invalid && (pw.dirty || pw.touched)">
+                    密碼需為 4–12 位英數字
+                  </div>
+                </div>
+
+                <!-- 密碼確認 -->
+                <div class="mb-4">
+                  <label class="form-label">密碼確認</label>
+                  <div class="input-group">
+                    <input [type]="showConfirm ? 'text' : 'password'" class="form-control form-control-lg"
+                      name="confirm" [(ngModel)]="vm.confirm" #cf="ngModel" required pattern="^[A-Za-z0-9]{4,12}$"
+                      maxlength="12" autocomplete="new-password" placeholder="再次輸入密碼">
+                    <button type="button" class="btn btn-outline-secondary" (click)="showConfirm = !showConfirm"
+                      tabindex="-1" aria-label="切換顯示密碼確認">
+                      <i class="bi" [ngClass]="showConfirm ? 'bi-eye-slash' : 'bi-eye'"></i>
+                    </button>
+                  </div>
+                  <!-- 驗證規則1：長度/格式錯誤 -->
+                  <div class="text-danger mt-1" *ngIf="cf.invalid && (cf.dirty || cf.touched)">
+                    密碼確認需為 4–12 位英數字
+                  </div>
+                  <!-- 驗證規則2：與密碼不一致 -->
+                  <div class="text-danger mt-1"
+                    *ngIf="vm.confirm && vm.password !== vm.confirm && (cf.dirty || cf.touched)">
+                    兩次密碼不一致
+                  </div>
+                </div>
+
+                <div class="text-danger mb-3" *ngIf="error">{{ error }}</div>
+                <div class="text-success mb-3" *ngIf="success">註冊成功！</div>
+                <!-- 送出按鈕：條件再加上密碼一致 -->
+                <button type="submit" class="btn btn-lg w-100 mb-3"
+                  [ngClass]="canSubmit(f) ? 'btn-success' : 'btn-secondary'"
+                  style="font-size:2rem; padding:.6rem; color:#fff;">
+                  {{ loading ? '送出中…' : '註冊' }}
+                </button>
+                <div class="text-danger mt-2" *ngIf="!canSubmit(f) && (f.dirty || f.touched)">
+                  {{ firstError(f) }}
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="d-none d-md-block" style="height:100%; min-height:420px;
+                      background:#e8f5e9 url('assets/backend/images/logo/login.png')
+                      center center / contain no-repeat; border-radius:.5rem;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="app-wrapper">
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+
+      <!-- <h1 class="badge bg-primary mb-3" style="font-size: xx-large;">打卡系統</h1> -->
+
+      <div class="row gy-4">
+        <!-- 左邊：基本資料（單一卡片） -->
+        <div class="col-12 col-lg-12">
+          <div class="content-wrap">
+            <div class="page-heading d-flex align-items-center justify-content-between gap-3 mb-3">
+              <div class="col-auto">
+                <h1 class="badge bg-primary mb-0" style="font-size: xx-large;">考勤紀錄</h1>
+              </div>
+
+              <div class="d-flex align-items-center gap-3 ms-auto">
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary btn-sm" (click)="prevMonth()">‹ 上個月</button>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="today()">今天</button>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="nextMonth()">下個月 ›</button>
+                </div>
+                <h5 class="mb-0 fw-semibold">{{ monthLabel }}</h5>
+                <span class="text-muted small d-none d-md-inline">僅為範例畫面（未連 API）</span>
+              </div>
+            </div>
+
+            <div class="card shadow-sm calendar-card">
+              <div class="card-body">
+                <!-- 週標題 -->
+                <div class="weekdays grid-7 text-center fw-semibold text-uppercase small text-muted mb-2">
+                  <div>MON</div>
+                  <div>TUE</div>
+                  <div>WED</div>
+                  <div>THU</div>
+                  <div>FRI</div>
+                  <div>SAT</div>
+                  <div>SUN</div>
+                </div>
+
+                <!-- 月曆：7 欄 Grid；窄螢幕可水平捲動 -->
+                <div class="calendar-viewport">
+                  <div class="calendar-grid grid-7">
+                    <ng-container *ngFor="let week of weeks">
+                      <ng-container *ngFor="let c of week">
+                        <div class="day-cell" [class.muted]="!c.inMonth" [class.today]="c.isToday">
+                          <div class="day-number">{{ c.date | date:'d' }}</div>
+
+                          <div *ngFor="let it of c.items" class="badge w-100 text-truncate" [ngClass]="{
+                         'bg-primary-soft text-primary': it.color==='primary',
+                         'bg-success-soft text-success': it.color==='success',
+                         'bg-warning-soft text-warning': it.color==='warning'
+                       }">
+                            {{ it.text }}
+                          </div>
+                        </div>
+                      </ng-container>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右邊：職務資訊 + 緊急連絡人資訊（兩張卡片堆疊，等寬） -->
+
+
+      </div><!-- /row -->
+
+    </div>
+  </div>
+</div>
