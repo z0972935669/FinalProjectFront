@@ -24,7 +24,7 @@ export class CartService {
     const existing = cart.find((c) => c.productId === item.productId);
 
     if (existing) {
-      existing.quantity += item.quantity;
+      existing.quantity = item.quantity;
     } else {
       cart.push(item);
     }

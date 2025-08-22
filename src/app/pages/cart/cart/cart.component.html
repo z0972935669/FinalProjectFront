@@ -8,7 +8,6 @@
 </div>
 <!-- Single Page Header End -->
 
-
 <!-- Cart Page Start -->
 <div class="container-fluid py-5">
   <div class="container py-5">
@@ -25,91 +24,47 @@
           </tr>
         </thead>
         <tbody>
+          @for (item of items; track item.productId) {
           <tr>
             <th scope="row">
               <div class="d-flex align-items-center">
-                <img src="assets/img/vegetable-item-3.png" class="img-fluid me-5 rounded-circle"
-                  style="width: 80px; height: 80px;" alt="">
+                <img [src]="item.image" class="img-fluid me-5"
+                     style="width: 80px; height: 80px;" alt="{{ item.name }}" />
               </div>
             </th>
             <td>
-              <p class="mb-0 mt-4">香蕉</p>
+              <p class="mb-0 mt-4">{{ item.name }}</p>
             </td>
             <td>
-              <p class="mb-0 mt-4">$100</p>
+              <p class="mb-0 mt-4">${{ item.price }}</p>
             </td>
             <td>
-              <app-quantity [(value)]="count1"></app-quantity>
+              <app-quantity [(value)]="item.quantity"
+                            (valueChange)="updateQuantity(item, $event)">
+              </app-quantity>
             </td>
             <td>
-              <p class="mb-0 mt-4">$100</p>
+              <p class="mb-0 mt-4">${{ item.price * item.quantity }}</p>
             </td>
             <td>
-              <button class="btn btn-md rounded-circle bg-light border mt-4">
-                <i class="fa fa-times text-danger"></i>
-              </button>
-            </td>
-
-          </tr>
-          <tr>
-            <th scope="row">
-              <div class="d-flex align-items-center">
-                <img src="assets/img/vegetable-item-5.jpg" class="img-fluid me-5 rounded-circle"
-                  style="width: 80px; height: 80px;" alt="" alt="">
-              </div>
-            </th>
-            <td>
-              <p class="mb-0 mt-4">馬鈴薯</p>
-            </td>
-            <td>
-              <p class="mb-0 mt-4">$100</p>
-            </td>
-            <td>
-              <app-quantity [(value)]="count2"></app-quantity>
-            </td>
-            <td>
-              <p class="mb-0 mt-4">$100</p>
-            </td>
-            <td>
-              <button class="btn btn-md rounded-circle bg-light border mt-4">
+              <button class="btn btn-md rounded-circle bg-light border mt-4"
+                      (click)="remove(item.productId)">
                 <i class="fa fa-times text-danger"></i>
               </button>
             </td>
           </tr>
-          <tr>
-            <th scope="row">
-              <div class="d-flex align-items-center">
-                <img src="assets/img/vegetable-item-2.jpg" class="img-fluid me-5 rounded-circle"
-                  style="width: 80px; height: 80px;" alt="" alt="">
-              </div>
-            </th>
-            <td>
-              <p class="mb-0 mt-4">綠花椰</p>
-            </td>
-            <td>
-              <p class="mb-0 mt-4">$100</p>
-            </td>
-            <td>
-              <app-quantity [(value)]="count3"></app-quantity>
-            </td>
-            <td>
-              <p class="mb-0 mt-4">$100</p>
-            </td>
-            <td>
-              <button class="btn btn-md rounded-circle bg-light border mt-4">
-                <i class="fa fa-times text-danger"></i>
-              </button>
-            </td>
-          </tr>
+          }
         </tbody>
       </table>
     </div>
-    <!-- 優惠卷: 暫時不用 -->
-    <!-- <div class="mt-5">
-      <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code">
-      <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Apply Coupon</button>
-    </div> -->
-    <!-- end 優惠卷: 暫時不用 -->
+
+    @if (items.length === 0) {
+      <div class="text-center p-4">
+        <p>購物車是空的</p>
+      </div>
+    }
+
+    @if (items.length > 0) {
     <div class="row g-4 justify-content-end">
       <div class="col-7"></div>
       <div class="col-lg-5 col-xl-5">
@@ -118,26 +73,32 @@
             <h1 class="display-6 mb-4">總金額</h1>
             <div class="d-flex justify-content-between mb-4">
               <h5 class="mb-0 me-4">小計:</h5>
-              <p class="mb-0">$300</p>
+              <p class="mb-0">${{ subtotal }}</p>
             </div>
             <div class="d-flex justify-content-between">
               <h5 class="mb-0 me-4">運費</h5>
               <div class="">
-                <p class="mb-0">$60</p>
+                <p class="mb-0">${{ shippingFee }}</p>
               </div>
             </div>
-            <!-- <p class="mb-0 text-end">Shipping to Ukraine.</p> -->
           </div>
           <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between align-items-end">
             <h5 class="mb-0 ps-4 me-4">總金額</h5>
-            <p class="mb-0 pe-4 text-primary display-5">$360</p>
+            <p class="mb-0 pe-4 text-primary display-5">${{ total }}</p>
           </div>
           <button routerLink="/show/checkout"
-            class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4"
-            type="button">繼續結帳</button>
+                  class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4"
+                  type="button">
+            繼續結帳
+          </button>
+          <button class="btn btn-outline-danger rounded-pill px-4 py-3 text-uppercase mb-4 ms-4"
+                  type="button" (click)="clearCart()">
+            清空購物車
+          </button>
         </div>
       </div>
     </div>
+    }
   </div>
 </div>
 <!-- Cart Page End -->
