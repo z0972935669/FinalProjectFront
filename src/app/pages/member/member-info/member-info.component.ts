@@ -335,4 +335,62 @@ export class MemberInfoComponent implements OnInit {
         },
       });
   }
+
+  // 顯示：09*********123 → 09*****123
+maskPhone(phone: string | null | undefined): string {
+  if (!phone) return '';
+  const digits = String(phone).replace(/\D/g, '');
+  if (digits.length <= 5) return digits.replace(/.(?=.{3})/g, '*');
+  const first = digits.slice(0, 2);
+  const last = digits.slice(-3);
+  return `${first}${'*'.repeat(Math.max(0, digits.length - 5))}${last}`;
+}
+
+// 身分證：A123456789 → A1*****789
+maskId(id: string | null | undefined): string {
+  if (!id) return '';
+  const s = String(id).trim().toUpperCase();
+  if (s.length <= 5) return s.replace(/.(?=.{2})/g, '*'); // 短字串保守遮
+  const first = s.slice(0, 2);
+  const last = s.slice(-3);
+  return `${first}${'*'.repeat(Math.max(0, s.length - 5))}${last}`;
+}
+
+// 生日：顯示 YYYY-**-**
+maskBirth(birth: any): string {
+  if (!birth) return '';
+  // 支援 Date、字串（含 2024-08-22 / 2024/08/22）
+  const d = birth instanceof Date ? birth : new Date(birth);
+  const yyyy = isNaN(d.getTime()) ? String(birth).slice(0, 4) : d.getFullYear();
+  return `${yyyy}-**-**`;
+}
+// 規則：帳號長度 <= 2：保留第 1 與最後 1，其餘 *；>2：保留前 2 + 後 1，其餘 *
+maskEmail(email: string | null | undefined): string {
+  if (!email) return '';
+  const s = String(email).trim();
+  const at = s.indexOf('@');
+  if (at <= 0) {
+    // 沒有 @ 的特殊字串：盡量保護
+    const t = s;
+    if (t.length <= 2) return t.replace(/.(?=.$)/g, '*');
+    return `${t.slice(0, 1)}${'*'.repeat(Math.max(0, t.length - 2))}${t.slice(-1)}`;
+  }
+  const local = s.slice(0, at);
+  const domain = s.slice(at);
+
+  if (local.length <= 2) {
+    // 例：a@xx.com → a*@xx.com；ab@xx.com → a*b@xx.com
+    const first = local.slice(0, 1);
+    const last = local.slice(-1);
+    const middleStars = local.length === 1 ? '*' : '*';
+    return `${first}${middleStars}${last}${domain}`;
+  }
+
+
+  const head = local.slice(0, 2);
+  const tail = local.slice(-1);
+  const stars = '*'.repeat(Math.max(0, local.length - 3));
+  return `${head}${stars}${tail}${domain}`;
+}
+
 }
