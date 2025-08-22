@@ -159,7 +159,7 @@
                   <label for="editSuppliesCategoryName" class="form-label">類別名稱</label>
                   <select id="editSuppliesCategoryName" class="form-select" [(ngModel)]="newProduct.suppliesCategoryId"
                     name="editSuppliesCategoryId" (change)="onCategoryChange($event)" required>
-                    <option [ngValue]="null" disabled [selected]="!newProduct.supplierId">請選擇類別</option>
+                    <option [ngValue]="null" disabled>請選擇類別</option>
                     @for(category of categories;track $index)
                     { <option [ngValue]="category.suppliesCategoryId">{{category.suppliesCategoryName}}</option> }
                   </select>

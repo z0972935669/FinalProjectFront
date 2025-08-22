@@ -14,4 +14,11 @@ export class SuppliesSupplierService {
   getSuppliesSupplierData(): Observable<Isuppliessupplier[]> {
     return this.http.get<Isuppliessupplier[]>(this.apiUrlsupplier)
   }
+  addSuppliesSupplier(supplier: Isuppliessupplier): Observable<Isuppliessupplier> {
+    return this.http.post<Isuppliessupplier>(this.apiUrlsupplier, supplier)
+  }
+  editSuppliesSupplier(supplier: Isuppliessupplier): Observable<Isuppliessupplier> {
+    const url = `${this.apiUrlsupplier}/${supplier.suppliesSupplierId}`;
+    return this.http.put<Isuppliessupplier>(url, supplier)
+  }
 }

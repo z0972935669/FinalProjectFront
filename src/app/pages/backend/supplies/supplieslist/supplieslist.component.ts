@@ -84,6 +84,7 @@ export class SupplieslistComponent {
         this.suppliesListService.getSuppliesData().subscribe((data: Isupplieslist[]) => {
           this.suppliesProducts = data;
           this.filteredProducts = data;
+          alert('新增成功')
         });
       },
       error: (err) => {
@@ -103,6 +104,7 @@ export class SupplieslistComponent {
         this.suppliesListService.getSuppliesData().subscribe((data: Isupplieslist[]) => {
           this.suppliesProducts = data;
           this.filteredProducts = data;
+          alert('修改成功')
         });
       },
       error: (err) => {
