@@ -23,7 +23,7 @@ export class CheckoutComponent {
   // 原始資料 (Dictionary)
   cityData: { [key: string]: string[] } = {};
 
-   // 下拉清單用
+  // 下拉清單用
   cities: string[] = [];
   districts: string[] = [];
 
@@ -67,10 +67,10 @@ export class CheckoutComponent {
     // 取得縣市清單
     this.cityService.getCities().subscribe({
       next: (res: any) => {
-        this.cityData = res;            // 存 Dictionary
+        this.cityData = res; // 存 Dictionary
         this.cities = Object.keys(res); // 取出縣市清單
       },
-      error: err => console.error('❌ 載入城市資料失敗', err)
+      error: (err) => console.error('❌ 載入城市資料失敗', err),
     });
 
     this.memberSvc.getMemberInfo().subscribe({
@@ -81,7 +81,7 @@ export class CheckoutComponent {
       error: (err) => {
         console.error('❌ 無法取得登入者資料', err);
         this.error = '請先登入後再結帳';
-      }
+      },
     });
   }
 
@@ -155,9 +155,11 @@ export class CheckoutComponent {
 
     this.orderService.createOrder(order).subscribe({
       next: (res) => {
-        console.log('訂單建立成功', res);
+        // console.log('訂單建立成功', res);
         this.cartService.clear(); // 清空購物車
-        this.router.navigate(['/show/checkoutsuccessful']);
+        this.router.navigate(['/show/checkoutsuccessful'], {
+          replaceUrl: true,
+        });
       },
       error: (err) => {
         console.error('建立訂單失敗', err);
