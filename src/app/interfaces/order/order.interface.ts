@@ -7,6 +7,7 @@ export interface OrderDetail {
 }
 
 export interface Order {
+  memberId: number;
   buyerName: string;
   receiverName: string;
   receiverPhone: string;
