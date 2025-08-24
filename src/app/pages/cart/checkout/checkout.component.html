@@ -12,104 +12,155 @@
 <!-- Checkout Page Start -->
 <div class="container-fluid py-5">
   <div class="container py-5">
-    <form action="#">
+    <form #checkoutForm="ngForm" (ngSubmit)="placeOrder()" novalidate>
       <div class="row g-5">
         <div class="col-md-12 col-lg-6 col-xl-7">
+
+          <!-- 訂購人 / 收件人 -->
           <div class="row">
             <div class="col-md-12 col-lg-6">
               <div class="form-item w-100">
-                <label class="form-label my-3">訂購人</label>
-                <input type="text" class="form-control">
+                <label class="form-label my-3">訂購人 *</label>
+                <input type="text" class="form-control"
+                       [(ngModel)]="buyerName" name="buyerName" required
+                       (ngModelChange)="buyerName = trimPipe.transform($event)"
+                       #buyerNameCtrl="ngModel" />
+                @if (checkoutForm.submitted && buyerNameCtrl.errors?.['required']) {
+                  <div class="text-danger">請輸入訂購人姓名</div>
+                }
               </div>
             </div>
             <div class="col-md-12 col-lg-6">
               <div class="form-item">
-                <label class="form-label my-3">收件人</label>
-                <input type="text" class="form-control">
+                <label class="form-label my-3">收件人 *</label>
+                <input type="text" class="form-control"
+                       [(ngModel)]="receiverName" name="receiverName" required
+                       (ngModelChange)="receiverName = trimPipe.transform($event)"
+                       #receiverNameCtrl="ngModel" />
+                @if (checkoutForm.submitted && receiverNameCtrl.errors?.['required']) {
+                  <div class="text-danger">請輸入收件人姓名</div>
+                }
               </div>
             </div>
           </div>
 
+          <!-- 收件電話 -->
           <div class="form-item">
-            <label class="form-label my-3">收件電話</label>
-            <input type="tel" class="form-control">
+            <label class="form-label my-3">收件電話 *</label>
+            <input type="tel" class="form-control"
+                   [(ngModel)]="receiverPhone" name="receiverPhone"
+                   (ngModelChange)="receiverPhone = trimPipe.transform($event)"
+                   required pattern="^09\\d{8}$"
+                   #receiverPhoneCtrl="ngModel" />
+            @if (checkoutForm.submitted && receiverPhoneCtrl.errors?.['required']) {
+              <div class="text-danger">請輸入收件電話</div>
+            }
+            @if (checkoutForm.submitted && receiverPhoneCtrl.errors?.['pattern']) {
+              <div class="text-danger">手機格式不正確 (09 開頭，共 10 碼)</div>
+            }
           </div>
 
           <!-- 付款方式 -->
           <div class="form-item">
-            <label class="form-label my-3">付款方式</label>
-            <select class="form-select" [(ngModel)]="paymentMethod" name="paymentMethod">
+            <label class="form-label my-3">付款方式 *</label>
+            <select class="form-select"
+                    [(ngModel)]="paymentMethod" name="paymentMethod" required
+                    #paymentMethodCtrl="ngModel">
               <option disabled selected value="">請選擇付款方式</option>
               <option value="Credit">信用卡</option>
               <option value="ATM">ATM 轉帳</option>
               <option value="CVS">超商代碼繳費</option>
               <option value="COD">貨到付款</option>
-              <!-- <option value="WebATM">WebATM</option>
-              <option value="ApplePay">Apple Pay</option>
-              <option value="JKOPay">街口支付</option>
-              <option value="LINEPay">LINE Pay</option> -->
             </select>
+            @if (checkoutForm.submitted && paymentMethodCtrl.errors?.['required']) {
+              <div class="text-danger">請選擇付款方式</div>
+            }
           </div>
 
           <!-- 配送方式 -->
           @if (availableDeliveryMethods.length > 0) {
           <div class="form-item">
-            <label class="form-label my-3">配送方式</label>
-            <select class="form-select" [(ngModel)]="deliveryMethod" name="deliveryMethod">
-              <option selected disabled value="">請選擇配送方式</option>
+            <label class="form-label my-3">配送方式 *</label>
+            <select class="form-select"
+                    [(ngModel)]="deliveryMethod" name="deliveryMethod" required
+                    (ngModelChange)="deliveryMethod = trimPipe.transform($event)"
+                    #deliveryMethodCtrl="ngModel">
+              <option disabled selected value="">請選擇配送方式</option>
               @for (method of availableDeliveryMethods; track method.value) {
-              <option [value]="method.value">{{ method.label }}</option>
+                <option [value]="method.value">{{ method.label }}</option>
               }
             </select>
+            @if (checkoutForm.submitted && deliveryMethodCtrl.errors?.['required']) {
+              <div class="text-danger">請選擇配送方式</div>
+            }
           </div>
           }
 
+          <!-- 送貨地址 -->
           <div class="form-item">
-            <label class="form-label my-3">送貨地址</label>
-            <input type="text" class="form-control">
+            <label class="form-label my-3">送貨地址 *</label>
+            <input type="text" class="form-control"
+                   [(ngModel)]="deliveryAddress" name="deliveryAddress" required
+                   (ngModelChange)="deliveryAddress = trimPipe.transform($event)"
+                   #deliveryAddressCtrl="ngModel" />
+            @if (checkoutForm.submitted && deliveryAddressCtrl.errors?.['required']) {
+              <div class="text-danger">請輸入送貨地址</div>
+            }
           </div>
 
+          <!-- 發票方式 -->
           <div class="form-item">
             <label class="form-label my-3 d-block">發票方式</label>
 
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="InvoiceType" id="invoice-personal" value="Personal"
-                [(ngModel)]="invoiceType" />
+              <input class="form-check-input" type="radio" name="InvoiceType" id="invoice-personal" value="載具"
+                     [(ngModel)]="invoiceType" />
               <label class="form-check-label" for="invoice-personal">載具</label>
             </div>
 
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="InvoiceType" id="invoice-company" value="Company"
-                [(ngModel)]="invoiceType" />
-              <label class="form-check-label" for="invoice-company">公司電子發票</label>
+              <input class="form-check-input" type="radio" name="InvoiceType" id="invoice-company" value="三聯式發票"
+                     [(ngModel)]="invoiceType" />
+              <label class="form-check-label" for="invoice-company">三聯式發票</label>
             </div>
           </div>
 
-          @if (invoiceType === 'Personal') {
+          @if (invoiceType === '載具') {
           <div class="form-item">
             <label class="form-label my-3">載具</label>
-            <input type="text" class="form-control" name="vehicleNumber" placeholder="請輸入載具號碼"
-              [(ngModel)]="vehicleNumber" />
+            <input type="text" class="form-control"
+                   [(ngModel)]="vehicleNumber" name="vehicleNumber"
+                   (ngModelChange)="vehicleNumber = trimPipe.transform($event)"
+                   placeholder="請輸入載具號碼" />
           </div>
           }
 
-          @else if (invoiceType === 'Company') {
+          @else if (invoiceType === '三聯式發票') {
           <div class="form-item">
             <label class="form-label my-3">發票抬頭</label>
-            <input type="text" class="form-control" name="invoiceTitle" placeholder="請輸入發票抬頭"
-              [(ngModel)]="invoiceTitle" />
+            <input type="text" class="form-control"
+                   [(ngModel)]="invoiceTitle" name="invoiceTitle"
+                   (ngModelChange)="invoiceTitle = trimPipe.transform($event)"
+                   placeholder="請輸入發票抬頭" />
+            <label class="form-label my-3">統一編號</label>
+            <input type="text" class="form-control"
+                   [(ngModel)]="invoiceTax" name="invoiceTax"
+                   (ngModelChange)="invoiceTax = trimPipe.transform($event)"
+                   placeholder="請輸入統一編號" />
           </div>
           }
 
-
-
+          <!-- 備註 -->
           <div class="form-item">
             <label class="form-label my-3">備註</label>
-            <textarea name="text" class="form-control" spellcheck="false" cols="30" rows="5"
-              placeholder="請輸入備註 (選填)"></textarea>
+            <textarea class="form-control"
+                      [(ngModel)]="note" name="note"
+                      (ngModelChange)="note = trimPipe.transform($event)"
+                      cols="30" rows="5" placeholder="請輸入備註 (選填)"></textarea>
           </div>
         </div>
 
+        <!-- 購物車商品清單 -->
         <div class="col-md-12 col-lg-6 col-xl-5">
           <div class="table-responsive">
             <table class="table">
@@ -123,62 +174,43 @@
                 </tr>
               </thead>
               <tbody>
+                @for (item of items; track item.productId) {
                 <tr>
-                  <th scope="row">
+                  <td>
                     <div class="d-flex align-items-center mt-2">
-                      <img src="assets/img/vegetable-item-2.jpg" class="img-fluid rounded-circle"
-                        style="width: 90px; height: 90px;" alt="">
+                      <img [src]="item.image" class="img-fluid"
+                           style="width: 90px; height: 90px;" alt="{{item.name}}">
                     </div>
-                  </th>
-                  <td class="py-5">綠花椰</td>
-                  <td class="py-5">$100</td>
-                  <td class="py-5">2</td>
-                  <td class="py-5">$200</td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div class="d-flex align-items-center mt-2">
-                      <img src="assets/img/vegetable-item-5.jpg" class="img-fluid rounded-circle"
-                        style="width: 90px; height: 90px;" alt="">
-                    </div>
-                  </th>
-                  <td class="py-5">馬鈴薯</td>
-                  <td class="py-5">$100</td>
-                  <td class="py-5">2</td>
-                  <td class="py-5">$200</td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                    <div class="d-flex align-items-center mt-2">
-                      <img src="assets/img/vegetable-item-3.png" class="img-fluid rounded-circle"
-                        style="width: 90px; height: 90px;" alt="">
-                    </div>
-                  </th>
-                  <td class="py-5">香蕉</td>
-                  <td class="py-5">$100</td>
-                  <td class="py-5">2</td>
-                  <td class="py-5">$200</td>
-                </tr>
-                <tr>
-                  <th scope="row">
-                  </th>
-                  <td class="py-5">
-                    <p class="mb-0 text-dark text-uppercase py-2">運費</p>
-                    <p class="mb-0 text-dark text-uppercase py-2 mt-4">總金額</p>
                   </td>
-                  <td class="py-5"></td>
-                  <td class="py-5"></td>
-                  <td class="py-5">
-                    <p class="mb-0 text-dark py-2">$60</p>
-                    <p class="mb-0 py-2 text-primary display-5">$660</p>
-                  </td>
+                  <td class="py-5">{{item.name}}</td>
+                  <td class="py-5">{{item.price}}</td>
+                  <td class="py-5">{{item.quantity}}</td>
+                  <td class="py-5">{{item.price * item.quantity}}</td>
+                </tr>
+                }
+                <tr>
+                  <td></td>
+                  <td class="py-5">運費</td>
+                  <td></td>
+                  <td></td>
+                  <td class="py-5">{{ shippingFee }}</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td class="py-5">總金額</td>
+                  <td></td>
+                  <td></td>
+                  <td class="py-5 text-primary display-6">{{ totalAmount }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
+
           <div class="row g-4 text-center align-items-center justify-content-center pt-4">
-            <button routerLink="/show/checkoutsuccessful" type="button"
-              class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">下訂單</button>
+            <button type="submit"
+                    class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">
+              下訂單
+            </button>
           </div>
         </div>
       </div>

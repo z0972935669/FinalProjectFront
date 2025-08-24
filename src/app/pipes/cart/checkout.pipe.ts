@@ -1,12 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'checkout'
+  name: 'trim'
 })
-export class CheckoutPipe implements PipeTransform {
-
-  transform(value: unknown, ...args: unknown[]): unknown {
-    return null;
+export class TrimPipe implements PipeTransform {
+  transform(value: string): string {
+    return value ? value.trim() : value;
   }
-
 }
