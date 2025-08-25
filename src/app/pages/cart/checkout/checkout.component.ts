@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../services/order/order.service';
-import { Order, OrderDetail } from '../../../interfaces/order/order.interface';
+import { Order } from '../../../interfaces/order/order.interface';
 import { CartService, CartItem } from '../../../services/cart/cart.service';
 import { TrimPipe } from '../../../pipes/cart/checkout.pipe'; // 引入 Pipe
 import {
@@ -10,11 +10,14 @@ import {
   MemberService,
 } from '../../../services/member/member.service';
 import { CityService } from '../../../services/city/city.service';
+import { PaymentService } from '../../../services/payment/payment.service';
+import { ECPayRequest } from '../../../interfaces/payment/ecpay.interface';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [RouterModule, FormsModule],
+  imports: [RouterModule, FormsModule, CurrencyPipe],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
   providers: [TrimPipe], // 在component注入Pipe
@@ -58,7 +61,8 @@ export class CheckoutComponent {
     private cartService: CartService,
     private cityService: CityService,
     private router: Router,
-    public trimPipe: TrimPipe //注入 TrimPipe
+    public trimPipe: TrimPipe, //注入 TrimPipe
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
@@ -70,7 +74,7 @@ export class CheckoutComponent {
         this.cityData = res; // 存 Dictionary
         this.cities = Object.keys(res); // 取出縣市清單
       },
-      error: (err) => console.error('❌ 載入城市資料失敗', err),
+      error: (err) => console.error('載入城市資料失敗', err),
     });
 
     this.memberSvc.getMemberInfo().subscribe({
@@ -79,7 +83,7 @@ export class CheckoutComponent {
         this.memberId = me.memberId;
       },
       error: (err) => {
-        console.error('❌ 無法取得登入者資料', err);
+        console.error('無法取得登入者資料', err);
         this.error = '請先登入後再結帳';
       },
     });
@@ -153,16 +157,87 @@ export class CheckoutComponent {
       })),
     };
 
+    // Step 1: 先建立訂單 (DB)
     this.orderService.createOrder(order).subscribe({
       next: (res) => {
-        // console.log('訂單建立成功', res);
-        this.cartService.clear(); // 清空購物車
-        this.router.navigate(['/show/checkoutsuccessful'], {
-          replaceUrl: true,
+        console.log('訂單建立成功', res);
+
+        // Step 2: 產生 ECPay 訂單請求
+        const ecpayRequest: ECPayRequest = {
+          MerchantTradeNo: res.orderNo, // 後端訂單編號
+          TotalAmount: this.totalAmount,
+          ItemName: this.items.map((i) => `${i.name} x${i.quantity}`).join('#'),
+          ChoosePayment:
+            this.paymentMethod === 'COD' ? 'Credit' : this.paymentMethod,
+        };
+
+        this.paymentService.createOrder(ecpayRequest).subscribe((ecRes) => {
+          // Step 3: 自動產生 form 跳轉綠界
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action =
+            'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
+
+          for (const key in ecRes) {
+            if (ecRes.hasOwnProperty(key)) {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+
+              let properKey = key;
+              switch (key.toLowerCase()) {
+                case 'merchantid':
+                  properKey = 'MerchantID';
+                  break;
+                case 'merchanttradeno':
+                  properKey = 'MerchantTradeNo';
+                  break;
+                case 'merchanttradedate':
+                  properKey = 'MerchantTradeDate';
+                  break;
+                case 'totalamount':
+                  properKey = 'TotalAmount';
+                  break;
+                case 'tradedesc':
+                  properKey = 'TradeDesc';
+                  break;
+                case 'itemname':
+                  properKey = 'ItemName';
+                  break;
+                case 'returnurl':
+                  properKey = 'ReturnURL';
+                  break;
+                case 'clientbackurl':
+                  properKey = 'ClientBackURL';
+                  break;
+                case 'choosepayment':
+                  properKey = 'ChoosePayment';
+                  break;
+                case 'encrypttype':
+                  properKey = 'EncryptType';
+                  break;
+                case 'paymenttype':
+                  properKey = 'PaymentType';
+                  break;
+                case 'checkmacvalue':
+                  properKey = 'CheckMacValue';
+                  break;
+              }
+
+              input.name = properKey;
+              input.value = ecRes[key];
+              form.appendChild(input);
+
+              console.log(`${key} = ${ecRes[key]}`);
+            }
+          }
+
+          document.body.appendChild(form);
+          form.submit();
         });
       },
       error: (err) => {
         console.error('建立訂單失敗', err);
+        alert('建立訂單失敗，請稍後再試');
       },
     });
   }

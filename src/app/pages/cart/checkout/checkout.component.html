@@ -196,9 +196,9 @@
                     </div>
                   </td>
                   <td class="py-5">{{item.name}}</td>
-                  <td class="py-5">{{item.price}}</td>
+                  <td class="py-5">{{item.price | currency:'TWD':'symbol':'1.0-0'}}</td>
                   <td class="py-5">{{item.quantity}}</td>
-                  <td class="py-5">{{item.price * item.quantity}}</td>
+                  <td class="py-5">{{(item.price * item.quantity) | currency:'TWD':'symbol':'1.0-0'}}</td>
                 </tr>
                 }
                 <tr>
@@ -206,14 +206,14 @@
                   <td class="py-5">運費</td>
                   <td></td>
                   <td></td>
-                  <td class="py-5">{{ shippingFee }}</td>
+                  <td class="py-5">${{ shippingFee }}</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td class="py-5">總金額</td>
                   <td></td>
                   <td></td>
-                  <td class="py-5 text-primary display-6">{{ totalAmount }}</td>
+                  <td class="py-5 text-primary display-6">${{ totalAmount }}</td>
                 </tr>
               </tbody>
             </table>
