@@ -1,3 +1,17 @@
-<app-header></app-header>
-<!-- 網頁內容會由路由決定 -->
-<router-outlet></router-outlet>
+<!-- 只在 showShell 時顯示後台殼 -->
+<section *ngIf="showShell">
+  <!-- header 會透過 openedChange 回報開關 -->
+  <app-header [(opened)]="showSidepanel"></app-header>
+
+  <!-- 你的側邊欄（或在 header 裡輸出也行），記得綁定 showSidepanel -->
+  <nav id="app-sidepanel" class="app-sidepanel" [class.sidepanel-hidden]="!showSidepanel" aria-label="後台主選單">
+    <!-- ...側欄內容... -->
+  </nav>
+
+  <router-outlet></router-outlet>
+</section>
+
+<!-- 非登入狀態或公開頁，可放 <router-outlet> 或其他內容 -->
+<section *ngIf="!showShell">
+  <router-outlet></router-outlet>
+</section>

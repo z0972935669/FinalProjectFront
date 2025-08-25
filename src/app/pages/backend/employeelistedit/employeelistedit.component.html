@@ -1,220 +1,279 @@
-<div class="app-wrapper">
+<!-- src/app/pages/backend/employeelistedit/employeelistedit.component.html -->
+<div class="app-wrapper" *ngIf="!loading; else state">
   <div class="app-content pt-3 p-md-3 p-lg-4">
     <div class="container-xl">
-
       <h1 class="badge bg-primary mb-3" style="font-size: xx-large;">編輯員工資料</h1>
 
-      <div class="row gy-4">
-        <!-- 左邊：基本資料（單一卡片） -->
-        <div class="col-12 col-lg-6">
-          <div class="app-card app-card-account shadow-lg">
-            <div class="app-card-header p-3 border-bottom-0">
-              <div class="d-flex align-items-center gap-3">
-                <div class="app-icon-holder">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-person" viewBox="0 0 16 16">
-                    <path
-                      d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
-                  </svg>
-                </div>
-                <h4 class="app-card-title mb-0">基本資料</h4>
-              </div>
-            </div>
-
-            <div class="app-card-body px-4">
-              <div class="edit-row">
-                <div class="edit-label">大頭照</div>
-                <div class="edit-field">
-                  <input type="file" class="form-control form-control-sm"
-                    value="assets/backend/images/users/user-1.jpg">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="row gy-4">
+          <!-- 左：基本資料 -->
+          <div class="col-12 col-lg-6">
+            <div class="app-card app-card-account shadow-lg">
+              <div class="app-card-header p-3 border-bottom-0">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="app-icon-holder"><i class="bi bi-person"></i></div>
+                  <h4 class="app-card-title mb-0">基本資料</h4>
                 </div>
               </div>
 
-              <div class="edit-row">
-                <div class="edit-label">姓名</div>
-                <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" value="余俊良">
+              <div class="app-card-body px-4">
+                <!-- 大頭照 -->
+                <div class="edit-row">
+                  <div class="edit-label">大頭照</div>
+                  <div class="edit-field d-flex align-items-center gap-3">
+                    <img [src]="previewUrl" alt="頭像"
+                      style="width:120px;height:120px;object-fit:cover;border-radius:8px;">
+                    <input type="file" class="form-control form-control-sm" (change)="onFileChange($event)">
+                  </div>
+                </div>
+
+                <!-- 基本欄位 -->
+                <div class="edit-row">
+                  <div class="edit-label">姓名</div>
+                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
+                      formControlName="Name"></div>
+                </div>
+                <div class="edit-row">
+                  <div class="edit-label">身分證字號</div>
+                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
+                      formControlName="IdentityNumber"></div>
+                </div>
+                <div class="edit-row">
+                  <div class="edit-label">生日</div>
+                  <div class="edit-field"><input type="date" class="form-control form-control-sm"
+                      formControlName="BirthDate"></div>
+                </div>
+                <div class="edit-row">
+                  <div class="edit-label">電話</div>
+                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
+                      formControlName="Phone"></div>
+                </div>
+                <div class="edit-row">
+                  <div class="edit-label">電子郵件</div>
+                  <div class="edit-field"><input type="email" class="form-control form-control-sm"
+                      formControlName="Email"></div>
+                </div>
+
+                <div class="edit-row">
+                  <div class="edit-label">最高學歷</div>
+                  <div class="edit-field">
+                    <select class="form-select form-select-sm" formControlName="EducationLevel">
+                      <option *ngFor="let ed of educationOptions" [value]="ed">{{ ed }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="edit-row">
+                  <div class="edit-label">戶籍地址</div>
+                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
+                      formControlName="RegisteredAddress"></div>
+                </div>
+
+                <!-- 現居地址（自訂 checkbox 樣式，不受全域 input 規則影響） -->
+                <div class="edit-row align-items-center">
+                  <div class="edit-label">現居地址</div>
+                  <div class="edit-field">
+                    <!-- 自訂 checkbox：原生 input 被隱藏，用 span::before/::after 畫外觀 -->
+                    <label class="nh-check">
+                      <input type="checkbox" formControlName="SameAsRegistered" />
+                      <span>同戶籍地址</span>
+                    </label>
+
+                    <!-- 這個輸入框會跟著 TS 裡的 disable()/enable() 自動鎖定/解鎖 -->
+                    <input type="text" class="form-control form-control-sm mt-2" formControlName="CurrentAddress" />
+                  </div>
+                </div>
+
+                <div class="edit-row">
+                  <div class="edit-label">身高 (cm)</div>
+                  <div class="edit-field">
+                    <select class="form-select form-select-sm" formControlName="Height">
+                      <option *ngFor="let h of heightOptions" [ngValue]="h">{{ h }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="edit-row">
+                  <div class="edit-label">體重 (kg)</div>
+                  <div class="edit-field">
+                    <select class="form-select form-select-sm" formControlName="Weight">
+                      <option *ngFor="let w of weightOptions" [ngValue]="w">{{ w }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="edit-row">
+                  <div class="edit-label">薪轉帳戶</div>
+                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
+                      formControlName="PayrollBankAccount"></div>
                 </div>
               </div>
 
-              <div class="edit-row">
-                <div class="edit-label">身分證字號</div>
-                <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" value="Y149717287">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">生日</div>
-                <div class="edit-field">
-                  <input type="date" class="form-control form-control-sm" value="2004-02-15">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">電話</div>
-                <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" value="0943793414">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">電子郵件</div>
-                <div class="edit-field">
-                  <input type="email" class="form-control form-control-sm" value="grace0930@gmail.com">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">最高學歷</div>
-                <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" value="碩士">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">戶籍地址</div>
-                <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" value="台北市信義區光復路37號4樓">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">現居地址</div>
-                <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" value="台北市信義區光復路37號4樓">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">身高</div>
-                <div class="edit-field">
-                  <input type="number" class="form-control form-control-sm" value="166">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">體重</div>
-                <div class="edit-field">
-                  <input type="number" class="form-control form-control-sm" value="40">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">薪轉帳戶</div>
-                <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" value="65915377937766">
-                </div>
-              </div>
-            </div>
-
-            <div class="app-card-footer p-4">
-              <button class="btn app-btn-secondary me-5" style="font-size: large;font-weight: bolder;"
-                routerLink="/erp/employeelistdetail" routerLinkActive="active">儲存資料</button>
-              <button class="btn app-btn-secondary" style="font-size: large;font-weight: bolder;"
-                routerLink="/erp/employeelistdetail" routerLinkActive="active">回到詳細資料</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 右邊：職務資訊 + 緊急連絡人資訊（兩張卡片堆疊，等寬） -->
-        <div class="col-12 col-lg-6 right-stack">
-
-          <div class="app-card app-card-account shadow-lg">
-            <div class="app-card-header p-3 border-bottom-0">
-              <div class="d-flex align-items-center gap-3">
-                <div class="app-icon-holder">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-briefcase" viewBox="0 0 16 16">
-                    <path
-                      d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5" />
-                  </svg>
-                </div>
-                <h4 class="app-card-title mb-0">職務資訊</h4>
-              </div>
-            </div>
-
-            <div class="app-card-body px-4">
-              <div class="edit-row">
-                <div class="edit-label">員工編號</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="1"></div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">在職狀態</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="在職"></div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">部門名稱</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="照護部門"></div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">職位名稱</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="照護部長"></div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">到職日期</div>
-                <div class="edit-field"><input type="date" class="form-control form-control-sm" value="2024-07-31">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">是否具有良民證</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="是"></div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">是否為主管職</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="是"></div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">是否為系統管理員</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="否"></div>
+              <div class="app-card-footer p-4">
+                <button type="submit" class="btn app-btn-secondary me-3"
+                  [disabled]="saving || !formReady || form.invalid" style="font-size: large;font-weight: bolder;">
+                  {{ saving ? '儲存中…' : '儲存資料' }}
+                </button>
+                <a class="btn app-btn-secondary" [routerLink]="['/erp/employeelistdetail']"
+                  style="font-size: large;font-weight: bolder;">回到詳細資料</a>
               </div>
             </div>
           </div>
 
-          <div class="app-card app-card-account shadow-lg">
-            <div class="app-card-header p-3 border-bottom-0">
-              <div class="d-flex align-items-center gap-3">
-                <div class="app-icon-holder">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house"
-                    viewBox="0 0 16 16">
-                    <path
-                      d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
-                  </svg>
+          <!-- 右：職務資訊 + 緊急聯絡人 -->
+          <div class="col-12 col-lg-6 right-stack">
+            <div class="app-card app-card-account shadow-lg">
+              <div class="app-card-header p-3 border-bottom-0">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="app-icon-holder"><i class="bi bi-briefcase"></i></div>
+                  <h4 class="app-card-title mb-0">職務資訊</h4>
                 </div>
-                <h4 class="app-card-title mb-0">緊急連絡人資訊</h4>
+              </div>
+              <div class="app-card-body px-4">
+                <!-- 是否在職 -->
+                <div class="edit-row">
+                  <div class="edit-label">在職狀態</div>
+                  <div class="edit-field">
+                    <div class="btn-group" role="group" aria-label="Employment status">
+                      <input type="radio" class="btn-check" name="empStatus" id="empYes"
+                        [checked]="form.get('EmploymentStatusText')?.value === '在職'"
+                        (change)="form.get('EmploymentStatusText')?.setValue('在職')">
+                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="empYes">在職</label>
+
+                      <input type="radio" class="btn-check" name="empStatus" id="empNo"
+                        [checked]="form.get('EmploymentStatusText')?.value === '離職'"
+                        (change)="form.get('EmploymentStatusText')?.setValue('離職')">
+                      <label class="btn btn-sm btn-outline-danger rounded" for="empNo">離職</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 部門 -->
+                <div class="edit-row">
+                  <div class="edit-label">部門名稱</div>
+                  <div class="edit-field">
+                    <select class="form-select form-select-sm" formControlName="DepartmentId">
+                      <option [ngValue]="null" disabled>請選擇部門</option>
+                      <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.name }}</option>
+                    </select>
+                    <div class="form-text" *ngIf="!form.value.DepartmentId && form.value.DepartmentName">
+                      目前資料：{{ form.value.DepartmentName }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 職稱 -->
+                <div class="edit-row">
+                  <div class="edit-label">職位名稱</div>
+                  <div class="edit-field">
+                    <select class="form-select form-select-sm" formControlName="JobTitleId"
+                      [disabled]="jobsLoading || !jobs.length">
+                      <option [ngValue]="null" disabled>請先選擇部門</option>
+                      <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.name }}</option>
+                    </select>
+                    <div class="form-text" *ngIf="!form.value.JobTitleId && form.value.JobTitleName">
+                      目前資料：{{ form.value.JobTitleName }}
+                    </div>
+                    <div class="form-text" *ngIf="jobsLoading">載入職稱中…</div>
+                  </div>
+                </div>
+
+                <div class="edit-row">
+                  <div class="edit-label">到職日期</div>
+                  <div class="edit-field"><input type="date" class="form-control form-control-sm"
+                      formControlName="HireDate"></div>
+                </div>
+
+                <!-- 是否具有良民證 -->
+                <div class="edit-row">
+                  <div class="edit-label">是否具有良民證</div>
+                  <div class="edit-field">
+                    <div class="btn-group" role="group" aria-label="Police clearance">
+                      <input type="radio" class="btn-check" name="pc" id="pcY"
+                        [checked]="form.get('PoliceClearanceCertified')?.value === true"
+                        (change)="setBool('PoliceClearanceCertified', true)">
+                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="pcY">是</label>
+
+                      <input type="radio" class="btn-check" name="pc" id="pcN"
+                        [checked]="form.get('PoliceClearanceCertified')?.value === false"
+                        (change)="setBool('PoliceClearanceCertified', false)">
+                      <label class="btn btn-sm btn-outline-danger rounded" for="pcN">否</label>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 是否為主管職 -->
+                <div class="edit-row">
+                  <div class="edit-label">是否為主管職</div>
+                  <div class="edit-field">
+                    <div class="btn-group" role="group" aria-label="Supervisor">
+                      <input type="radio" class="btn-check" name="sup" id="supY"
+                        [checked]="form.get('IsSupervisor')?.value === true" (change)="setBool('IsSupervisor', true)">
+                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="supY">是</label>
+
+                      <input type="radio" class="btn-check" name="sup" id="supN"
+                        [checked]="form.get('IsSupervisor')?.value === false" (change)="setBool('IsSupervisor', false)">
+                      <label class="btn btn-sm btn-outline-danger rounded" for="supN">否</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 是否為系統管理員 -->
+                <div class="edit-row">
+                  <div class="edit-label">是否為系統管理員</div>
+                  <div class="edit-field">
+                    <div class="btn-group" role="group" aria-label="Admin">
+                      <input type="radio" class="btn-check" name="adm" id="admY"
+                        [checked]="form.get('IsAdmin')?.value === true" (change)="setBool('IsAdmin', true)">
+                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="admY">是</label>
+
+                      <input type="radio" class="btn-check" name="adm" id="admN"
+                        [checked]="form.get('IsAdmin')?.value === false" (change)="setBool('IsAdmin', false)">
+                      <label class="btn btn-sm btn-outline-danger rounded" for="admN">否</label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="app-card-body px-4">
-              <div class="edit-row">
-                <div class="edit-label">姓名</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="余雅文"></div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">電話</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="0918376022">
+            <!-- 緊急聯絡人 -->
+            <div class="app-card app-card-account shadow-lg mt-4">
+              <div class="app-card-header p-3 border-bottom-0">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="app-icon-holder"><i class="bi bi-telephone"></i></div>
+                  <h4 class="app-card-title mb-0">緊急連絡人資訊</h4>
                 </div>
               </div>
-
-              <div class="edit-row">
-                <div class="edit-label">關係</div>
-                <div class="edit-field"><input type="text" class="form-control form-control-sm" value="子女"></div>
+              <div class="app-card-body px-4">
+                <div class="edit-row">
+                  <div class="edit-label">姓名</div>
+                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
+                      formControlName="EmergencyContactPerson"></div>
+                </div>
+                <div class="edit-row">
+                  <div class="edit-label">電話</div>
+                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
+                      formControlName="EmergencyContactPhone"></div>
+                </div>
+                <div class="edit-row">
+                  <div class="edit-label">關係</div>
+                  <div class="edit-field">
+                    <select class="form-select form-select-sm" formControlName="EmergencyContactRelationship">
+                      <option *ngFor="let r of relationshipOptions" [value]="r">{{ r }}</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-        </div><!-- /右側 -->
-
-      </div><!-- /row -->
-
+        </div><!-- /row -->
+      </form>
     </div>
   </div>
 </div>
+
+<ng-template #state>
+  <div class="p-5 text-center" *ngIf="loading">讀取中…</div>
+  <div class="p-5 text-danger text-center" *ngIf="!loading && error">{{ error }}</div>
+</ng-template>

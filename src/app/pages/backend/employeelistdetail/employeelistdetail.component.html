@@ -1,22 +1,18 @@
-<div class="app-wrapper">
-  <div class="app-content pt-3 p-md-3 p-lg-4">
+<div class="app-wrapper" *ngIf="!loading && !error; else state">
+  <div class="app-content pt-3 p-md-3 p-lg-4" *ngIf="vm">
     <div class="container-xl">
 
       <h1 class="badge bg-primary mb-3" style="font-size: xx-large;">員工詳細資料</h1>
 
       <div class="row gy-4">
-        <!-- 左邊：基本資料（單一卡片） -->
+        <!-- 左：基本資料 -->
         <div class="col-12 col-lg-6">
           <div class="app-card app-card-account shadow-lg d-flex flex-column align-items-start h-100">
             <div class="app-card-header p-3 border-bottom-0">
               <div class="row align-items-center gx-3">
                 <div class="col-auto">
                   <div class="app-icon-holder">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                      class="bi bi-person" viewBox="0 0 16 16">
-                      <path
-                        d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
-                    </svg>
+                    <i class="bi bi-person"></i>
                   </div>
                 </div>
                 <div class="col-auto">
@@ -29,63 +25,65 @@
               <div class="view-row">
                 <div class="view-label">大頭照</div>
                 <div class="view-data">
-                  <img class="profile-image" src="assets/backend/images/users/user-1.jpg" alt="">
+                  <img class="profile-image" [src]="vm?.PhotoPath" alt="大頭照" width="160" height="160"
+                    style="object-fit: cover; border-radius: 8px;" />
+
                 </div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">姓名</div>
-                <div class="view-data">余俊良</div>
+                <div class="view-data">{{ vm?.Name || '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">身分證字號</div>
-                <div class="view-data">Y149717287</div>
+                <div class="view-data">{{ vm?.IdentityNumber || '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">生日</div>
-                <div class="view-data">2004-02-15</div>
+                <div class="view-data">{{ vm?.BirthDate ? (vm?.BirthDate | date:'yyyy-MM-dd') : '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">電話</div>
-                <div class="view-data">0943793414</div>
+                <div class="view-data">{{ vm?.Phone || '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">電子郵件</div>
-                <div class="view-data">grace0930&#64;gmail.com</div>
+                <div class="view-data">{{ vm?.Email || '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">最高學歷</div>
-                <div class="view-data">碩士</div>
+                <div class="view-data">{{ vm?.EducationLevel || '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">戶籍地址</div>
-                <div class="view-data">台北市信義區光復路37號4樓</div>
+                <div class="view-data">{{ vm?.RegisteredAddress || '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">現居地址</div>
-                <div class="view-data">台北市信義區光復路37號4樓</div>
+                <div class="view-data">{{ vm?.CurrentAddress || '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">身高</div>
-                <div class="view-data">166</div>
+                <div class="view-data">{{ vm?.Height ?? '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">體重</div>
-                <div class="view-data">40</div>
+                <div class="view-data">{{ vm?.Weight ?? '—' }}</div>
               </div>
 
               <div class="view-row">
                 <div class="view-label">薪轉帳戶</div>
-                <div class="view-data">65915377937766</div>
+                <div class="view-data">{{ vm?.PayrollBankAccount || '—' }}</div>
               </div>
             </div>
 
@@ -98,111 +96,101 @@
           </div>
         </div>
 
-        <!-- 右邊：職務資訊 + 緊急連絡人資訊（兩張卡直排，等寬） -->
+        <!-- 右：職務 / 緊急聯絡人 -->
         <div class="col-12 col-lg-6 right-stack">
 
-          <!-- 職務資訊 -->
           <div class="app-card app-card-account shadow-lg d-flex flex-column align-items-start w-100">
             <div class="app-card-header p-3 border-bottom-0">
               <div class="row align-items-center gx-3">
                 <div class="col-auto">
-                  <div class="app-icon-holder">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                      class="bi bi-briefcase" viewBox="0 0 16 16">
-                      <path
-                        d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5" />
-                    </svg>
-                  </div>
+                  <div class="app-icon-holder"><i class="bi bi-briefcase"></i></div>
                 </div>
                 <div class="col-auto">
                   <h4 class="app-card-title mb-0">職務資訊</h4>
                 </div>
               </div>
             </div>
-
             <div class="app-card-body px-4 w-100">
               <div class="view-row">
                 <div class="view-label">在職狀態</div>
-                <div class="view-data">在職</div>
+                <div class="view-data">{{ vm?.EmploymentStatusText || '—' }}</div>
               </div>
               <div class="view-row">
                 <div class="view-label">部門名稱</div>
-                <div class="view-data">照護部門</div>
+                <div class="view-data">{{ vm?.DepartmentName || '—' }}</div>
               </div>
               <div class="view-row">
                 <div class="view-label">職位名稱</div>
-                <div class="view-data">照護部長</div>
+                <div class="view-data">{{ vm?.JobTitleName || '—' }}</div>
               </div>
               <div class="view-row">
                 <div class="view-label">到職日期</div>
-                <div class="view-data">2024-07-31</div>
+                <div class="view-data">{{ vm?.HireDate ? (vm?.HireDate | date:'yyyy-MM-dd') : '—' }}</div>
               </div>
               <div class="view-row">
                 <div class="view-label">員工編號</div>
-                <div class="view-data">1</div>
+                <div class="view-data">{{ vm?.EmployeeId }}</div>
               </div>
               <div class="view-row">
                 <div class="view-label">是否具有良民證</div>
-                <div class="view-data">是</div>
+                <div class="view-data">{{ vm?.PoliceClearanceCertified ? '是' : '否' }}</div>
               </div>
               <div class="view-row">
                 <div class="view-label">是否為主管職</div>
-                <div class="view-data">是</div>
+                <div class="view-data">{{ vm?.IsSupervisor ? '是' : '否' }}</div>
               </div>
               <div class="view-row">
                 <div class="view-label">是否為系統管理員</div>
-                <div class="view-data">否</div>
+                <div class="view-data">{{ vm?.IsAdmin ? '是' : '否' }}</div>
               </div>
             </div>
           </div>
 
-          <!-- 緊急連絡人資訊 -->
-          <div class="app-card app-card-account shadow-lg d-flex flex-column align-items-start w-100">
+          <!-- 緊急聯絡人 -->
+          <div class="app-card app-card-account shadow-lg d-flex flex-column align-items-start w-100 mt-4">
             <div class="app-card-header p-3 border-bottom-0">
               <div class="row align-items-center gx-3">
                 <div class="col-auto">
-                  <div class="app-icon-holder">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                      class="bi bi-house" viewBox="0 0 16 16">
-                      <path
-                        d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
-                    </svg>
-                  </div>
+                  <div class="app-icon-holder"><i class="bi bi-telephone"></i></div>
                 </div>
                 <div class="col-auto">
-                  <h4 class="app-card-title mb-0">緊急連絡人資訊</h4>
+                  <h4 class="app-card-title mb-0">緊急聯絡人</h4>
                 </div>
               </div>
             </div>
-
             <div class="app-card-body px-4 w-100">
               <div class="view-row">
-                <div class="view-label">緊急聯絡人姓名</div>
-                <div class="view-data">余雅文</div>
+                <div class="view-label">聯絡人姓名</div>
+                <div class="view-data">{{ vm?.EmergencyContactPerson || '—' }}</div>
               </div>
               <div class="view-row">
-                <div class="view-label">緊急聯絡人電話</div>
-                <div class="view-data">0918376022</div>
+                <div class="view-label">聯絡電話</div>
+                <div class="view-data">{{ vm?.EmergencyContactPhone || '—' }}</div>
               </div>
               <div class="view-row">
-                <div class="view-label">緊急聯絡人關係</div>
-                <div class="view-data">子女</div>
+                <div class="view-label">關係</div>
+                <div class="view-data">{{ vm?.EmergencyContactRelationship || '—' }}</div>
               </div>
             </div>
           </div>
 
-        </div><!-- /右側 -->
-      </div><!-- /row -->
-
-    </div><!-- /container -->
-  </div><!-- /app-content -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer class="app-footer">
     <div class="container text-center py-3">
-      <small class="copyright">Designed with <span class="sr-only">love</span>
-        <i class="fas fa-heart" style="color: #fb866a;"></i> by
-        <a class="app-link" href="http://themes.3rdwavemedia.com" target="_blank">Xiaoying Riley</a> for developers
+      <small class="copyright">
+        Designed with <i class="fas fa-heart" style="color:#fb866a;"></i> by
+        <a class="app-link" href="http://themes.3rdwavemedia.com" target="_blank">Xiaoying Riley</a>
+        for developers
       </small>
     </div>
   </footer>
 </div>
+
+<ng-template #state>
+  <div class="p-5 text-center" *ngIf="loading">讀取中…</div>
+  <div class="p-5 text-danger text-center" *ngIf="!loading && error">{{ error }}</div>
+</ng-template>

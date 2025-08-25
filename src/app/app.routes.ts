@@ -70,6 +70,7 @@ import { employeeAuthGuard } from './core/employee-auth.guard';
 
 // 社群
 import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
+import { EmployeeLoginComponent } from './pages/backend/employeelogin/employeelogin.component';
 
 
 export const routes: Routes = [
@@ -121,17 +122,19 @@ export const routes: Routes = [
       { path: 'room-detail/:id', component: RoomDetailComponent },
       { path: 'room-swiper', component: RoomSwiperComponent },
     ],
-  },
+  },// 後台登入頁（不受守衛保護）
+
   {
-    // 後台
     path: 'erp',
     component: BackendComponent,
-    canActivate: [employeeAuthGuard],
+    canActivateChild: [employeeAuthGuard],   // ← 用子路由守衛
     children: [
-      {path: 'memberlist',component: MemberlistComponent},
-      // 沒有 backend 的 home，建議改成 orders
-      { path: '', redirectTo: 'orders', pathMatch: 'full' },
-      { path: 'orders', component: OrdersComponent },
+      { path: 'login', component: EmployeeLoginComponent },                  // 不需守衛
+      { path: 'employeeregister', component: EmployeeRegisterComponent },    // 不需守衛
+      { path: 'employeepasswordreset', component: EmployeepasswordresetComponent }, // 不需守衛
+
+      { path: '', redirectTo: 'employeehome', pathMatch: 'full' },
+      { path: 'employeehome', component: EmployeehomeComponent, title: '員工首頁' },
 
       // 物料管理
       { path: 'supplieslist', component: SupplieslistComponent, title: '物品列表' },
@@ -139,7 +142,8 @@ export const routes: Routes = [
       { path: 'suppliessaleslist', component: SuppliessaleslistComponent, title: '銷貨單' },
       { path: 'transferlist', component: TransferlistComponent, title: '轉倉單' },
       { path: 'suppliessupplierlist', component: SuppliessupplierlistComponent, title: '供應商列表' },
-      //設備
+
+      // 設備
       { path: 'equipmentlist', component: EquipmentlistComponent, title: '設備列表' },
       { path: 'equipmentpurchasinglist', component: EquipmentpurchasinglistComponent, title: '購置單' },
       { path: 'equipmentrentlist', component: EquipmentrentlistComponent, title: '借出單' },
@@ -156,16 +160,11 @@ export const routes: Routes = [
       { path: 'employeeattendancerecords', component: EmployeeattendancerecordsComponent, title: '考勤紀錄' },
       { path: 'employeeleaveform', component: EmployeeleaveformComponent, title: '請假表單' },
       { path: 'employeemissingpunchform', component: EmployeemissingpunchformComponent, title: '補打卡表單' },
-      { path: 'employeepasswordreset', component: EmployeepasswordresetComponent, title: '重設密碼' },
       { path: 'employeeschedule', component: EmployeescheduleComponent, title: '排班管理' },
-      { path: 'employeeregister', component: EmployeeRegisterComponent, title: '員工註冊' },
-      { path: 'employeehome', component: EmployeehomeComponent, title: '員工首頁' },
-
-      // 社群管理
       { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
-      // 其他後台頁面可以在這裡添加
     ],
   },
+
   // 其它未知路徑都導回前台（可選）
   // **: 萬用路由 => 沒有上面的路徑全都導回show
   { path: '**', redirectTo: 'show' },
