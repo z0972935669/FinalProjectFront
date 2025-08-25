@@ -18,7 +18,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   loading = false;
   errMsg = '';
 
-  // ★ 鎖定倒數（429 使用）
   lockCountdown = 0;
   private lockTimer?: any;
 
@@ -33,32 +32,53 @@ export class LoginComponent implements OnInit, OnDestroy {
       callback: this.handleCredentialResponse.bind(this)
     });
 
-    // 確保 DOM 元素已經存在
-    setTimeout(() => {
-      const btn = document.getElementById('googleLoginBtn');
-      if (btn) {
-        google.accounts.id.renderButton(btn, {
-          type: 'icon',
-          size: 'large',
-          theme: 'filled_black',
-          shape: 'circle',
-          logo_alignment: 'center'
+    // 渲染 Google 按鈕
+setTimeout(() => {
+  const btn = document.getElementById('googleLoginBtn');
+  if (btn) {
+    google.accounts.id.renderButton(btn, {
+      type: 'icon',
+      size: 'large',
+      theme: 'filled_black',
+      shape: 'circle',
+      logo_alignment: 'center'
+    });
+  } else {
+    console.warn('googleLoginBtn not found');
+  }
+}, 100);
+
+    // LINE 授權回傳處理
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    const storedState = localStorage.getItem('line_state');
+
+    if (code && state && storedState && state === storedState) {
+      this.http.post<any>(`${this.apiBase}/line-exchange-code`, { code })
+        .subscribe({
+          next: (res) => {
+            localStorage.setItem('jwtToken', res.token);
+            localStorage.removeItem('line_state');
+            this.router.navigateByUrl('/show/member');
+          },
+          error: (err) => {
+            this.errMsg = err?.error?.message ?? 'LINE 登入失敗';
+          }
         });
-      }
-    }, 0);
+    }
   }
 
   ngOnDestroy(): void {
     if (this.lockTimer) clearInterval(this.lockTimer);
   }
 
-  // ★ 新增：任一欄位輸入時，清掉舊錯誤，避免「一打字就跳錯」
   onFieldInput(): void {
     if (this.errMsg && this.lockCountdown === 0) this.errMsg = '';
   }
 
   login() {
-    if (this.lockCountdown > 0) return; // 還在倒數就不送
+    if (this.lockCountdown > 0) return;
     this.loading = true;
     this.errMsg = '';
 
@@ -74,7 +94,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       error: (err: HttpErrorResponse) => {
         this.loading = false;
 
-        // ★ 429：連續失敗達門檻（後端訊息會含秒數）
         if (err.status === 429) {
           const msg = (err.error?.message as string) || '嘗試過多，請稍後再試';
           const sec = this.extractSeconds(msg) ?? 60;
@@ -83,13 +102,11 @@ export class LoginComponent implements OnInit, OnDestroy {
           return;
         }
 
-        // ★ 401：帳號不存在 / 密碼錯誤 / 帳號已停權
         if (err.status === 401) {
           this.errMsg = (err.error?.message as string) || '帳號或密碼錯誤';
           return;
         }
 
-        // 其他：通用錯誤
         this.errMsg = '系統忙碌或網路異常，請稍後再試';
       }
     });
@@ -103,7 +120,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const idToken = response.credential;
     const headers = { 'Content-Type': 'application/json' };
 
-    if (this.lockCountdown > 0) return; // 若也想鎖 Google，保留這行；不想鎖可移除
+    if (this.lockCountdown > 0) return;
     this.loading = true;
     this.errMsg = '';
 
@@ -136,6 +153,26 @@ export class LoginComponent implements OnInit, OnDestroy {
       });
   };
 
+  //  LINE 登入流程
+  private line = {
+    clientId: '2007987566',
+    redirectUri: 'http://localhost:4200/show/login',
+    authorizeUrl: 'https://access.line.me/oauth2/v2.1/authorize',
+    scope: 'openid profile email'
+  };
+
+  lineLogin() {
+    const state = this.randomString(24);
+    localStorage.setItem('line_state', state);
+    const url =
+      `${this.line.authorizeUrl}?response_type=code` +
+      `&client_id=${encodeURIComponent(this.line.clientId)}` +
+      `&redirect_uri=${encodeURIComponent(this.line.redirectUri)}` +
+      `&state=${encodeURIComponent(state)}` +
+      `&scope=${encodeURIComponent(this.line.scope)}`;
+    window.location.href = url;
+  }
+
   logout() {
     localStorage.removeItem('jwtToken');
     location.replace('/login');
@@ -147,7 +184,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (event.persisted) location.reload();
   }
 
-  // ====== 小工具：解析秒數 + 倒數 ======
   private extractSeconds(msg: string): number | null {
     const m = msg?.match(/(\d+)/);
     return m ? parseInt(m[1], 10) : null;
@@ -165,5 +201,12 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.errMsg = '';
       }
     }, 1000);
+  }
+
+  private randomString(len: number): string {
+    const bytes = new Uint8Array(len);
+    crypto.getRandomValues(bytes);
+    const chars = Array.from(bytes).map(b => (b % 36).toString(36));
+    return chars.join('');
   }
 }

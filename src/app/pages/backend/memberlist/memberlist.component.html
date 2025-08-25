@@ -414,26 +414,32 @@
               maxlength="10"
             />
           </div>
-          <div class="mb-3">
-            <label for="fCity" class="form-label">縣市</label>
-            <input
-              type="text"
-              class="form-control"
-              id="fCity"
-              [(ngModel)]="selectedMember.fCity"
-              name="fCity"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="fDistrict" class="form-label">區域</label>
-            <input
-              type="text"
-              class="form-control"
-              id="fDistrict"
-              [(ngModel)]="selectedMember.fDistrict"
-              name="fDistrict"
-            />
-          </div>
+          <select
+            class="form-select"
+            id="fCity"
+            name="fCity"
+            [(ngModel)]="selectedMember.fCity"
+            (change)="onCityChange()"
+          >
+            <option value="">請選擇縣市</option>
+            <option *ngFor="let c of cityOptions" [value]="c">{{ c }}</option>
+          </select>
+
+          <select
+            class="form-select"
+            id="fDistrict"
+            name="fDistrict"
+            [disabled]="!selectedMember?.fCity"
+            [(ngModel)]="selectedMember.fDistrict"
+          >
+            <option value="">
+              {{ selectedMember?.fCity ? "請選擇區域" : "請先選縣市" }}
+            </option>
+            <option *ngFor="let d of districtOptions" [value]="d">
+              {{ d }}
+            </option>
+          </select>
+
           <div class="mb-3">
             <label for="fRoadAddress" class="form-label">地址</label>
             <input

@@ -14,12 +14,33 @@
       <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
         <form (ngSubmit)="login()">
           <!-- 社群登入（Google Button 掛載點） -->
-          <div
-            class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start mb-3"
-          >
-            <p class="lead fw-normal mb-0 me-3">使用社群登入</p>
-            <!-- Google 掛載點 -->
-            <div id="googleLoginBtn" class="mx-1"></div>
+          <div class="mb-3">
+            <label class="form-label">使用社群登入</label>
+            <div class="d-flex gap-2 align-items-center">
+              <!--  Google 按鈕（由 Google 動態注入） -->
+              <div id="googleLoginBtn"></div>
+
+              <!--  LINE 按鈕 -->
+              <button
+                type="button"
+                class="btn border border-dark rounded-circle d-flex align-items-center justify-content-center"
+                style="
+                  width: 48px;
+                  height: 48px;
+                  padding: 0;
+                  background-color: white;
+                "
+                (click)="lineLogin()"
+                title="使用 LINE 登入"
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg"
+                  alt="LINE"
+                  width="28"
+                  height="28"
+                />
+              </button>
+            </div>
           </div>
 
           <!-- 分隔線 -->
