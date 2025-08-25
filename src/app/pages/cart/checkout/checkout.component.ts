@@ -162,13 +162,22 @@ export class CheckoutComponent {
       next: (res) => {
         console.log('訂單建立成功', res);
 
+        // 若為「貨到付款」：不進綠界，直接導到成功頁並結束流程
+        if (this.paymentMethod === 'COD') {
+          // 可選：如果你的 CartService 有清空方法，可在此呼叫
+          // this.cartService.clearCart();
+          this.router.navigateByUrl('/show/checkoutsuccessful');
+          return;
+        }
+
         // Step 2: 產生 ECPay 訂單請求
         const ecpayRequest: ECPayRequest = {
-          MerchantTradeNo: res.orderNo, // 後端訂單編號
+          // 建議後端同時回傳一組符合 ECPay 規範的 merchantTradeNo；暫用 orderNo 也行
+          MerchantTradeNo: res.merchantTradeNo ?? res.orderNo, // 後端訂單編號
           TotalAmount: this.totalAmount,
           ItemName: this.items.map((i) => `${i.name} x${i.quantity}`).join('#'),
           ChoosePayment:
-            this.paymentMethod === 'COD' ? 'Credit' : this.paymentMethod,
+            this.paymentMethod,
         };
 
         this.paymentService.createOrder(ecpayRequest).subscribe((ecRes) => {
@@ -237,7 +246,7 @@ export class CheckoutComponent {
       },
       error: (err) => {
         console.error('建立訂單失敗', err);
-        alert('建立訂單失敗，請稍後再試');
+        // alert('建立訂單失敗，請稍後再試');
       },
     });
   }
