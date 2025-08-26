@@ -15,7 +15,7 @@ import { SuppliesCategoryService } from '../../../../services/supplies/supplies-
   styleUrl: './suppliessupplierlist.component.scss'
 })
 export class SuppliessupplierlistComponent {
-  suppliesSuppliers: Isuppliessupplier[] = []
+  suppliesSuppliers: Isuppliessupplier[] = [];
   categories: Isuppliescategory[] = [];
 
   constructor(private suppliesSupplierService: SuppliesSupplierService, private suppliesCategoryService: SuppliesCategoryService) { }

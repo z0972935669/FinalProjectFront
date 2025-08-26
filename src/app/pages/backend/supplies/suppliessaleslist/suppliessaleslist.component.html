@@ -74,12 +74,15 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="cell">SuppliesSalesOrderID</td>
-                      <td class="cell"><span>OrderDate(月日)</span><span class="note">OrderDate(年)</span></td>
-                      <td class="cell">CustomerName(Name)</td>
-                      <td class="cell"><span>ReceivedDate(月日)</span><span class="note">ReceivedDate(年)</span></td>
-                      <td class="cell"><span class="badge bg-success">OrderStatus</span></td>
+                      @for(saleOrders of suppliesSales;track $index)
+                      {
+                      <td class="cell">{{saleOrders.suppliesSalesOrderId}}</td>
+                      <td class="cell"><span>{{saleOrders.orderDate}}</span><span class="note"></span></td>
+                      <td class="cell">{{saleOrders.customerName}}</td>
+                      <td class="cell"><span>{{saleOrders.receivedDate}}</span><span class="note"></span></td>
+                      <td class="cell"><span class="badge bg-success">{{saleOrders.orderStatus}}</span></td>
                       <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
+                      }
                     </tr>
                   </tbody>
                 </table>

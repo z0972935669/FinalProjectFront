@@ -47,9 +47,9 @@
       </div>
 
       <!-- 利用Modal新增品項 -->
-      <div class="modal fade" id="addSuppliesModal" tabindex="-1" aria-labelledby="addSuppliesModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
+      <div class="modal fade" id="addSuppliesModal" data-bs-backdrop="static" tabindex="-1"
+        aria-labelledby="addSuppliesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
           <div class="modal-content">
             <form (ngSubmit)="submitAddProduct()" #addSuppliesForm="ngForm">
               <div class="modal-header">
@@ -117,9 +117,9 @@
       <!-- 新增用Modal -->
 
       <!-- 利用Modal修改品項 -->
-      <div class="modal fade" id="editSuppliesModal" tabindex="-1" aria-labelledby="editSuppliesModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
+      <div class="modal fade" id="editSuppliesModal" data-bs-backdrop="static" tabindex="-1"
+        aria-labelledby="editSuppliesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
           <div class="modal-content">
             <form (ngSubmit)="submitEditProduct()" #editSuppliesForm="ngForm">
               <div class="modal-header">
@@ -197,6 +197,41 @@
       </div>
       <!-- 修改用Modal -->
 
+      <!-- 利用Modal顯示詳細時間 -->
+      <div class="modal fade" id="suppliesDateModal" tabindex="-1" aria-labelledby="suppliesDateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+          <div class="modal-content modal-dialog-scrollable">
+            <div class="modal-body">
+              <table class="table app-table-hover mb-0 text-center">
+                <thead>
+                  <tr>
+                    <th class="cell">有效期限</th>
+                    <th class="cell">剩餘數量</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 顯示對應物品的時間資料 -->
+                  @for (date of selectedProductDates; track $index)
+                  {
+                  <tr>
+                    <td class="cell">{{date.expiryDate}}</td>
+                    <td class="cell">{{date.remainingStocks}}</td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 時間用Modal -->
+
       <div class="tab-content" id="orders-table-tab-content">
         <div class="tab-pane fade show active" id="orders-all">
           <div class="app-card app-card-orders-table shadow-sm mb-5">
@@ -236,7 +271,8 @@
                           data-bs-target="#editSuppliesModal" (click)="editProduct(product)">
                           品項修改
                         </button>
-                        <a class="btn-sm app-btn-secondary" href="#">詳細時間</a>
+                        <button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
+                          data-bs-target="#suppliesDateModal" (click)="showProductDate(product)">詳細時間</button>
                       </td>
                     </tr>
                     }
