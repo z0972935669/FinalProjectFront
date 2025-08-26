@@ -56,7 +56,7 @@ export class CartComponent implements OnInit {
 
   // 清空購物車
   clearCart(): void {
-    this.cartService.clear();
+    this.cartService.clearCart();
     this.loadCart();
   }
 }

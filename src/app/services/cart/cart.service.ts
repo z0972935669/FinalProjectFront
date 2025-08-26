@@ -37,7 +37,7 @@ export class CartService {
     localStorage.setItem(this.storageKey, JSON.stringify(cart));
   }
 
-  clear(): void {
+  clearCart(): void {
     localStorage.removeItem(this.storageKey);
   }
 }

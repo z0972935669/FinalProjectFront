@@ -4,11 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../services/order/order.service';
 import { Order } from '../../../interfaces/order/order.interface';
 import { CartService, CartItem } from '../../../services/cart/cart.service';
-import { TrimPipe } from '../../../pipes/cart/checkout.pipe'; // 引入 Pipe
-import {
-  MemberInfo,
-  MemberService,
-} from '../../../services/member/member.service';
+import { TrimPipe } from '../../../pipes/cart/checkout.pipe';
+import { MemberInfo, MemberService } from '../../../services/member/member.service';
 import { CityService } from '../../../services/city/city.service';
 import { PaymentService } from '../../../services/payment/payment.service';
 import { ECPayRequest } from '../../../interfaces/payment/ecpay.interface';
@@ -20,7 +17,7 @@ import { CurrencyPipe } from '@angular/common';
   imports: [RouterModule, FormsModule, CurrencyPipe],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
-  providers: [TrimPipe], // 在component注入Pipe
+  providers: [TrimPipe],
 })
 export class CheckoutComponent {
   // 原始資料 (Dictionary)
@@ -47,9 +44,9 @@ export class CheckoutComponent {
   deliveryAddress: string = '';
   note: string = '';
   error = '';
+
   // 會員ID
   memberId: number = 0;
-
   private memberSvc = inject(MemberService);
 
   // 購物車
@@ -61,7 +58,7 @@ export class CheckoutComponent {
     private cartService: CartService,
     private cityService: CityService,
     private router: Router,
-    public trimPipe: TrimPipe, //注入 TrimPipe
+    public trimPipe: TrimPipe,
     private paymentService: PaymentService
   ) {}
 
@@ -71,15 +68,14 @@ export class CheckoutComponent {
     // 取得縣市清單
     this.cityService.getCities().subscribe({
       next: (res: any) => {
-        this.cityData = res; // 存 Dictionary
-        this.cities = Object.keys(res); // 取出縣市清單
+        this.cityData = res;
+        this.cities = Object.keys(res);
       },
       error: (err) => console.error('載入城市資料失敗', err),
     });
 
     this.memberSvc.getMemberInfo().subscribe({
       next: (me: MemberInfo) => {
-        // console.log(me);
         this.memberId = me.memberId;
       },
       error: (err) => {
@@ -92,7 +88,7 @@ export class CheckoutComponent {
   // 切換城市時，載入對應區域
   onCityChange(): void {
     if (this.city && this.cityData[this.city]) {
-      this.districts = this.cityData[this.city]; // 取出該城市的區域
+      this.districts = this.cityData[this.city];
     } else {
       this.districts = [];
     }
@@ -105,11 +101,7 @@ export class CheckoutComponent {
         { label: '全家 取貨付款', value: 'CVS_FAMI_COD' },
         { label: '黑貓宅急便 貨到付款', value: 'HOME_BlackCat_COD' },
       ];
-    } else if (
-      this.paymentMethod === 'Credit' ||
-      this.paymentMethod === 'ATM' ||
-      this.paymentMethod === 'CVS'
-    ) {
+    } else if (this.paymentMethod === 'Credit' || this.paymentMethod === 'ATM' || this.paymentMethod === 'CVS') {
       return [
         { label: '7-11 超商取貨', value: 'CVS_711' },
         { label: '全家 超商取貨', value: 'CVS_FAMI' },
@@ -133,7 +125,6 @@ export class CheckoutComponent {
   placeOrder() {
     const fullAddress = `${this.city}${this.district}${this.streetAddress}`;
 
-    // 送出前使用 TrimPipe 清理字串欄位
     const order: Order = {
       memberId: this.memberId,
       buyerName: this.trimPipe.transform(this.buyerName),
@@ -160,84 +151,60 @@ export class CheckoutComponent {
     // Step 1: 先建立訂單 (DB)
     this.orderService.createOrder(order).subscribe({
       next: (res) => {
-        console.log('訂單建立成功', res);
+        // 後端回傳的訂單編號（請確保後端有其一）
+        const merchantTradeNo: string = res.merchantTradeNo ?? res.orderNo;
 
-        // 若為「貨到付款」：不進綠界，直接導到成功頁並結束流程
+        // === 貨到付款：直接清空 + 導成功頁 ===
         if (this.paymentMethod === 'COD') {
-          // 可選：如果你的 CartService 有清空方法，可在此呼叫
-          // this.cartService.clearCart();
-          this.router.navigateByUrl('/show/checkoutsuccessful');
+          this.cartService.clearCart();
+          // 成功頁依舊帶 orderNo，方便顯示資訊
+          this.router.navigateByUrl(`/show/checkoutsuccessful?orderNo=${merchantTradeNo}`);
           return;
         }
 
-        // Step 2: 產生 ECPay 訂單請求
+        // === 線上付款：帶 orderNo 回前端成功頁，待確認已付款後再清空 ===
+        const clientBackUrl = `${window.location.origin}/show/checkoutsuccessful?orderNo=${merchantTradeNo}`;
+
+        // Step 2: 產生 ECPay 訂單請求（後端會補上 CheckMacValue 等欄位）
         const ecpayRequest: ECPayRequest = {
-          // 建議後端同時回傳一組符合 ECPay 規範的 merchantTradeNo；暫用 orderNo 也行
-          MerchantTradeNo: res.merchantTradeNo ?? res.orderNo, // 後端訂單編號
+          MerchantTradeNo: merchantTradeNo,
           TotalAmount: this.totalAmount,
           ItemName: this.items.map((i) => `${i.name} x${i.quantity}`).join('#'),
-          ChoosePayment:
-            this.paymentMethod,
+          ChoosePayment: this.paymentMethod,
+          ClientBackURL: clientBackUrl, // 關鍵：帶回成功頁
         };
 
         this.paymentService.createOrder(ecpayRequest).subscribe((ecRes) => {
           // Step 3: 自動產生 form 跳轉綠界
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action =
-            'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
+          form.action = 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
 
           for (const key in ecRes) {
-            if (ecRes.hasOwnProperty(key)) {
-              const input = document.createElement('input');
-              input.type = 'hidden';
+            if (!ecRes.hasOwnProperty(key)) continue;
 
-              let properKey = key;
-              switch (key.toLowerCase()) {
-                case 'merchantid':
-                  properKey = 'MerchantID';
-                  break;
-                case 'merchanttradeno':
-                  properKey = 'MerchantTradeNo';
-                  break;
-                case 'merchanttradedate':
-                  properKey = 'MerchantTradeDate';
-                  break;
-                case 'totalamount':
-                  properKey = 'TotalAmount';
-                  break;
-                case 'tradedesc':
-                  properKey = 'TradeDesc';
-                  break;
-                case 'itemname':
-                  properKey = 'ItemName';
-                  break;
-                case 'returnurl':
-                  properKey = 'ReturnURL';
-                  break;
-                case 'clientbackurl':
-                  properKey = 'ClientBackURL';
-                  break;
-                case 'choosepayment':
-                  properKey = 'ChoosePayment';
-                  break;
-                case 'encrypttype':
-                  properKey = 'EncryptType';
-                  break;
-                case 'paymenttype':
-                  properKey = 'PaymentType';
-                  break;
-                case 'checkmacvalue':
-                  properKey = 'CheckMacValue';
-                  break;
-              }
+            const input = document.createElement('input');
+            input.type = 'hidden';
 
-              input.name = properKey;
-              input.value = ecRes[key];
-              form.appendChild(input);
-
-              console.log(`${key} = ${ecRes[key]}`);
+            let properKey = key;
+            switch (key.toLowerCase()) {
+              case 'merchantid': properKey = 'MerchantID'; break;
+              case 'merchanttradeno': properKey = 'MerchantTradeNo'; break;
+              case 'merchanttradedate': properKey = 'MerchantTradeDate'; break;
+              case 'totalamount': properKey = 'TotalAmount'; break;
+              case 'tradedesc': properKey = 'TradeDesc'; break;
+              case 'itemname': properKey = 'ItemName'; break;
+              case 'returnurl': properKey = 'ReturnURL'; break;
+              case 'clientbackurl': properKey = 'ClientBackURL'; break;
+              case 'choosepayment': properKey = 'ChoosePayment'; break;
+              case 'encrypttype': properKey = 'EncryptType'; break;
+              case 'paymenttype': properKey = 'PaymentType'; break;
+              case 'checkmacvalue': properKey = 'CheckMacValue'; break;
             }
+
+            input.name = properKey;
+            input.value = ecRes[key];
+            form.appendChild(input);
           }
 
           document.body.appendChild(form);
@@ -246,7 +213,6 @@ export class CheckoutComponent {
       },
       error: (err) => {
         console.error('建立訂單失敗', err);
-        // alert('建立訂單失敗，請稍後再試');
       },
     });
   }
