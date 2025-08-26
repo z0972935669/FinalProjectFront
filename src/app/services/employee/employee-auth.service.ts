@@ -42,6 +42,20 @@ export type Job = { id: number; name: string; deptId?: number };
 export class EmployeeAuthService {
   private http = inject(HttpClient);
 
+  // ⬇️ 新增：把相對路徑補成完整 URL；空值給後端 noimage
+  private toAbsoluteUrl(p: string | null | undefined): string {
+    // 後端預設圖（請確保檔案在 wwwroot/images/employees/noimage.jpg）
+    const fallback = `${this.API_HOST}/images/employees/noimage.jpg`;
+
+    if (!p || !p.trim()) return fallback;
+    const src = p.trim();
+    if (/^https?:\/\//i.test(src)) return src;           // 已是完整 URL
+    const rel = src.startsWith('/') ? src : `/${src}`;   // 確保有前導斜線
+    return `${this.API_HOST}${rel}`;
+  }
+  // ⬇️ 新增：你的後端 Host（跟你測圖用的一樣）
+  private readonly API_HOST = 'https://localhost:7124';
+
   // 你的 UserAccounts API
   private readonly BASE = 'https://localhost:7124/api/EmployeeUserAccounts';
   private readonly LOGIN_PATH = `${this.BASE}/login`;
@@ -203,17 +217,22 @@ export class EmployeeAuthService {
       .get<EmployeeDetailApi>(`${this.BASE}/${id}/detail`)
       .pipe(
         map(api => {
-          const withFallback: EmployeeDetailApi = {
+          // 後端若沒給 photoPath，先用後端的 noimage 相對路徑
+          const rawPath =
+            api?.photoPath && api.photoPath.trim()
+              ? api.photoPath.trim()
+              : '/images/employees/noimage.jpg';
+
+          // 轉成完整 URL，再交給 mapEmployeeDetail
+          const withFull: EmployeeDetailApi = {
             ...api,
-            photoPath:
-              api?.photoPath && api.photoPath.trim()
-                ? api.photoPath
-                : 'assets/backend/images/users/noimage.jpg'
+            photoPath: this.toAbsoluteUrl(rawPath),
           };
-          return mapEmployeeDetail(withFallback);
+          return mapEmployeeDetail(withFull);
         })
       );
   }
+
 
   // ---------------- 更新、上傳 ----------------
 

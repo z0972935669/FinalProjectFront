@@ -1,6 +1,5 @@
-// src/app/pages/backend/employeelistedit/employeelistedit.component.ts
 import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom, finalize, of } from 'rxjs';
@@ -23,20 +22,26 @@ export class EmployeelisteditComponent implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(EmployeeAuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   loading = true;
   saving = false;
   error: string | null = null;
 
-  /** 完整初始化（含清單對齊）完成後才開放「儲存」按鈕 */
+  /** 完整初始化完成後才開放「儲存」按鈕 */
   formReady = false;
 
+  /** 本次要編輯的 EmployeeId（模板/導頁會用） */
   id!: number;
   vm!: EmployeeDetailDto;
+  private editingOthers = false; // 是否是透過 :id 編輯別人
+
+  /** 後端預設頭像（依你的後端靜態路徑調整） */
+  private readonly FALLBACK_PHOTO = 'https://localhost:7124/images/employees/noimage.jpg';
 
   // 頭像
   photoFile: File | null = null;
-  previewUrl = 'assets/backend/images/users/noimage.jpg';
+  previewUrl = this.FALLBACK_PHOTO;
 
   // 下拉選項
   educationOptions = ['博士', '碩士', '大學', '高中', '高職', '五專', '四技', '二技', '專科', '國中', '國小', '無'];
@@ -67,13 +72,13 @@ export class EmployeelisteditComponent implements OnInit {
 
     // 職務
     EmploymentStatusText: [''],
-    DepartmentId: <number | null>null,  // 用 ID 做資料寫回
-    DepartmentName: [''],               // 僅顯示
+    DepartmentId: <number | null>null,  // 用 ID 寫回
+    DepartmentName: [''],               // 顯示用
     JobTitleId: <number | null>null,
     JobTitleName: [''],
     HireDate: <string | null>null,
 
-    // 布林欄位
+    // 布林
     PoliceClearanceCertified: <boolean | null>false,
     IsSupervisor: <boolean | null>false,
     IsAdmin: <boolean | null>false,
@@ -84,55 +89,68 @@ export class EmployeelisteditComponent implements OnInit {
     EmergencyContactRelationship: [''],
   });
 
-  async ngOnInit(): Promise<void> {
-    this.id = this.auth.getEmployeeIdFromToken() ?? 0;
-    if (!this.id) {
-      this.router.navigate(['/erp/login'], { queryParams: { returnUrl: '/erp/employeelistedit' } });
-      return;
-    }
+  ngOnInit(): void {
+    // 監聽參數變化：同元件重用時也會重載
+    this.route.paramMap.subscribe(async pm => {
+      this.loading = true;
+      this.error = null;
+      this.formReady = false;
 
-    try {
-      // 1) 先載入個人資料（不被清單 API 影響）
-      const dto = await firstValueFrom(this.auth.getEmployeeDetail(this.id));
-      this.vm = dto;
-      this.patchEmployeeToForm(dto);
+      const paramId = pm.get('id');
+      const myId = this.auth.getEmployeeIdFromToken() ?? 0;
+      this.editingOthers = !!paramId;
+      this.id = Number(paramId ?? myId);
 
-      // 「同戶籍地址」：勾選時帶入並 disable；取消保留並 enable
-      this.form.get('SameAsRegistered')!.valueChanges.subscribe((checked) => {
-        const reg = this.form.get('RegisteredAddress')!.value ?? '';
-        const currentCtrl = this.form.get('CurrentAddress')!;
-        if (checked) { currentCtrl.setValue(reg); currentCtrl.disable({ emitEvent: false }); }
-        else { currentCtrl.enable({ emitEvent: false }); }
-      });
+      if (!this.id || Number.isNaN(this.id)) {
+        this.router.navigate(['/erp/login'], {
+          queryParams: { returnUrl: paramId ? `/erp/employeelistedit/${paramId}` : '/erp/employeelistedit' }
+        });
+        return;
+      }
 
-      // 2) 再載入部門清單（就算失敗也不影響畫面）
-      this.departments = await firstValueFrom(
-        this.auth.getDepartments().pipe(catchError(() => of<Dept[]>([])))
-      );
+      try {
+        // 1) 基本資料
+        const dto = await firstValueFrom(this.auth.getEmployeeDetail(this.id));
+        this.vm = dto;
+        this.patchEmployeeToForm(dto);
 
-      // 部門變更 → 載入職稱
-      this.form.get('DepartmentId')!.valueChanges.subscribe(async (deptId) => {
-        this.form.get('JobTitleId')!.reset(null, { emitEvent: false });
-        this.jobs = [];
-        if (deptId != null) {
-          await this.loadJobsByDept(deptId);
-          // 若原本有職稱名稱，幫忙對回 ID
-          const jtName = this.form.get('JobTitleName')?.value;
-          const found = this.jobs.find(j => j.name === jtName);
-          if (found) this.form.get('JobTitleId')!.setValue(found.id, { emitEvent: false });
-        }
-      });
+        // 同戶籍地址勾選
+        this.form.get('SameAsRegistered')!.valueChanges.subscribe((checked) => {
+          const reg = this.form.get('RegisteredAddress')!.value ?? '';
+          const currentCtrl = this.form.get('CurrentAddress')!;
+          if (checked) { currentCtrl.setValue(reg); currentCtrl.disable({ emitEvent: false }); }
+          else { currentCtrl.enable({ emitEvent: false }); }
+        });
 
-      // 3) 把舊的部門/職稱對回（若有）
-      await this.initDeptAndJobFromDto(dto);
+        // 2) 部門清單
+        this.departments = await firstValueFrom(
+          this.auth.getDepartments().pipe(catchError(() => of<Dept[]>([])))
+        );
 
-      this.formReady = true;
-    } catch (e: any) {
-      console.error(e);
-      this.error = e?.message ?? '載入失敗';
-    } finally {
-      this.loading = false;
-    }
+        // 部門變更 → 載入職稱
+        this.form.get('DepartmentId')!.valueChanges.subscribe(async (deptId) => {
+          this.form.get('JobTitleId')!.reset(null, { emitEvent: false });
+          this.jobs = [];
+          if (deptId != null) {
+            await this.loadJobsByDept(deptId);
+            // 依名稱對回職稱ID（若原本只有名稱）
+            const jtName = this.form.get('JobTitleName')?.value;
+            const found = this.jobs.find(j => j.name === jtName);
+            if (found) this.form.get('JobTitleId')!.setValue(found.id, { emitEvent: false });
+          }
+        });
+
+        // 3) 依舊資料對回部門/職稱
+        await this.initDeptAndJobFromDto(dto);
+
+        this.formReady = true;
+      } catch (e: any) {
+        console.error(e);
+        this.error = e?.message ?? '載入失敗';
+      } finally {
+        this.loading = false;
+      }
+    });
   }
 
   /** 依部門載入職稱（失敗回空陣列） */
@@ -176,9 +194,8 @@ export class EmployeelisteditComponent implements OnInit {
     const birth = this.toDateInputValue(dto?.BirthDate);
     const hire = this.toDateInputValue(dto?.HireDate) || this.toDateInputValue(new Date());
 
-    this.previewUrl = dto?.PhotoPath && dto.PhotoPath.trim()
-      ? dto.PhotoPath
-      : 'assets/backend/images/users/noimage.jpg';
+    // 頭像預覽
+    this.previewUrl = dto?.PhotoPath?.trim() ? dto.PhotoPath : this.FALLBACK_PHOTO;
 
     const safeNum = (v: any, def: number, min: number, max: number) => {
       const n = Number(v);
@@ -244,7 +261,7 @@ export class EmployeelisteditComponent implements OnInit {
       reader.onload = () => (this.previewUrl = String(reader.result));
       reader.readAsDataURL(file);
     } else {
-      this.previewUrl = 'assets/backend/images/users/noimage.jpg';
+      this.previewUrl = this.FALLBACK_PHOTO;
     }
   }
 
@@ -288,6 +305,17 @@ export class EmployeelisteditComponent implements OnInit {
       return;
     }
     alert('儲存成功');
-    this.router.navigate(['/erp/employeelistdetail']);
+    // ✅ 無論是否編輯自己或他人，都明確帶 id 回詳細頁，避免丟失目標
+    this.router.navigate(['/erp/employeelistdetail', this.id]);
+  }
+
+  /** 取消/返回詳細資料（供模板綁定） */
+  goDetail() {
+    this.router.navigate(['/erp/employeelistdetail', this.id]);
+  }
+
+  /** 頭像載入錯誤 → 顯示 fallback 圖 */
+  onImgError(e: Event) {
+    (e.target as HTMLImageElement).src = this.FALLBACK_PHOTO;
   }
 }

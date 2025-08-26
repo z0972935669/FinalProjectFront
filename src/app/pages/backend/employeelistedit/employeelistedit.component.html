@@ -21,9 +21,10 @@
                 <div class="edit-row">
                   <div class="edit-label">大頭照</div>
                   <div class="edit-field d-flex align-items-center gap-3">
-                    <img [src]="previewUrl" alt="頭像"
-                      style="width:120px;height:120px;object-fit:cover;border-radius:8px;">
-                    <input type="file" class="form-control form-control-sm" (change)="onFileChange($event)">
+                    <img [src]="previewUrl" (error)="onImgError($event)" alt="頭像"
+                      style="width:120px;height:120px;object-fit:cover;border-radius:8px;" />
+                    <input type="file" class="form-control form-control-sm" accept="image/*"
+                      (change)="onFileChange($event)">
                   </div>
                 </div>
 
@@ -114,9 +115,15 @@
                   [disabled]="saving || !formReady || form.invalid" style="font-size: large;font-weight: bolder;">
                   {{ saving ? '儲存中…' : '儲存資料' }}
                 </button>
-                <a class="btn app-btn-secondary" [routerLink]="['/erp/employeelistdetail']"
-                  style="font-size: large;font-weight: bolder;">回到詳細資料</a>
+
+                <!-- ✅ 帶著 id 回詳細頁；若 id 尚未就緒，先回不帶 id 的頁面（看自己） -->
+                <a class="btn app-btn-secondary"
+                  [routerLink]="id ? ['/erp/employeelistdetail', id] : ['/erp/employeelistdetail']"
+                  style="font-size: large; font-weight: bolder;">
+                  回到詳細資料
+                </a>
               </div>
+
             </div>
           </div>
 

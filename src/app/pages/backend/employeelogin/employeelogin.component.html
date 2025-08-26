@@ -1,73 +1,80 @@
-<!-- src/app/pages/backend/orders/orders.component.html (或你的登入頁檔名) -->
-<div class="app-wrapper">
-  <div class="app-content pt-3 p-md-3 p-lg-4">
-    <div class="container-xl">
+<!-- src/app/pages/backend/orders/orders.component.html -->
+<div class="login-page">
+  <div class="login-wrap">
 
-      <h1 class="badge bg-primary mb-3" style="font-size: xx-large;">員工登入</h1>
+    <!-- 左：表單 -->
+    <section class="form-pane">
+      <h1 class="page-badge">員工登入</h1>
 
-      <div class="row gy-4">
-        <div class="col-12 col-lg-6">
-          <div class="app-card app-card-account shadow-lg">
-            <div class="app-card-header p-3 border-bottom-0">
-              <div class="d-flex align-items-center gap-3">
-                <div class="app-icon-holder">
-                  <i class="bi bi-person-circle"></i>
-                </div>
-                <h4 class="app-card-title mb-0">登入系統</h4>
-              </div>
+      <div class="form-card">
+        <header class="card-head">
+          <div class="avatar">
+            <!-- 簡單 SVG 使用者圖示 -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 12c2.9 0 5-2.1 5-5s-2.1-5-5-5-5 2.1-5 5 2.1 5 5 5zm0 2c-4 0-10 2-10 6v2h20v-2c0-4-6-6-10-6z" />
+            </svg>
+          </div>
+          <h2 class="card-title">登入系統</h2>
+        </header>
+
+        <form #f="ngForm" (ngSubmit)="login(f)" class="login-form" novalidate>
+          <!-- 帳號 -->
+          <div class="field">
+            <label class="label" for="username">帳號</label>
+            <input id="username" name="username" [(ngModel)]="vm.username" required pattern="^[A-Za-z0-9]{6,12}$"
+              class="input" placeholder="輸入帳號" autocomplete="username">
+            <small class="hint">6–12 碼英數字</small>
+          </div>
+
+          <!-- 密碼 -->
+          <div class="field">
+            <label class="label" for="password">密碼</label>
+
+            <div class="input-wrap">
+              <input id="password" [type]="showPwd ? 'text' : 'password'" name="password" [(ngModel)]="vm.password"
+                required pattern="^[A-Za-z0-9]{4,12}$" class="input input-has-button" placeholder="輸入密碼"
+                autocomplete="current-password">
+
+              <button type="button" class="ghost-btn" (click)="showPwd=!showPwd" [attr.aria-pressed]="showPwd">
+                <span *ngIf="!showPwd" aria-hidden="true">👁️</span>
+                <span *ngIf="showPwd" aria-hidden="true">🙈</span>
+                <span class="sr-only">{{ showPwd ? '隱藏密碼' : '顯示密碼' }}</span>
+              </button>
             </div>
 
-            <div class="app-card-body px-4">
-              <form #f="ngForm" (ngSubmit)="login(f)" class="auth-form login-form text-start">
-                <div class="mb-3">
-                  <label class="form-label">帳號</label>
-                  <input name="username" [(ngModel)]="vm.username" required pattern="^[A-Za-z0-9]{6,12}$"
-                    class="form-control form-control-lg" placeholder="輸入帳號" autocomplete="username">
-                </div>
+            <div class="row between align mt-8">
+              <label class="checkbox">
+                <input type="checkbox" id="RememberUsername" [(ngModel)]="vm.remember" name="remember">
+                <span>記住帳號</span>
+              </label>
 
-                <div class="mb-3">
-                  <label class="form-label">密碼</label>
-                  <div class="input-group">
-                    <input [type]="showPwd ? 'text' : 'password'" name="password" [(ngModel)]="vm.password" required
-                      pattern="^[A-Za-z0-9]{4,12}$" class="form-control form-control-lg" placeholder="輸入密碼"
-                      autocomplete="current-password">
-                    <button type="button" class="btn btn-outline-secondary" (click)="showPwd=!showPwd" tabindex="-1">
-                      <i class="bi" [ngClass]="showPwd ? 'bi-eye-slash' : 'bi-eye'"></i>
-                    </button>
-                  </div>
-
-                  <div class="mt-3 d-flex justify-content-between align-items-center">
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="RememberUsername" [(ngModel)]="vm.remember"
-                        name="remember">
-                      <label class="form-check-label" for="RememberUsername">記住帳號</label>
-                    </div>
-                    <a routerLink="/erp/employeepasswordreset">忘記密碼?</a>
-                  </div>
-                </div>
-
-                <div class="text-danger mb-3" *ngIf="error">{{ error }}</div>
-
-                <button type="submit" class="btn app-btn-primary btn-lg w-100" [disabled]="loading || f.invalid"
-                  style="font-size:2rem; padding:.6rem; color:#fff;">
-                  {{ loading ? '登入中…' : '登入' }}
-                </button>
-              </form>
-
-              <div class="pt-4 text-center mb-3">
-                尚無帳號？<a class="text-link" routerLink="/erp/employeeregister">建立帳號</a>
-              </div>
+              <a class="link" routerLink="/erp/employeepasswordreset">忘記密碼？</a>
             </div>
           </div>
-        </div>
 
-        <div class="col-12 col-lg-6">
-          <div class="d-none d-md-block"
-            style="height:100%; min-height:420px; background:#e8f5e9 url('assets/backend/images/logo/login.png') center center / contain no-repeat; border-radius:.5rem;">
-          </div>
-        </div>
+          <!-- 錯誤訊息 -->
+          <div class="error" *ngIf="error">{{ error }}</div>
+
+          <!-- 登入按鈕 -->
+          <button type="submit" class="primary-btn w-100" style="color: white; background-color: rgb(76,200,68);"
+            [disabled]="loading || f.invalid">
+            {{ loading ? '登入中…' : '登入' }}
+          </button>
+        </form>
+
+        <footer class="card-foot">
+          尚無帳號？<a class="link-strong" routerLink="/erp/employeeregister">建立帳號</a>
+        </footer>
       </div>
+    </section>
 
-    </div>
+    <!-- 右：插圖 -->
+    <!-- 右：插圖（改用 img） -->
+    <aside class="art-pane">
+      <img class="art-img" src="/assets/backend/images/logo/login.png" alt="登入插圖">
+
+    </aside>
+
   </div>
 </div>

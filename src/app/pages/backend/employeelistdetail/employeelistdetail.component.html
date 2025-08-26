@@ -25,9 +25,8 @@
               <div class="view-row">
                 <div class="view-label">大頭照</div>
                 <div class="view-data">
-                  <img class="profile-image" [src]="vm?.PhotoPath" alt="大頭照" width="160" height="160"
-                    style="object-fit: cover; border-radius: 8px;" />
-
+                  <img class="profile-image" [src]="photoUrl" (error)="onImgError($event)" alt="大頭照" width="160"
+                    height="160" loading="lazy" style="object-fit: cover; border-radius: 8px;" />
                 </div>
               </div>
 
@@ -89,7 +88,9 @@
 
             <div class="app-card-footer p-4 mt-auto">
               <a class="btn app-btn-secondary me-5" style="font-size: large;font-weight: bolder;"
-                routerLink="/erp/employeelistedit" routerLinkActive="active">編輯資料</a>
+                [routerLink]="['/erp/employeelistedit', vm?.EmployeeId]">
+                編輯資料
+              </a>
               <a class="btn app-btn-secondary" style="font-size: large;font-weight: bolder;"
                 routerLink="/erp/employeelist" routerLinkActive="active">回到列表</a>
             </div>

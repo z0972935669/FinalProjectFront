@@ -1,18 +1,332 @@
-.main-content {
-  border-left: 1px solid #ddd;
-  /* 淡灰色分隔線 */
-  padding-left: 20px;
-  /* 與分隔線保持距離 */
+/* src/app/pages/backend/orders/orders.component.scss  */
+/* ============ 色票 ============ */
+:root {
+  --green-600: #2e7d32;
+  --green-500: #43a047;
+  --green-100: #e8f5e9;
+  --green-050: #f3fbf4;
+  --ink-900: #1f2937;
+  --ink-700: #374151;
+  --ink-500: #6b7280;
+  --ink-300: #cbd5e1;
+  --white: #fff;
+  --error: #d32f2f;
+  --radius-lg: 14px;
+  --radius-sm: 10px;
+  --shadow-1: 0 6px 24px rgba(31, 41, 55, .08), 0 2px 8px rgba(31, 41, 55, .06);
+  --focus: 0 0 0 3px rgba(67, 160, 71, .25);
 }
 
-.content-area {
-  border-left: 1px solid #ccc;
-  background-color: #fff;
+/* ============ 基礎 ============ */
+* {
+  box-sizing: border-box;
 }
 
-label,
-input {
-  color: forestgreen;
-  font-weight: bolder;
-  font-size: large;
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink-900);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ============ 版面 ============ */
+.login-page {
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, var(--green-050) 0 50%, #eef7ef 50% 100%);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-wrap {
+  width: min(1200px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+
+/* ============ 左側：表單 ============ */
+.form-pane {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.page-badge {
+  display: inline-block;
+  padding: 10px 18px;
+  background: var(--green-600);
+  color: var(--white);
+  border-radius: 12px;
+  font-size: clamp(18px, 2vw, 24px);
+  letter-spacing: 1px;
+  margin: 0 0 8px;
+}
+
+.form-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  padding: 24px 24px 18px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--green-100);
+  display: grid;
+  place-items: center;
+}
+
+.avatar svg {
+  width: 28px;
+  height: 28px;
+  fill: var(--green-600);
+}
+
+.card-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink-900);
+}
+
+.login-form {
+  margin-top: 8px;
+  display: grid;
+  gap: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  font-weight: 700;
+  color: var(--green-600);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--ink-300);
+  background: #fafafa;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 16px;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease, background .15s;
+}
+
+.input:focus {
+  border-color: var(--green-500);
+  box-shadow: var(--focus);
+  background: #fff;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-has-button {
+  padding-right: 46px;
+}
+
+.ghost-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ghost-btn:hover {
+  background: var(--green-100);
+}
+
+.ghost-btn:focus {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.between {
+  justify-content: space-between;
+}
+
+.align {
+  align-items: center;
+}
+
+.mt-8 {
+  margin-top: 8px;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green-600);
+}
+
+.hint {
+  color: var(--ink-500);
+  font-size: 12px;
+}
+
+/* 按鈕 */
+.primary-btn {
+  --btn-h: 54px;
+  height: var(--btn-h);
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--green-500), var(--green-600));
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform .05s ease, filter .15s ease, box-shadow .15s ease;
+  box-shadow: 0 6px 16px rgba(46, 125, 50, .25);
+}
+
+.primary-btn:active {
+  transform: translateY(1px);
+}
+
+.primary-btn:disabled {
+  filter: grayscale(.35) brightness(.95);
+  cursor: not-allowed;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+/* 連結 */
+.link {
+  color: var(--green-600);
+  font-weight: 700;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link-strong {
+  color: var(--green-600);
+  font-weight: 800;
+}
+
+/* 錯誤 */
+.error {
+  color: var(--error);
+  font-weight: 700;
+}
+
+/* 卡片底部 */
+.card-foot {
+  margin-top: 18px;
+  text-align: center;
+  color: var(--ink-700);
+}
+
+/* ============ 右側：插圖 ============ */
+.art-pane {
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(0deg, #eff9ef, #eff9ef) padding-box,
+    url("/assets/backend/logo/login.png") center/contain no-repeat border-box;
+  box-shadow: var(--shadow-1);
+  min-height: 420px;
+}
+
+/* ============ RWD ============ */
+@media (max-width: 1024px) {
+  .login-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .login-page {
+    background: var(--green-050);
+  }
+
+  .art-pane {
+    order: -1;
+    min-height: 260px;
+    margin-bottom: 8px;
+  }
+}
+
+/* 無障礙：螢幕閱讀器專用文字 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.art-pane {
+  border-radius: 14px;
+  background: #f3fbf4;
+  min-height: 420px;
+  display: flex;
+  /* 讓子元素可以置中 */
+  align-items: center;
+  /* 垂直置中 */
+  justify-content: center;
+  /* 水平置中 */
+  padding: 12px;
+}
+
+.art-img {
+  max-width: 100%;
+  max-height: 510px;
+  object-fit: contain;
+  border-radius: 12px;
 }

@@ -1,19 +1,21 @@
-import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
-// 前台
+import { Component } from '@angular/core';
+
+// ===== 前台 Layout =====
 import { FrontendComponent } from './layout/frontend/frontend.component';
+
+// ===== 前台 Pages =====
 import { HomeComponent } from './pages/home/home/home.component';
 import { ShopListComponent } from './pages/shop/shop-list/shop-list.component';
 import { ShopDetailComponent } from './pages/shop/shop-detail/shop-detail.component';
 import { CartComponent } from './pages/cart/cart/cart.component';
 import { CheckoutComponent } from './pages/cart/checkout/checkout.component';
 import { CheckoutsuccessfulComponent } from './pages/cart/checkoutsuccessful/checkoutsuccessful.component';
-import { BoardListComponent } from './pages//community/board-list/board-list.component';
+import { BoardListComponent } from './pages/community/board-list/board-list.component'; // ← 修正雙斜線
 import { PostListComponent } from './pages/community/post-list/post-list.component';
 import { PostComponent } from './pages/community/post/post.component';
 import { PersonalCommunityComponent } from './pages/community/personal-community/personal-community.component';
 import { CreatePostComponent } from './pages/community/create-post/create-post.component';
-
 
 import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
@@ -21,7 +23,6 @@ import { MembermanagementComponent } from './pages/member/membermanagement/membe
 import { MemberInfoComponent } from './pages/member/member-info/member-info.component';
 import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
-import { OrdersComponent } from './pages/backend/orders/orders.component';
 import { MemberEventComponent } from './pages/member/member-event/member-event.component';
 import { LoginLogsComponent } from './pages/member/login-logs/login-logs.component';
 
@@ -34,11 +35,11 @@ import { RoomListComponent } from './pages/room/room-list/room-list.component';
 import { RoomDetailComponent } from './pages/room/room-detail/room-detail.component';
 import { RoomSwiperComponent } from './pages/room/room-swiper/room-swiper.component';
 
-
-
-// 後台
+// ===== 後台 Layout =====
 import { BackendComponent } from './layout/backend/backend.component';
-//會員管理
+
+// ===== 後台 Pages =====
+// 會員管理
 import { MemberlistComponent } from './pages/backend/memberlist/memberlist.component';
 // 物料管理
 import { SupplieslistComponent } from './pages/backend/supplies/supplieslist/supplieslist.component';
@@ -53,6 +54,7 @@ import { EquipmentrentlistComponent } from './pages/backend/equipment/equipmentr
 import { EquipmentmaintenancelistComponent } from './pages/backend/equipment/equipmentmaintenancelist/equipmentmaintenancelist.component';
 import { EquipmentsupplierlistComponent } from './pages/backend/equipment/equipmentsupplierlist/equipmentsupplierlist.component';
 
+// 員工
 import { EmployeelistComponent } from './pages/backend/employeelist/employeelist.component';
 import { EmployeelistdetailComponent } from './pages/backend/employeelistdetail/employeelistdetail.component';
 import { EmployeelisteditComponent } from './pages/backend/employeelistedit/employeelistedit.component';
@@ -66,34 +68,45 @@ import { EmployeepasswordresetComponent } from './pages/backend/employeepassword
 import { EmployeescheduleComponent } from './pages/backend/employeeschedule/employeeschedule.component';
 import { EmployeeRegisterComponent } from './pages/backend/employeeregister/employeeregister.component';
 import { EmployeehomeComponent } from './pages/backend/employeehome/employeehome.component';
-import { employeeAuthGuard } from './core/employee-auth.guard';
-
-// 社群
-import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
 import { EmployeeLoginComponent } from './pages/backend/employeelogin/employeelogin.component';
 
+// 守衛
+import { employeeAuthGuard } from './core/employee-auth.guard';
 
 export const routes: Routes = [
-  // 根目錄自動轉到 /show 或 /show/home
+  // 根目錄導向前台
   { path: '', pathMatch: 'full', redirectTo: 'show' },
-  // 若想直接到首頁就寫：redirectTo: 'show/home'
+
+  // ================= 前台 =================
   {
-    // 前台
     path: 'show',
     component: FrontendComponent,
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
       { path: 'shop', component: ShopListComponent },
-      { path: 'shop/:slug', component: ShopDetailComponent }, // 動態路由顯示商品詳細, 等開API的時候要改成shop/:slug
+      { path: 'shop/:slug', component: ShopDetailComponent },
       { path: 'cart', component: CartComponent },
       { path: 'checkout', component: CheckoutComponent },
       { path: 'checkoutsuccessful', component: CheckoutsuccessfulComponent },
 
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'forgot-password', loadComponent: () => import('./pages/account/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
-      { path: 'reset-password', loadComponent: () => import('./pages/account/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) },
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./pages/account/forgot-password/forgot-password.component').then(
+            (m) => m.ForgotPasswordComponent
+          ),
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./pages/account/reset-password/reset-password.component').then(
+            (m) => m.ResetPasswordComponent
+          ),
+      },
+
       {
         path: 'member-management',
         component: MembermanagementComponent,
@@ -108,6 +121,7 @@ export const routes: Routes = [
           { path: 'login-logs', component: LoginLogsComponent },
         ],
       },
+
       { path: 'community', component: BoardListComponent },
       { path: 'community/:boardID/posts', component: PostListComponent },
       { path: 'community/:boardID/create', component: CreatePostComponent },
@@ -122,17 +136,19 @@ export const routes: Routes = [
       { path: 'room-detail/:id', component: RoomDetailComponent },
       { path: 'room-swiper', component: RoomSwiperComponent },
     ],
-  },// 後台登入頁（不受守衛保護）
+  },
 
+  // ================= 後台（公開頁：不經守衛） =================
+  { path: 'erp/login', component: EmployeeLoginComponent, title: '員工登入' },
+  { path: 'erp/employeeregister', component: EmployeeRegisterComponent, title: '員工註冊' },
+  { path: 'erp/employeepasswordreset', component: EmployeepasswordresetComponent, title: '重設密碼' },
+
+  // ================= 後台（需登入） =================
   {
     path: 'erp',
     component: BackendComponent,
-    canActivateChild: [employeeAuthGuard],   // ← 用子路由守衛
+    canActivateChild: [employeeAuthGuard],
     children: [
-      { path: 'login', component: EmployeeLoginComponent },                  // 不需守衛
-      { path: 'employeeregister', component: EmployeeRegisterComponent },    // 不需守衛
-      { path: 'employeepasswordreset', component: EmployeepasswordresetComponent }, // 不需守衛
-
       { path: '', redirectTo: 'employeehome', pathMatch: 'full' },
       { path: 'employeehome', component: EmployeehomeComponent, title: '員工首頁' },
 
@@ -152,8 +168,15 @@ export const routes: Routes = [
 
       // 員工管理
       { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
+
+      // 詳細資料：不帶 id（看自己）與 帶 :id（看指定員工）
       { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
+      { path: 'employeelistdetail/:id', component: EmployeelistdetailComponent, title: '詳細資料' },
+
+      // 編輯：不帶 id（改自己）與 帶 :id（改指定員工）
       { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
+      { path: 'employeelistedit/:id', component: EmployeelisteditComponent, title: '編輯員工' },
+
       { path: 'employeeapprovalflow', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
       { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
       { path: 'employeeattendance', component: EmployeeattendanceComponent, title: '員工考勤' },
@@ -161,11 +184,12 @@ export const routes: Routes = [
       { path: 'employeeleaveform', component: EmployeeleaveformComponent, title: '請假表單' },
       { path: 'employeemissingpunchform', component: EmployeemissingpunchformComponent, title: '補打卡表單' },
       { path: 'employeeschedule', component: EmployeescheduleComponent, title: '排班管理' },
-      { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
+
+      { path: 'board-management', component: MembermanagementComponent, title: '看板管理' },
+      { path: 'memberlist', component: MemberlistComponent, title: '會員列表' },
     ],
   },
 
-  // 其它未知路徑都導回前台（可選）
-  // **: 萬用路由 => 沒有上面的路徑全都導回show
+  // 其它未知路徑都導回前台
   { path: '**', redirectTo: 'show' },
 ];
