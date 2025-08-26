@@ -1,15 +1,14 @@
 <div class="swiper" #swiperRef>
   <div class="swiper-wrapper">
     <div class="swiper-slide" *ngFor="let item of displayedItems">
-      <div class="room-item rounded overflow-hidden pb-4">
-        <img src="{{staticUrl + item.image}}" loading="lazy" class="room-image" (error)="handleImageError($event)"
-          alt="房間圖片">
-
+      <div class="room-item">
+        <img [src]="staticUrl + 'images/' + item.image" alt="{{ item.fRoomAlias }}" class="room-image"
+          (error)="handleImageError($event)">
         <div class="p-4">
-          <h4 class="text-uppercase mb-3">{{ item.fRoomAlias }}</h4>
-          <p class="mb-3">{{ item.fRoomDescription }}</p>
-          <div class="price mb-3">${{ item.fRoomPrice }}</div>
-          <a [routerLink]="['/room-detail', item.fRoomId]" class="btn btn-primary">即刻入住</a>
+          <h4>{{ item.fRoomAlias }}</h4>
+          <p>{{ item.fRoomDescription | slice:0:15 }}...</p>
+          <div class="price">NT ${{ item.fRoomPrice }}元</div>
+          <a (click)="navigateToDetail(item.fRoomId, $event)" class="btn btn-primary">即刻入住</a>
         </div>
       </div>
     </div>

@@ -1,10 +1,17 @@
 .swiper {
   width: 100%;
-  padding: 20px 0;
+  padding: 20px 0; // 邊間隔
+  position: relative;
+  overflow: hidden; // 防止 slide 溢出
 
   .swiper-slide {
-    width: auto !important; // 防止幻燈片過寬，保持響應式
-    max-width: 300px; // 限制卡片寬度，避免圖片顯得過大
+    width: 25%; // 固定每筆佔 25% 寬度（4 筆均分）
+    max-width: 400px; // 最大寬度限制
+    min-width: 200px; // 最小寬度確保不過於壓縮
+    box-sizing: border-box; // 包含 padding 和 border
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .room-item {
@@ -12,6 +19,8 @@
     cursor: pointer;
     background: #f5f5f5;
     border-radius: 8px;
+    width: 90%; // 略小於 slide 寬度，留間距
+    height: 100%; // 保持高度一致
 
     &:hover {
       transform: translateY(-5px);
@@ -21,14 +30,16 @@
 
     .room-image {
       width: 100%;
-      height: 250px; // 統一為 250px，與 home.scss 的 .swiper2 一致
-      object-fit: cover; // 保持比例，裁切多餘部分
+      height: 250px;
+      object-fit: cover;
       border-top-left-radius: 8px;
       border-top-right-radius: 8px;
+      display: block;
     }
 
     .p-4 {
       text-align: center;
+      padding: 1rem;
 
       h4 {
         font-size: 1.25rem;
@@ -46,6 +57,7 @@
       .price {
         color: #81c408;
         margin-bottom: 10px;
+        font-weight: bold; // 確保價格突出顯示
       }
 
       .btn {
@@ -59,7 +71,7 @@
     color: rgba(80, 80, 80, 0.4);
 
     &:hover {
-      color: #81c408; // 與 home.scss 的 arrowHover2 一致
+      color: #81c408;
     }
   }
 }

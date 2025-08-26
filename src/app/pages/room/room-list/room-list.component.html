@@ -7,6 +7,7 @@
   </ol>
 </div>
 <!-- Single Page Header End -->
+
 <div class="container py-5">
   <!-- 介紹區塊 -->
   <div class="text-center mb-5">
@@ -16,20 +17,104 @@
     </p>
   </div>
 
-  <!-- 房型列表 -->
-  <div class="row g-4">
-    <div class="col-lg-4 col-md-6" *ngFor="let room of rooms">
-      <div class="card h-100 shadow-sm">
-        <img [src]="staticUrl + room.image" class="card-img-top" alt="{{ room.fRoomAlias }}"
-          (error)="handleImageError($event)">
-        <div class="card-body">
-          <h5 class="card-title">{{ room.fRoomAlias }}</h5>
-          <p class="card-text">{{ room.fRoomDescription }}</p>
-          <a [routerLink]="['/show/room-detail', room.fRoomId]" class="btn btn-primary ">查看詳情</a>
+  <!-- 搜尋區塊 -->
+  <div class="mb-5">
+    <div class="card shadow-sm p-2">
+      <div class="row g-2 align-items-center">
+        <!-- 搜尋輸入框與按鈕 -->
+        <div class="col-12 col-md-5">
+          <div class="input-group">
+            <input type="text" class="form-control border-start-0" placeholder="搜尋房間名稱或描述..."
+              (input)="onSearchChange($event)" style="border-radius: 0 5px 5px 0; height: 40px; padding: 6px 12px;">
+            <button type="button" class="btn btn-primary" style="height: 40px; padding: 6px 12px;">搜尋</button>
+          </div>
+        </div>
+
+        <!-- 多個篩選條件 -->
+        <div class="col-12 col-md-7">
+          <div class="row g-2 align-items-center">
+            <!-- 價格範圍 -->
+            <div class="col-6 col-md-4">
+              <div class="custom-select">
+                <select class="form-select" (change)="onPriceChange($event)">
+                  <option value="">所有價格</option>
+                  <option value="40000">40000元以下</option>
+                  <option value="45000">40000元~50000元之間</option>
+                  <option value="50000">50000元以上</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 房間類型 -->
+            <div class="col-6 col-md-4">
+              <div class="custom-select">
+                <select class="form-select" (change)="onRoomTypeChange($event)">
+                  <option value="">所有類型</option>
+                  <option value="single">單人房</option>
+                  <option value="double">雙人房</option>
+                  <option value="four">四人房</option>
+                  <option value="six">六人房</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 僅顯示可入住的空位房間 -->
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label class="form-check-label d-flex align-items-center">
+                  <input type="checkbox" class="form-check-input me-2" (change)="onAvailabilityChange($event)">
+                  僅顯示可入住的空位房間
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- 排序區塊 -->
+  <div class="mb-3 text-end">
+    <div class="custom-select d-inline-block" style="width: 200px;">
+      <select class="form-select" (change)="onSortChange($event)">
+        <option value="">排序方式</option>
+        <option value="highToLow">由價格高至低</option>
+        <option value="lowToHigh">由價格低至高</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- 房型列表 -->
+  <div class="row g-4" *ngIf="filteredRooms.length > 0; else noRooms">
+    <div class="col-12" *ngFor="let room of filteredRooms">
+      <div class="card mb-3 shadow-sm">
+        <div class="row g-0 align-items-center">
+          <!-- 左邊圖片 -->
+          <div class="col-md-4">
+            <img [src]="getImageUrl(room.image)" class="card-img-top img-fluid" alt="{{ room.fRoomAlias }}"
+              (error)="handleImageError($event)" *ngIf="room.image && room.image.trim() !== ''"
+              style="object-fit: cover; height: 200px; border-top-left-radius: 5px; border-bottom-left-radius: 5px;">
+          </div>
+          <!-- 右邊內容 -->
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ room.fRoomAlias }}</h5>
+              <p class="card-text" [title]="room.fRoomDescription">{{ room.fRoomDescription | slice:0:15 }}...</p>
+              <p class="card-text"><strong>價格: NT $ {{ room.fRoomPrice }} 元</strong></p>
+              <p class="card-text">剩餘可入住床位數量: {{ room.availableBeds }}</p>
+              <a [routerLink]="['/show/room-detail', room.fRoomId]" class="btn btn-primary float-end">查看房間內容</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template #noRooms>
+    <div class="text-center">
+      <p class="text-muted">暫無房間資料</p>
+    </div>
+  </ng-template>
+
   <!-- 預約參訪表單 -->
   <div class="container mt-5">
     <h2 class="text-center mb-4">歡迎預約參訪！</h2>
