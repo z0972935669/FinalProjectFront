@@ -56,6 +56,7 @@ export class EventRegistrationComponent {
     //有需填寫的欄位才需要的欄位對應設定
     batchID: [''], //告訴表單：這個欄位的初始值是多少。
     title: [''],
+    date: [''], //顯示活動時間
     registrationID: [0],
     registrationNum: [''],
     memberId: [0, Validators.required], // Validators.required是 Angular 內建的 表單驗證器 (Validator)。檢查該欄位是否有填值。
@@ -132,9 +133,10 @@ export class EventRegistrationComponent {
                 this.form.patchValue({
                   batchID: vm.batchID,
                   title: vm.title,
+                  date: vm.date,
                   registrationID: vm.registrationID,
                   registrationNum: vm.registrationNum,
-                  memberId: Number(me.memberId), // 明確轉 number
+                  memberId: Number(me.memberId),
                   memberName: me.name ?? '未知',
                   memberPhone: me.phone ?? '',
                   amountDue: vm.amountDue,
@@ -175,9 +177,13 @@ export class EventRegistrationComponent {
     t: EventTemplateDto,
     routeBatchId: number,
     me: MemberInfo
-  ): EventRegistrationVM { //回傳型別
+  ): EventRegistrationVM {
+    //回傳型別
     const batch = (t.eventBatches && t.eventBatches[0]) || null;
-
+    // const batch =
+    //   (t.batches && t.batches[0]) ||
+    //   (t.eventBatches && t.eventBatches[0]) ||
+    //   null;
     const batchID = batch?.batchID ?? routeBatchId; //如果batch不是null 則抓取batch.batchID
     // ?? 是 Nullish Coalescing Operator（空值合併運算子） A??B 如果A為空則用B
 
@@ -199,15 +205,6 @@ export class EventRegistrationComponent {
       internalRemarks: null,
       date: start ? this.fmtDate(start) : '',
     };
-  }
-
-  private fmtDate(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${y}/${m}/${day} ${hh}:${mm}`;
   }
 
   submit() {
@@ -387,7 +384,7 @@ export class EventRegistrationComponent {
     return w;
   }
 
-  /** NEW: 導向小視窗；若被瀏覽器擋，提示使用者允許彈出視窗 */
+  /** 導向小視窗；若被瀏覽器擋，提示使用者允許彈出視窗 */
   private navigatePopup(url: string) {
     if (this.payWin) {
       this.payWin.location.href = url;
@@ -402,5 +399,14 @@ export class EventRegistrationComponent {
       this.form.enable({ emitEvent: false });
       alert('瀏覽器阻擋了彈出視窗，請允許此站台彈出視窗後再試一次。');
     }
+  }
+  //活動日期顯示調整：2025/08/15 10:00
+  private fmtDate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${y}/${m}/${day} ${hh}:${mm}`;
   }
 }
