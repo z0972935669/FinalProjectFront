@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import {
   ReactiveFormsModule,
   NonNullableFormBuilder,
@@ -17,6 +17,15 @@ import {
   MemberInfo,
   MemberService,
 } from '../../../services/member/member.service';
+import {
+  catchError,
+  finalize,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 
 @Component({
   standalone: true,
@@ -32,16 +41,22 @@ export class EventRegistrationComponent {
   private memberSvc = inject(MemberService);
   private me?: MemberInfo;
   private router = inject(Router);
+  private zone = inject(NgZone);
+  //小視窗
+  payWin: Window | null = null;
+  uiBlocked = false;
 
   loading = true;
   error = '';
   event?: EventRegistrationVM;
   submitting = false;
+  private destroy$ = new Subject<void>();
 
   form = this.fb.group({
-    //有需填寫的欄位才需要的欄位對弈設定
+    //有需填寫的欄位才需要的欄位對應設定
     batchID: [''], //告訴表單：這個欄位的初始值是多少。
     title: [''],
+    date: [''], //顯示活動時間
     registrationID: [0],
     registrationNum: [''],
     memberId: [0, Validators.required], // Validators.required是 Angular 內建的 表單驗證器 (Validator)。檢查該欄位是否有填值。
@@ -49,7 +64,7 @@ export class EventRegistrationComponent {
     memberPhone: [''],
     amountDue: [0, Validators.required],
     registrationDateTime: [''],
-    currentStatus: [0],
+    currentStatus: [0], //0=未繳、1=已繳、9=失敗
     internalRemarks: [''],
 
     agree: [false, Validators.requiredTrue],
@@ -62,7 +77,33 @@ export class EventRegistrationComponent {
     }),
   });
 
+  // 收到[linepay跳出視窗]的回應
+  private onLinePayMessage = (ev: MessageEvent) => {
+    const data = ev.data || {};
+    if (data.type !== 'LINEPAY_DONE') return; //彈出視窗關閉後(回傳LINEPAY_DONE)執行的
+
+    // 收到付款結果 → 解鎖、提示、關窗
+    this.zone.run(() => {
+      //使用第三方SDK callback時需透過zone 畫面才會更新   把後續程式放到 Angular 的 NgZone 裡執行，確保 UI 可以即時更新（避免 Angular 偵測不到外部事件造成畫面不變）。
+
+      if (data.ok) {
+        alert('已付款完成！');
+        this.router.navigate(['../'], {
+          relativeTo: this.route,
+        });
+      } else {
+        // 解鎖
+        this.uiBlocked = false;
+        this.form.enable({ emitEvent: false });
+        this.submitting = false;
+        alert(`付款未完成或失敗${data.message ? '：' + data.message : ''}`);
+      }
+    });
+  };
+
   ngOnInit(): void {
+    //  綁定事件監聽器 → 告訴瀏覽器「當有訊息傳來，要叫誰處理」linepay小視窗監聽
+    window.addEventListener('message', this.onLinePayMessage);
     // 1) 取 batchId（從 slug 抓開頭數字）
     const raw = this.route.snapshot.paramMap.get('slug') ?? ''; //snapshot 抓取參數  paramMap.get('slug') 看路由那邊的設定
     const batchId = Number(raw.match(/^\d+/)?.[0]);
@@ -72,67 +113,82 @@ export class EventRegistrationComponent {
       this.loading = false;
       return;
     }
-    // 2) 先取得登入者 → Console 顯示 → 再取活動
-    this.memberSvc.getMemberInfo().subscribe({
-      next: (me: MemberInfo) => {
-        console.log('✅ 登入者資料', me);
-        this.me = me;
-
-        this.eventSvc.getEventByBatch(batchId).subscribe({
-          next: (dto: EventTemplateDto) => {
-            const vm = this.mapToVM(dto, batchId, me); //  把 name 傳進去（若有）
-            this.event = vm;
-
-            // 回填表單（包含 hidden 欄位）
-            this.form.patchValue({
-              batchID: vm.batchID,
-              title: vm.title,
-              registrationID: vm.registrationID,
-              registrationNum: vm.registrationNum,
-              memberId: Number(me.memberId ?? me.memberId),
-              memberName: me.name ?? '未知',
-              memberPhone: me.phone ?? '',
-              amountDue: vm.amountDue,
-              registrationDateTime: vm.registrationDateTime,
-              currentStatus: vm.currentStatus,
-              internalRemarks: vm.internalRemarks ?? '',
-            });
-
-            this.loading = false;
-          },
-          error: (err: unknown) => {
-            console.error('getEventByBatch error:', err);
+    // 2) 串會員 → 活動 → 報名
+    this.loading = true;
+    this.memberSvc
+      .getMemberInfo()
+      .pipe(
+        tap((me) => {
+          this.me = me;
+          console.log('✅ 登入者資料', me);
+        }), // tap記錄到 this.me、回填表單
+        switchMap(
+          (
+            me //switchMap用「會員」結果去串第二個 API（活動）
+          ) =>
+            this.eventSvc.getEventByBatch(batchId).pipe(
+              tap((dto) => {
+                const vm = this.mapToVM(dto, batchId, me);
+                this.event = vm;
+                this.form.patchValue({
+                  batchID: vm.batchID,
+                  title: vm.title,
+                  date: vm.date,
+                  registrationID: vm.registrationID,
+                  registrationNum: vm.registrationNum,
+                  memberId: Number(me.memberId),
+                  memberName: me.name ?? '未知',
+                  memberPhone: me.phone ?? '',
+                  amountDue: vm.amountDue,
+                  registrationDateTime: vm.registrationDateTime,
+                  currentStatus: vm.currentStatus,
+                  internalRemarks: vm.internalRemarks ?? '',
+                });
+              })
+            )
+        ),
+        catchError((err) => {
+          console.error('讀取資料失敗', err);
+          // 若是會員失敗 → 導登入；活動失敗 → 顯示錯誤
+          if (!this.me) {
+            this.router.navigate(['/show/login']);
+          } else {
             this.error = '讀取活動失敗';
-            this.loading = false;
-          },
-        });
-      },
-      error: (err) => {
-        console.error('❌ 無法取得登入者資料', err);
-        // ⚠️ 直接跳到登入頁
-        this.router.navigate(['/show/login']);
-        // this.error = '請先登入後再報名';
-        this.loading = false;
-      },
-    });
-    this.applyPriceModeValidators();
+          }
+          return of(null);
+        }),
+        finalize(() => {
+          this.loading = false;
+          this.applyPriceModeValidators();
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+  }
+  // 卸載監聽
+  ngOnDestroy(): void {
+    window.removeEventListener('message', this.onLinePayMessage);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  /** 將後端 DTO → 報名畫面 VM（單一批次版） */
+  /* 從api抓取資料放到報名畫面上*/
   private mapToVM(
     t: EventTemplateDto,
     routeBatchId: number,
     me: MemberInfo
   ): EventRegistrationVM {
-    // 後端 by-batch 通常只回一筆批次；仍兼容 eventBatches/batches 兩種鍵
-    const batch =
-      (t.batches && t.batches[0]) ||
-      (t.eventBatches && t.eventBatches[0]) ||
-      null;
+    //回傳型別
+    const batch = (t.eventBatches && t.eventBatches[0]) || null;
+    // const batch =
+    //   (t.batches && t.batches[0]) ||
+    //   (t.eventBatches && t.eventBatches[0]) ||
+    //   null;
+    const batchID = batch?.batchID ?? routeBatchId; //如果batch不是null 則抓取batch.batchID
+    // ?? 是 Nullish Coalescing Operator（空值合併運算子） A??B 如果A為空則用B
 
-    const batchID = batch?.batchID ?? routeBatchId;
     const start = batch?.eventDateTimeStart
-      ? new Date(batch.eventDateTimeStart)
+      ? new Date(batch.eventDateTimeStart) //如果有值則轉換資料型態
       : null;
     // console.log('所有資料', t);
     return {
@@ -141,25 +197,14 @@ export class EventRegistrationComponent {
       registrationID: 0,
       registrationNum: '',
       memberId: Number(me.memberId),
-      //調整名稱
-      // memberName: Number(memberId ?? NaN) === 15 ? '林玉婷' : '未知',
       memberName: me.name ?? '未知',
-      memberPhone: me.phone ?? '',
+      memberPhone: me.phone ?? '請於會員資料填寫電話號碼',
       amountDue: Number(t.amount ?? 0),
       registrationDateTime: new Date().toISOString(),
       currentStatus: 0,
       internalRemarks: null,
       date: start ? this.fmtDate(start) : '',
     };
-  }
-
-  private fmtDate(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${y}/${m}/${day} ${hh}:${mm}`;
   }
 
   submit() {
@@ -198,24 +243,57 @@ export class EventRegistrationComponent {
     this.submitting = true;
     const v = this.form.getRawValue();
 
-    const payload: RegistrationCreateDto = {
-      eventBatchId: Number(v.batchID), // number
-      memberId: Number(this.me?.memberId), // number
-      amountDue: this.isFree ? 0 : Number(v.amountDue ?? 0), // number
-      registrationDateTime: new Date().toISOString(), // ISO 字串
-      currentStatus: 1, // 建議固定 1=報名成功
+    const base: RegistrationCreateDto = {
+      eventBatchId: Number(v.batchID),
+      memberId: Number(this.me?.memberId ?? this.form.get('memberId')?.value),
+      amountDue: this.isFree ? 0 : Number(v.amountDue ?? 0),
+      registrationDateTime: new Date().toISOString(),
+      currentStatus: 1,
       internalRemarks: (v.internalRemarks || '').trim() || null,
     };
-    // ★ 在這裡印：你送給 API 的內容
-    console.log('[POST] /api/EventRegistration payload =', payload);
-    console.log('payload JSON =', JSON.stringify(payload));
+
+    const payload: RegistrationCreateDto = this.isFree
+      ? base
+      : {
+          ...base,
+          payment: {
+            paymentMethod: v.payment?.paymentMethod!,
+            paymentItem: '活動報名費',
+            paymentAmount: Number(v.amountDue ?? 0),
+            invoiceType: v.payment?.invoiceType!,
+            invoiceTitle: v.payment?.invoiceTitle || '',
+            taxId: v.payment?.taxId || '',
+            eInvoiceCarrier: v.payment?.eInvoiceCarrier || '',
+            transactionId: null,
+          },
+        };
+
+    // 若要走 LINEPAY，先開小視窗與鎖畫面（同一使用者點擊事件）
+    const method = this.form.get('payment.paymentMethod')?.value;
+    const amount = Number(this.form.get('amountDue')?.value ?? 0);
+    if (method === 'LINEPAY' && amount > 0) {
+      this.payWin = this.openPopupSkeleton();
+    }
 
     this.eventSvc.register(payload).subscribe({
-      next: (res) => {
+      next: (res: any) => {
+        // 灌回編號
+        const reg = res?.registration ?? res;
         this.form.patchValue({
-          registrationID: res.registrationId ?? 0,
-          registrationNum: res.registrationNum ?? '',
+          registrationID: reg?.registrationId ?? 0,
+          registrationNum: reg?.registrationNum ?? '',
         });
+
+        // 若後端回了 linePay.paymentUrl → 導小視窗去 LINE Pay，主畫面維持鎖定
+        const linePay = res?.linePay as { paymentUrl?: string } | null;
+        if (linePay?.paymentUrl) {
+          this.navigatePopup(linePay.paymentUrl);
+          this.submitting = false;
+          return; // 等 postMessage 再解鎖 + 提示
+        }
+        // 免費或非 LINEPAY
+        this.uiBlocked = false;
+        this.form.enable({ emitEvent: false });
         console.log('編號：' + res.registrationNum);
         alert('報名成功！');
 
@@ -225,6 +303,14 @@ export class EventRegistrationComponent {
         });
       },
       error: (err) => {
+        //若有開小視窗，關掉；解除鎖定
+        try {
+          this.payWin?.close();
+        } catch {}
+        this.payWin = null;
+        this.uiBlocked = false;
+        this.form.enable({ emitEvent: false });
+        this.submitting = false;
         console.error('報名失敗', err);
         console.log('status:', err.status);
         console.log('title:', err.error?.title);
@@ -280,5 +366,47 @@ export class EventRegistrationComponent {
     const mm = pad(d.getMinutes());
     const ss = pad(d.getSeconds());
     return `${y}-${m}-${day}T${hh}:${mm}:${ss}`;
+  }
+
+  /** NEW: 先開一個小視窗骨架 + 鎖畫面，避免 popup 被擋 */
+  private openPopupSkeleton() {
+    const features =
+      'width=520,height=720,menubar=no,toolbar=no,location=yes,status=no,scrollbars=yes,resizable=yes';
+    const w = window.open('', 'linepay_popup', features);
+    if (w) {
+      w.document.write(
+        '<!doctype html><meta charset="utf-8"><title>前往 LINE Pay</title>' +
+          '<div style="font:14px/1.5 sans-serif;padding:20px">正在開啟付款頁，請稍候…</div>'
+      );
+      this.uiBlocked = true;
+      this.form.disable({ emitEvent: false });
+    }
+    return w;
+  }
+
+  /** 導向小視窗；若被瀏覽器擋，提示使用者允許彈出視窗 */
+  private navigatePopup(url: string) {
+    if (this.payWin) {
+      this.payWin.location.href = url;
+      return;
+    }
+    const w = this.openPopupSkeleton();
+    if (w) {
+      w.location.href = url;
+    } else {
+      // 不強制改本頁導向，符合你「原畫面不換頁」的需求
+      this.uiBlocked = false;
+      this.form.enable({ emitEvent: false });
+      alert('瀏覽器阻擋了彈出視窗，請允許此站台彈出視窗後再試一次。');
+    }
+  }
+  //活動日期顯示調整：2025/08/15 10:00
+  private fmtDate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${y}/${m}/${day} ${hh}:${mm}`;
   }
 }

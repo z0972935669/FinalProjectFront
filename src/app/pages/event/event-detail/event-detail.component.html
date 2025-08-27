@@ -82,14 +82,14 @@
           <button type="button" class="btn btn-cta btn-disabled" disabled>
             已報名
           </button>
+          <a
+            href="javascript:void(0)"
+            class="cancel-link"
+            (click)="cancelRegistration()"
+          >
+            取消報名
+          </a>
         </ng-template>
-        <a
-          href="javascript:void(0)"
-          class="text-danger fw-bold fs-5"
-          (click)="cancelRegistration()"
-        >
-          取消報名
-        </a>
       </div>
     </div>
   </div>

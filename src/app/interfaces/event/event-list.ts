@@ -59,7 +59,7 @@ export interface EventRegistrationVM {
   /** 報名時間（ISO 字串，RegistrationDateTime） */
   registrationDateTime: string;
 
-  /** 狀態碼（CurrentStatus；0/1/2… 你系統自訂） */
+  /** 狀態碼（ */
   currentStatus: number;
 
   /** 內部備註（InternalRemarks） */
@@ -74,6 +74,18 @@ export interface RegistrationCreateDto {
   registrationDateTime: string; // e.g. "2025-08-17T10:00:00"
   currentStatus: number;
   internalRemarks?: string | null;
+  payment?: PaymentDto;
+}
+
+export interface PaymentDto {
+  paymentMethod: string; // 付款方式
+  paymentItem?: string; // 繳費項目名稱（例如：活動報名費）
+  paymentAmount: number; // 繳費金額（通常與 amountDue 相等）
+  invoiceType: string; // 發票形式
+  invoiceTitle?: string | null; // 發票抬頭（可空）
+  taxId?: string | null; // 統編（可空）
+  eInvoiceCarrier?: string | null; // 電子發票載具（選「電子發票」時可帶）
+  transactionId?: string | null; // 金流交易編號（若有）
 }
 
 // export interface EventDetail {
@@ -125,6 +137,7 @@ export interface EventTemplateDto {
 export interface RegistrationResDto {
   registrationId: number;
   registrationNum: string;
+  linePay?: { paymentUrl?: string };
 }
 
 //
