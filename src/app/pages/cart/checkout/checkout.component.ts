@@ -6,7 +6,7 @@ import { Order } from '../../../interfaces/order/order.interface';
 import { CartService, CartItem } from '../../../services/cart/cart.service';
 import { TrimPipe } from '../../../pipes/cart/checkout.pipe';
 import { MemberInfo, MemberService } from '../../../services/member/member.service';
-import { CityService } from '../../../services/city/city.service';
+import { CityService } from '../../../services/city/checkout-city.service';
 import { PaymentService } from '../../../services/payment/payment.service';
 import { ECPayRequest } from '../../../interfaces/payment/ecpay.interface';
 import { CurrencyPipe } from '@angular/common';
