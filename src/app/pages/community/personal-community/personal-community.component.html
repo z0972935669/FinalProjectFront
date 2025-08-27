@@ -1,35 +1,110 @@
-<div class="personal-community-wrapper">
-  <section class="profile-card">
-    <div class="profile-info">
-      <img class="avatar" [src]="userProfile.profilePictureUrl" alt="頭像" />
-      <div class="name-bio">
-        <h1>{{ userProfile.displayName }}</h1>
-        <p class="bio">{{ userProfile.profileBio }}</p>
+<div class="profile-container" *ngIf="!error && userProfile">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-main">
+      <div class="profile-left">
+        <h1>{{ userProfile.name }}</h1>
+        <p class="bio" *ngIf="userProfile.bio">{{ userProfile.bio }}</p>
+        <div class="followers-info">
+          <span class="followers-count">{{ userProfile.followers }} 位追蹤者</span>
+        </div>
+      </div>
+      <div class="profile-right">
+        <img
+          class="avatar"
+          [src]="userProfile.photoUrl || '/assets/img/component/default-avatar.png'"
+          [alt]="userProfile.name + ' 的頭像'"
+          (error)="onImageError($event)"
+        />
       </div>
     </div>
 
-    <div class="follow-info">
-      <div class="followers-count">
-        <span>{{ userProfile.followers }}</span>
-        <span>追蹤者</span>
-      </div>
-      <button (click)="toggleFollow()" class="btn-follow">
-        {{ userProfile.isFollowing ? "取消追蹤" : "追蹤" }}
+    <div class="action-buttons" *ngIf="!isOwnPage">
+      <button
+        class="follow-btn"
+        [class.following]="userProfile.isFollowing"
+        (click)="toggleFollow()"
+      >
+        {{ userProfile.isFollowing ? "正在追蹤" : "追蹤" }}
       </button>
+      <button class="message-btn">訊息</button>
     </div>
-  </section>
+  </div>
 
-  <section class="posts-section">
-    <h2>我的貼文</h2>
-    <div
-      *ngFor="let post of userPosts"
-      class="post-item"
-      tabindex="0"
-      role="button"
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab-btn"
+      [class.active]="!isShowingFavorites"
+      (click)="isShowingFavorites = false"
     >
-      <h3>{{ post.title }}</h3>
-      <p class="post-excerpt">{{ post.content }}</p>
-      <time>{{ post.createdAt | date : "yyyy/MM/dd" }}</time>
+      貼文
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="isShowingFavorites"
+      (click)="isShowingFavorites = true"
+    >
+      收藏
+    </button>
+  </div>
+
+  <!-- Posts Section -->
+  <div class="posts-section" *ngIf="!isShowingFavorites">
+    <div class="posts-grid">
+      <article
+        class="post-card"
+        *ngFor="let post of userPosts"
+        (click)="goToPost(post)"
+      >
+        <div class="post-content">
+          <h3 class="post-title">{{ post.title }}</h3>
+          <p class="post-text">{{ post.content }}</p>
+        </div>
+        <div class="post-meta">
+          <time class="post-date">{{ post.createdAt | date : "MM/dd" }}</time>
+        </div>
+      </article>
+      <div *ngIf="userPosts.length === 0" class="empty-state">
+        <div class="empty-icon">📝</div>
+        <p>還沒有貼文</p>
+      </div>
     </div>
-  </section>
+  </div>
+
+  <!-- Favorites Section -->
+  <div class="posts-section" *ngIf="isShowingFavorites">
+    <div class="posts-grid">
+      <article
+        class="post-card"
+        *ngFor="let post of favoritePosts"
+        (click)="goToPost(post)"
+      >
+        <div class="post-content">
+          <h3 class="post-title">{{ post.title }}</h3>
+          <p class="post-text">{{ post.content }}</p>
+        </div>
+        <div class="post-meta">
+          <time class="post-date">{{ post.createdAt | date : "MM/dd" }}</time>
+        </div>
+      </article>
+      <div *ngIf="favoritePosts.length === 0" class="empty-state">
+        <div class="empty-icon">🔖</div>
+        <p>還沒有收藏</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-state">
+    <h2>發生錯誤</h2>
+    <p>{{ error }}</p>
+    <button class="retry-btn" (click)="loadData()">重試</button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading && !error" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>載入中...</p>
+  </div>
 </div>

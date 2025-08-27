@@ -1,0 +1,39 @@
+<div class="chat-floating">
+  <div class="chat-header">
+    <h5>{{ selectedRoom?.roomName || "聊天室" }}</h5>
+    <button class="close-btn" (click)="closeChat()">✖</button>
+  </div>
+  <div class="chat-body">
+    <div class="chat-rooms">
+      <div
+        class="chat-room-item"
+        *ngFor="let room of rooms"
+        (click)="selectRoom(room)"
+        [class.selected]="room === selectedRoom"
+      >
+        {{ room.roomName || "私人聊天室" }}
+        <span class="unread-badge" *ngIf="room.unread">{{ room.unread }}</span>
+      </div>
+    </div>
+    <div class="chat-messages" #messagesContainer>
+      <div
+        class="message-item"
+        *ngFor="let msg of messages"
+        [class.self]="msg.senderId === userId"
+      >
+        <div class="message-content">{{ msg.message }}</div>
+        <div class="message-time">{{ msg.sentAt | date : "shortTime" }}</div>
+      </div>
+      <div class="empty-msg" *ngIf="messages.length === 0">尚無訊息</div>
+    </div>
+  </div>
+  <div class="chat-input" *ngIf="selectedRoom">
+    <input
+      type="text"
+      [(ngModel)]="newMessage"
+      (keyup.enter)="sendMessage()"
+      placeholder="輸入訊息..."
+    />
+    <button (click)="sendMessage()">傳送</button>
+  </div>
+</div>

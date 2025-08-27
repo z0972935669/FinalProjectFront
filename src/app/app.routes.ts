@@ -16,6 +16,8 @@ import { PostListComponent } from './pages/community/post-list/post-list.compone
 import { PostComponent } from './pages/community/post/post.component';
 import { PersonalCommunityComponent } from './pages/community/personal-community/personal-community.component';
 import { CreatePostComponent } from './pages/community/create-post/create-post.component';
+import { ChatPageComponent } from './pages/community/chat-page/chat-page.component';
+import { CustomerServiceComponent } from './pages/community/customer-service/customer-service.component';
 
 import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
@@ -122,7 +124,7 @@ export const routes: Routes = [
           { path: 'orders', component: MemberOrdersComponent },
           { path: 'event', component: MemberEventComponent },
           { path: 'room', component: MemberRoomComponent },
-          { path: 'comments', component: PersonalCommunityComponent },
+          { path: 'community', component: PersonalCommunityComponent },
           { path: 'login-logs', component: LoginLogsComponent },
         ],
       },
@@ -131,6 +133,8 @@ export const routes: Routes = [
       { path: 'community/:boardID/posts', component: PostListComponent },
       { path: 'community/:boardID/create', component: CreatePostComponent },
       { path: 'community/:boardID/posts/:postId', component: PostComponent },
+      { path: 'customer-service', component: CustomerServiceComponent },
+      { path: 'chat', component: ChatPageComponent },
 
       { path: 'event', component: EventListComponent },
       { path: 'event/calender', component: EventCalendarComponent },

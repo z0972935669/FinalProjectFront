@@ -1,6 +1,9 @@
-<app-navbar></app-navbar>
+<app-navbar (chatToggle)="toggleChat()"></app-navbar>
 
 <!-- 網頁內容會由路由決定 -->
 <router-outlet></router-outlet>
 
 <app-footer></app-footer>
+
+<!-- 浮動聊天室，會員登入後才能顯示 -->
+<app-chat-floating *ngIf="chatVisible"></app-chat-floating>

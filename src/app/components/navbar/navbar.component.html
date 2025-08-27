@@ -16,6 +16,7 @@
           <a routerLink="/show/event" class="nav-item nav-link">活動</a>
           <a routerLink="/show/community" class="nav-item nav-link">社群</a>
           <a routerLink="/show/shop" class="nav-item nav-link">商店</a>
+          <a routerLink="/show/customer-service" class="nav-item nav-link">客服</a>
         </div>
 
         <!-- ERP 後台入口：獨立按鈕，不需登入 -->
@@ -23,6 +24,12 @@
 
 
           <!-- 購物車 -->
+          @if (isLoggedIn() && memberName) {
+            <button class="btn btn-link p-0 me-4 my-auto" title="聊天" (click)="toggleChat()" style="border: none; background: none; outline: none; box-shadow: none;">
+              <i class="fas fa-comment-dots fa-2x"></i>
+            </button>
+          }
+
           <div class="nav-item">
             <a routerLink="/show/cart" class="position-relative me-4 my-auto">
               <i class="fa fa-shopping-bag"></i>

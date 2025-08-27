@@ -1,0 +1,34 @@
+<div class="chat-wrapper-and-button">
+  <!-- 聊天框 -->
+  <div class="chat-wrapper">
+    <div class="chat-header">智能客服</div>
+
+    <div #chatContainer class="chat-container">
+      <div
+        *ngFor="let message of chatLog"
+        class="chat-message"
+        [ngClass]="message.role"
+      >
+        <p>{{ message.content }}</p>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea
+        [(ngModel)]="userInput"
+        (keydown.enter)="onEnter($event)"
+        (compositionstart)="onCompositionStart()"
+        (compositionend)="onCompositionEnd()"
+        placeholder="輸入訊息..."
+        rows="1"
+        [disabled]="isAIResponding"
+      ></textarea>
+      <button
+        (click)="sendMessage()"
+        [disabled]="!userInput.trim() || isAIResponding"
+      >
+        送出
+      </button>
+    </div>
+  </div>
+</div>

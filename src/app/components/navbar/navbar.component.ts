@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import {
   NavigationEnd,
   Router,
@@ -23,6 +23,7 @@ import { CartService } from '../../services/cart/cart.service';
 export class NavbarComponent implements OnInit {
   memberName: string | null = null; // 儲存會員姓名
   cartCount = 0;
+  @Output() chatToggle = new EventEmitter<void>(); // 對外發送聊天視窗狀態
 
   private routerSub?: Subscription;
   private cartSub?: Subscription;
@@ -54,6 +55,10 @@ export class NavbarComponent implements OnInit {
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('jwtToken');
+  }
+
+  toggleChat() {
+    this.chatToggle.emit();
   }
 
   private loadMemberName() {
