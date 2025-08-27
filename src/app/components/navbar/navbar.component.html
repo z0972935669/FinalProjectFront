@@ -24,12 +24,19 @@
           <a routerLink="/show/event" class="nav-item nav-link">活動</a>
           <a routerLink="/show/community" class="nav-item nav-link">社群</a>
           <a routerLink="/show/shop" class="nav-item nav-link">商店</a>
+          <a routerLink="/show/customer-service" class="nav-item nav-link">客服</a>
         </div>
         <div class="d-flex m-3 me-0 func">
           @if (isLoggedIn() && memberName) {
           <div class="me-3 my-auto small text-muted">
             歡迎，{{ memberName }}
           </div>
+          }
+
+          @if (isLoggedIn() && memberName) {
+            <button class="btn btn-link p-0 me-4 my-auto" title="聊天" (click)="toggleChat()" style="border: none; background: none; outline: none; box-shadow: none;">
+              <i class="fas fa-comment-dots fa-2x"></i>
+            </button>
           }
 
           <div class="nav-item">

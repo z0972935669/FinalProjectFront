@@ -1,0 +1,9 @@
+<div class="friend-list">
+  <h3>好友清單</h3>
+  <ul>
+    <li *ngFor="let friend of friends">
+      <span>{{ friend.name }}</span>
+      <button (click)="openChat.emit(friend.id)">聊天</button>
+    </li>
+  </ul>
+</div>

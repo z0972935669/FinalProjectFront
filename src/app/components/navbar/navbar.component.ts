@@ -1,5 +1,5 @@
 // src/app/components/navbar/navbar.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter} from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
 import { filter } from 'rxjs';
@@ -13,6 +13,7 @@ import { filter } from 'rxjs';
 })
 export class NavbarComponent implements OnInit {
   memberName: string | null = null;  // 儲存會員姓名
+  @Output() chatToggle = new EventEmitter<void>(); // 對外發送聊天視窗狀態
 
   constructor(private router: Router, private http: HttpClient) {}
 
@@ -30,6 +31,10 @@ export class NavbarComponent implements OnInit {
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('jwtToken');
+  }
+
+  toggleChat() {
+    this.chatToggle.emit();
   }
 
   private loadMemberName() {

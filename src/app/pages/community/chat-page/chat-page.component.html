@@ -1,0 +1,34 @@
+<div class="chat-page d-flex">
+  <!-- 左側好友列表 -->
+  <div class="friend-list p-2 border-end" style="width: 250px;">
+    <h5>好友列表</h5>
+    <ul class="list-group">
+      <li
+        class="list-group-item d-flex justify-content-between align-items-center"
+        *ngFor="let friend of friends"
+        (click)="chatFloating.openPrivateChat(friend.id)">
+        {{ friend.name }}
+      </li>
+    </ul>
+  </div>
+
+  <!-- 右側聊天室區域 -->
+  <div class="chat-section flex-grow-1 p-2">
+    <h5>聊天室</h5>
+    <ul class="list-group mb-3">
+      <li
+        class="list-group-item d-flex justify-content-between align-items-center"
+        *ngFor="let room of chatFloating.rooms"
+        [class.active]="chatFloating.selectedRoom?.roomId === room.roomId"
+        (click)="chatFloating.selectRoom(room)">
+        {{ room.roomName || '私人聊天室' }}
+        <span *ngIf="room.unread" class="badge bg-danger rounded-pill">
+          {{ room.unread }}
+        </span>
+      </li>
+    </ul>
+
+    <!-- 浮動聊天視窗 -->
+    <app-chat-floating></app-chat-floating>
+  </div>
+</div>

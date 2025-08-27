@@ -3,16 +3,20 @@ import { AssetLoaderService } from '../../core/asset-loader.service';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ChatFloatingComponent } from '../../pages/community/chat-floating/chat-floating.component';
 
 @Component({
   selector: 'app-frontend',
   standalone: true,
-  imports: [NavbarComponent, FooterComponent, RouterOutlet],
+  imports: [NavbarComponent, FooterComponent, RouterOutlet, CommonModule, ChatFloatingComponent],
   templateUrl: './frontend.component.html',
 })
 export class FrontendComponent implements OnInit, OnDestroy {
   private styleEls: HTMLElement[] = [];
   private scriptEls: HTMLElement[] = [];
+
+  chatVisible = false; // 控制聊天視窗顯示
 
   constructor(private assets: AssetLoaderService) {}
 
@@ -49,5 +53,10 @@ export class FrontendComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.assets.removeAll([...this.styleEls, ...this.scriptEls]);
     document.body.classList.remove('theme-frontend');
+  }
+
+  // 切換聊天室
+  toggleChat() {
+    this.chatVisible = !this.chatVisible;
   }
 }

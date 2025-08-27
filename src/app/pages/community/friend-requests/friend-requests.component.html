@@ -1,0 +1,13 @@
+<div class="friend-requests">
+  <h3>好友邀請</h3>
+  <div *ngIf="loading">載入中...</div>
+  <div *ngIf="!loading && requests.length === 0">沒有新的好友邀請</div>
+
+  <ul>
+    <li *ngFor="let req of requests">
+      <span>使用者 {{ req.requesterID }} 想加你為好友</span>
+      <button (click)="respond(req.requestID, 'Accepted')">接受</button>
+      <button (click)="respond(req.requestID, 'Rejected')">拒絕</button>
+    </li>
+  </ul>
+</div>
