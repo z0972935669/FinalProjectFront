@@ -21,5 +21,49 @@ export class SuppliessaleslistComponent {
     })
   }
 
+  newSales: Isuppliessales = {
+    suppliesSalesOrderId: 0,
 
+    orderDate: new Date(),
+
+    customerName: '',
+
+    receivedDate: new Date(),
+
+    orderStatus: '',
+
+    suppliesSalesOrderDetailId: 0,
+
+    suppliesProductId: 0,
+
+    quantityOfSales: 0,
+
+    expiryDate: new Date(),
+
+    suppliesProductName: ''
+  }
+
+  resetNewSales() {
+    this.newSales = {
+      suppliesSalesOrderId: 0,
+
+      orderDate: new Date(),
+
+      customerName: '',
+
+      receivedDate: new Date(),
+
+      orderStatus: '',
+
+      suppliesSalesOrderDetailId: 0,
+
+      suppliesProductId: 0,
+
+      quantityOfSales: 0,
+
+      expiryDate: new Date(),
+
+      suppliesProductName: ''
+    }
+  }
 }
