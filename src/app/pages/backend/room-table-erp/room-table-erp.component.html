@@ -1,0 +1,109 @@
+<!-- src/app/pages/backend/room-table-erp/room-table-erp.component.html -->
+<div class="container-fluid">
+  <!-- 標題與新增按鈕 -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="app-page-title mb-0">房間管理</h1>
+    <button class="btn btn-success" (click)="newRoom()">新增房間</button>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>房間 ID</th>
+            <th>房間名稱</th> <!-- 新增 -->
+            <th>別名</th>
+            <th>描述</th>
+            <th>價格</th>
+            <th>床位數</th> <!-- 新增 -->
+            <th>類型</th>
+            <th>狀態</th>
+            <th>最後更新</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let room of rooms">
+            <td>{{ room.fRoomId }}</td>
+            <td>{{ room.fRoomName }}</td> <!-- 新增 -->
+            <td>{{ room.fRoomAlias }}</td>
+            <td>{{ room.fRoomDescription }}</td>
+            <td>{{ room.fRoomPrice }}</td>
+            <td>{{ room.fBedCount }}</td> <!-- 新增 -->
+            <td>{{ room.fRoomType ? '單人房' : '多人房' }}</td>
+            <td>{{ room.fRoomStatus === 'active' ? '啟用' : '停用' }}</td>
+            <td>{{ room.lastUpdated | date:'yyyy-MM-dd' }}</td>
+            <td>
+              <button class="btn btn-primary btn-sm me-2" (click)="editRoom(room)">編輯</button>
+              <button class="btn btn-warning btn-sm" (click)="toggleRoomStatus(room)">
+                {{ room.fRoomStatus === 'active' ? '停用' : '啟用' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!rooms.length" class="text-center">
+        目前沒有任何房間資料
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="roomModalLabel">{{ isEdit ? '編輯房間' : '新增房間' }}</h5>
+          <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label for="roomName" class="form-label">房間名稱</label> <!-- 新增 -->
+              <input type="text" class="form-control" id="roomName" [(ngModel)]="currentRoom.fRoomName" name="fRoomName"
+                required>
+            </div>
+            <div class="mb-3">
+              <label for="roomAlias" class="form-label">房間別名</label>
+              <input type="text" class="form-control" id="roomAlias" [(ngModel)]="currentRoom.fRoomAlias"
+                name="fRoomAlias" required>
+            </div>
+            <div class="mb-3">
+              <label for="roomDescription" class="form-label">描述</label>
+              <textarea class="form-control" id="roomDescription" [(ngModel)]="currentRoom.fRoomDescription"
+                name="fRoomDescription" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="roomPrice" class="form-label">價格</label>
+              <input type="number" class="form-control" id="roomPrice" [(ngModel)]="currentRoom.fRoomPrice"
+                name="fRoomPrice" required>
+            </div>
+            <div class="mb-3">
+              <label for="bedCount" class="form-label">床位數</label> <!-- 新增 -->
+              <input type="number" class="form-control" id="bedCount" [(ngModel)]="currentRoom.fBedCount"
+                name="fBedCount" required>
+            </div>
+            <div class="mb-3">
+              <label for="roomType" class="form-label">房間類型</label>
+              <select class="form-select" id="roomType" [(ngModel)]="currentRoom.fRoomType" name="fRoomType">
+                <option [value]="true">單人房</option>
+                <option [value]="false">多人房</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="roomImage" class="form-label">房間圖片</label>
+              <input type="file" class="form-control" id="roomImage" (change)="onFileSelected($event)" accept="image/*">
+              <img *ngIf="imagePreview" [src]="imagePreview" alt="預覽" class="img-thumbnail mt-2"
+                style="max-width: 200px;">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">取消</button>
+          <button type="button" class="btn btn-primary" (click)="submitForm()">{{ isEdit ? '更新' : '新增' }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

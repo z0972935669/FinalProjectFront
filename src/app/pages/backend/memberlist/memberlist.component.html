@@ -35,202 +35,461 @@
             編輯
           </button>
           <button
-            class="btn btn-warning btn-sm ms-2"
+            class="btn btn-success btn-sm ms-2"
             (click)="toggleAccountStatus(member)"
           >
             {{ member.fAccountStatus ? "停權" : "啟用" }}
+          </button>
+          <button
+            class="btn btn-success btn-sm ms-2"
+            *ngIf="member.fResidesInCareHomeStatus"
+            (click)="openHealthModal(member)"
+          >
+            記錄健康
+          </button>
+          <button
+            class="btn btn-success btn-sm ms-2"
+            *ngIf="member.fResidesInCareHomeStatus"
+            (click)="openHealthList(member)"
+          >
+            檢視
           </button>
         </td>
       </tr>
     </tbody>
   </table>
-  <nav *ngIf="totalPages > 1" class="d-flex justify-content-center mt-3">
-    <div class="btn-group" role="group" aria-label="Pagination">
-      <button
-        type="button"
-        class="btn btn-outline-primary"
-        [disabled]="currentPage === 1"
-        (click)="changePage(currentPage - 1)"
-      >
-        上一頁
-      </button>
-      <ng-container
-        *ngFor="let page of [].constructor(totalPages); let i = index"
-      >
-        <button
-          type="button"
-          class="btn"
-          [ngClass]="{
-            'btn-primary': currentPage === i + 1,
-            'btn-outline-primary': currentPage !== i + 1
-          }"
-          (click)="changePage(i + 1)"
-        >
-          {{ i + 1 }}
-        </button>
-      </ng-container>
-      <button
-        type="button"
-        class="btn btn-outline-primary"
-        [disabled]="currentPage === totalPages"
-        (click)="changePage(currentPage + 1)"
-      >
-        下一頁
-      </button>
-    </div>
-  </nav>
 
-  <!-- Edit Member Modal -->
+  <!-- 健康紀錄卡片 -->
+  <!-- 健康紀錄新增 Modal -->
   <div
     class="modal fade"
-    id="editMemberModal"
+    id="addHealthRecordModal"
     tabindex="-1"
-    aria-labelledby="editMemberModalLabel"
+    aria-labelledby="addHealthRecordModalLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editMemberModalLabel">
-            編輯會員 - {{ selectedMember?.fName }}
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="addHealthRecordModalLabel">
+            記錄 {{ selectedHealthMember?.fName }} 的每日健康紀錄
           </h5>
           <button
             type="button"
             class="btn-close"
-            (click)="closeModal()"
+            data-bs-dismiss="modal"
             aria-label="Close"
           ></button>
         </div>
-        <div class="modal-body" *ngIf="selectedMember">
-          <form>
-            <div class="mb-3">
-              <label for="fName" class="form-label">姓名</label>
-              <input
-                type="text"
-                class="form-control"
-                id="fName"
-                [(ngModel)]="selectedMember.fName"
-                name="fName"
-                required
-              />
+        <div class="modal-body">
+          <form (ngSubmit)="submitHealthRecord()">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">紀錄日期</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  [(ngModel)]="healthRecord.recordDate"
+                  name="recordDate"
+                  required
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">收縮壓</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="healthRecord.systolic"
+                  name="systolic"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">舒張壓</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="healthRecord.diastolic"
+                  name="diastolic"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">脈搏</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="healthRecord.pulse"
+                  name="pulse"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">IO 記錄</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="healthRecord.ioRecord"
+                  name="ioRecord"
+                >
+                  <option value="">請選擇</option>
+                  <option value="正常">正常</option>
+                  <option value="異常">異常</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">檢查時段</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="healthRecord.checkPeriod"
+                  name="checkPeriod"
+                >
+                  <option value="">請選擇</option>
+                  <option value="早上">早上</option>
+                  <option value="晚上">晚上</option>
+                </select>
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label">備註</label>
+                <textarea
+                  class="form-control"
+                  [(ngModel)]="healthRecord.notes"
+                  name="notes"
+                ></textarea>
+              </div>
             </div>
-            <div class="mb-3">
-              <label for="fGender" class="form-label">性別</label>
-              <select
-                class="form-select"
-                id="fGender"
-                [(ngModel)]="selectedMember.fGender"
-                name="fGender"
-              >
-                <option value="男">男</option>
-                <option value="女">女</option>
-                <option value="其他">其他</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="fBirthDate" class="form-label">出生日期</label>
-              <input
-                type="date"
-                class="form-control"
-                id="fBirthDate"
-                [(ngModel)]="selectedMember.fBirthDate"
-                name="fBirthDate"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="fPhone" class="form-label">電話</label>
-              <input
-                type="text"
-                class="form-control"
-                id="fPhone"
-                [(ngModel)]="selectedMember.fPhone"
-                name="fPhone"
-                placeholder="請輸入手機號碼"
-                pattern="^09[0-9]{8}$"
-                maxlength="10"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="fCity" class="form-label">縣市</label>
-              <input
-                type="text"
-                class="form-control"
-                id="fCity"
-                [(ngModel)]="selectedMember.fCity"
-                name="fCity"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="fDistrict" class="form-label">區域</label>
-              <input
-                type="text"
-                class="form-control"
-                id="fDistrict"
-                [(ngModel)]="selectedMember.fDistrict"
-                name="fDistrict"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="fRoadAddress" class="form-label">地址</label>
-              <input
-                type="text"
-                class="form-control"
-                id="fRoadAddress"
-                [(ngModel)]="selectedMember.fRoadAddress"
-                name="fRoadAddress"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="fResidesInCareHomeStatus" class="form-label"
-                >入住狀態</label
-              >
-              <select
-                class="form-select"
-                id="fResidesInCareHomeStatus"
-                [(ngModel)]="selectedMember.fResidesInCareHomeStatus"
-                name="fResidesInCareHomeStatus"
-              >
-                <option [ngValue]="true">是</option>
-                <option [ngValue]="false">否</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="fProfilePictureUrl" class="form-label">頭像</label>
-              <input
-                type="text"
-                class="form-control"
-                id="fProfilePictureUrl"
-                [(ngModel)]="selectedMember.fProfilePictureUrl"
-                name="fProfilePictureUrl"
-              />
-              <input
-                type="file"
-                class="form-control mt-2"
-                (change)="onFileChange($event)"
-                accept=".jpg,.jpeg,.png"
-              />
-              <img
-                *ngIf="selectedMember.fProfilePictureUrl"
-                [src]="getImageUrl(selectedMember.fProfilePictureUrl)"
-                alt="Profile Picture"
-                class="img-thumbnail rounded-circle mt-2"
-                style="max-width: 100px"
-              />
-            </div>
+            <button type="submit" class="btn btn-success">送出</button>
+            <button
+              type="button"
+              class="btn btn-secondary ms-2"
+              data-bs-dismiss="modal"
+            >
+              取消
+            </button>
           </form>
         </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="closeModal()"
-          >
-            取消
-          </button>
-          <button type="button" class="btn btn-primary" (click)="saveMember()">
-            儲存
-          </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 分頁 -->
+<nav *ngIf="totalPages > 1" class="d-flex justify-content-center mt-3">
+  <div class="btn-group" role="group" aria-label="Pagination">
+    <button
+      type="button"
+      class="btn btn-outline-primary"
+      [disabled]="currentPage === 1"
+      (click)="changePage(currentPage - 1)"
+    >
+      上一頁
+    </button>
+    <ng-container
+      *ngFor="let page of [].constructor(totalPages); let i = index"
+    >
+      <button
+        type="button"
+        class="btn"
+        [ngClass]="{
+          'btn-primary': currentPage === i + 1,
+          'btn-outline-primary': currentPage !== i + 1
+        }"
+        (click)="changePage(i + 1)"
+      >
+        {{ i + 1 }}
+      </button>
+    </ng-container>
+    <button
+      type="button"
+      class="btn btn-outline-primary"
+      [disabled]="currentPage === totalPages"
+      (click)="changePage(currentPage + 1)"
+    >
+      下一頁
+    </button>
+  </div>
+</nav>
+
+<!-- 檢視健康紀錄 Modal（近 7 天列表＋行內編輯） -->
+<div class="modal fade" id="healthListModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          {{ healthListMember?.fName }} 的近七天健康紀錄
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="isHealthListLoading">載入中…</div>
+
+        <div class="table-responsive" *ngIf="!isHealthListLoading">
+          <table class="table table-bordered text-center align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>日期</th>
+                <th>收縮壓</th>
+                <th>舒張壓</th>
+                <th>脈搏</th>
+                <th>I/O</th>
+                <th>時段</th>
+                <th>備註</th>
+                <th style="width: 160px">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of healthList">
+                <ng-container *ngIf="!r._edit; else editRow">
+                  <td>{{ r.recordDate }}</td>
+                  <td>{{ r.systolic }}</td>
+                  <td>{{ r.diastolic }}</td>
+                  <td>{{ r.pulse }}</td>
+                  <td>{{ r.ioRecord || "-" }}</td>
+                  <td>{{ r.checkPeriod || "-" }}</td>
+                  <td class="text-start">{{ r.notes }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-primary me-2"
+                      (click)="r._edit = true"
+                    >
+                      編輯
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      (click)="deleteRecord(r.id)"
+                    >
+                      刪除
+                    </button>
+                  </td>
+                </ng-container>
+
+                <ng-template #editRow>
+                  <td>
+                    <input
+                      type="date"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="r.recordDate"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="r.systolic"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="r.diastolic"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="r.pulse"
+                    />
+                  </td>
+                  <td>
+                    <select
+                      class="form-select form-select-sm"
+                      [(ngModel)]="r.ioRecord"
+                    >
+                      <option value="">未填</option>
+                      <option value="正常">正常</option>
+                      <option value="異常">異常</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      class="form-select form-select-sm"
+                      [(ngModel)]="r.checkPeriod"
+                    >
+                      <option value="">未填</option>
+                      <option value="早上">早上</option>
+                      <option value="晚上">晚上</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="r.notes"
+                    />
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-success me-2"
+                      (click)="saveRecord(r)"
+                    >
+                      儲存
+                    </button>
+                    <button
+                      class="btn btn-sm btn-secondary"
+                      (click)="r._edit = false"
+                    >
+                      取消
+                    </button>
+                  </td>
+                </ng-template>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--  編輯會員 Modal：已移出 healthListModal 外層，獨立放置 -->
+<div
+  class="modal fade"
+  id="editMemberModal"
+  tabindex="-1"
+  aria-labelledby="editMemberModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editMemberModalLabel">
+          編輯會員 - {{ selectedMember?.fName }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedMember">
+        <form>
+          <div class="mb-3">
+            <label for="fName" class="form-label">姓名</label>
+            <input
+              type="text"
+              class="form-control"
+              id="fName"
+              [(ngModel)]="selectedMember.fName"
+              name="fName"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="fGender" class="form-label">性別</label>
+            <select
+              class="form-select"
+              id="fGender"
+              [(ngModel)]="selectedMember.fGender"
+              name="fGender"
+            >
+              <option value="男">男</option>
+              <option value="女">女</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="fBirthDate" class="form-label">出生日期</label>
+            <input
+              type="date"
+              class="form-control"
+              id="fBirthDate"
+              [(ngModel)]="selectedMember.fBirthDate"
+              name="fBirthDate"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="fPhone" class="form-label">電話</label>
+            <input
+              type="text"
+              class="form-control"
+              id="fPhone"
+              [(ngModel)]="selectedMember.fPhone"
+              name="fPhone"
+              placeholder="請輸入手機號碼"
+              pattern="^09[0-9]{8}$"
+              maxlength="10"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="fCity" class="form-label">縣市</label>
+            <input
+              type="text"
+              class="form-control"
+              id="fCity"
+              [(ngModel)]="selectedMember.fCity"
+              name="fCity"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="fDistrict" class="form-label">區域</label>
+            <input
+              type="text"
+              class="form-control"
+              id="fDistrict"
+              [(ngModel)]="selectedMember.fDistrict"
+              name="fDistrict"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="fRoadAddress" class="form-label">地址</label>
+            <input
+              type="text"
+              class="form-control"
+              id="fRoadAddress"
+              [(ngModel)]="selectedMember.fRoadAddress"
+              name="fRoadAddress"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="fResidesInCareHomeStatus" class="form-label"
+              >入住狀態</label
+            >
+            <select
+              class="form-select"
+              id="fResidesInCareHomeStatus"
+              [(ngModel)]="selectedMember.fResidesInCareHomeStatus"
+              name="fResidesInCareHomeStatus"
+            >
+              <option [ngValue]="true">是</option>
+              <option [ngValue]="false">否</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="fProfilePictureUrl" class="form-label">頭像</label>
+            <input
+              type="text"
+              class="form-control"
+              id="fProfilePictureUrl"
+              [(ngModel)]="selectedMember.fProfilePictureUrl"
+              name="fProfilePictureUrl"
+            />
+            <input
+              type="file"
+              class="form-control mt-2"
+              (change)="onFileChange($event)"
+              accept=".jpg,.jpeg,.png"
+            />
+            <img
+              *ngIf="selectedMember.fProfilePictureUrl"
+              [src]="getImageUrl(selectedMember.fProfilePictureUrl)"
+              alt="Profile Picture"
+              class="img-thumbnail rounded-circle mt-2"
+              style="max-width: 100px"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          取消
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveMember()">
+          儲存
+        </button>
       </div>
     </div>
   </div>

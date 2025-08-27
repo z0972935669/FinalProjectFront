@@ -47,3 +47,93 @@
     background-color: #218838;
   }
 }
+
+/* 確保高度對齊並修正字體位置 */
+.input-group,
+.form-select,
+.form-check-label {
+  min-height: 40px;
+  line-height: 40px;
+  /* 垂直居中文字 */
+}
+
+.form-select {
+  padding: 0;
+  /* 完全移除內邊距 */
+  display: flex;
+  align-items: center;
+  /* 確保選單內容垂直居中 */
+  position: relative;
+  /* 為下拉箭頭提供參考 */
+  font-size: 16px;
+  /* 統一字體大小 */
+  width: 100%;
+  /* 確保填滿容器 */
+  border: 1px solid #ccc;
+  /* 添加邊框以模擬原生樣式 */
+  border-radius: 5px;
+  /* 圓角 */
+  background-color: #fff;
+  /* 背景色 */
+}
+
+.form-check-input {
+  margin-top: 0;
+  /* 調整 checkbox 的垂直位置 */
+  align-self: center;
+}
+
+.form-group {
+  margin-bottom: 0;
+  /* 移除 form-group 的下邊距，以避免額外空間 */
+}
+
+.row.align-items-center {
+  align-items: center !important;
+  /* 強制垂直對齊 */
+}
+
+/* 自定義下拉選單樣式 */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select .form-select {
+  appearance: none;
+  /* 移除默認箭頭 */
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='currentColor' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  /* 調整下拉箭頭位置 */
+  background-size: 12px;
+  /* 控制箭頭大小 */
+}
+
+/* 修正下拉選單字體偏下並強制置中 */
+.custom-select .form-select option {
+  padding: 6px 12px;
+  /* 內邊距 */
+  line-height: 1.2;
+  /* 適當行高 */
+  vertical-align: middle;
+  /* 確保字體垂直居中 */
+  display: flex;
+  align-items: center;
+  /* 選項內容垂直居中 */
+  height: 40px;
+  /* 與選單高度一致 */
+  box-sizing: border-box;
+  /* 包含 padding 在高度計算中 */
+  font-size: 16px;
+  /* 統一字體大小 */
+}
+
+/* 針對瀏覽器特定渲染問題 */
+@supports (-webkit-overflow-scrolling: touch) or (-moz-appearance: none) {
+  .custom-select .form-select option {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}

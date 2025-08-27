@@ -8,7 +8,8 @@ import { tap, catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class RoomDetailService {
-  private apiUrl = 'https://localhost:7124/api/Rooms'; // 指定的編號去找房間資料
+  private apiUrl = 'https://localhost:7124/api/Rooms';
+  private memberApiUrl = 'https://localhost:7124/api/Member';
 
   constructor(private http: HttpClient) { }
 
@@ -26,12 +27,22 @@ export class RoomDetailService {
     );
   }
 
+  getCurrentMember(): Observable<any> {
+    return this.http.get<any>(`${this.memberApiUrl}/me`).pipe(
+      catchError(err => {
+        console.error('獲取會員資訊錯誤:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
   submitBooking(booking: RoomOccupancy): Observable<{ message: string, occupancyId: number }> {
     const bookingDto = {
-      fBedId: booking.fBedId,
-      fCheckInDate: new Date(booking.checkInDate || ''),
-      fBillingAmount: booking.fBillingAmount || 0,
-      fPaymentMethod: booking.paymentMethod
+      FBedId: booking.fBedId,
+      FCheckInDate: new Date(booking.checkInDate).toISOString(),
+      FBillingAmount: booking.fBillingAmount,
+      FPaymentMethod: booking.paymentMethod,
+      FPaypalOrderId: booking.paypalOrderId || '' // 確保傳遞字符串
     };
     return this.http.post<{ message: string, occupancyId: number }>(`${this.apiUrl}/bookings`, bookingDto).pipe(
       catchError(err => {

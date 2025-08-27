@@ -73,6 +73,11 @@ import { EmployeeLoginComponent } from './pages/backend/employeelogin/employeelo
 // 守衛
 import { employeeAuthGuard } from './core/employee-auth.guard';
 
+// 社群
+import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
+//房間
+import { RoomTableErpComponent } from './pages/backend/room-table-erp/room-table-erp.component';
+
 export const routes: Routes = [
   // 根目錄導向前台
   { path: '', pathMatch: 'full', redirectTo: 'show' },
@@ -191,6 +196,11 @@ export const routes: Routes = [
 
       { path: 'board-management', component: MembermanagementComponent, title: '看板管理' },
       { path: 'memberlist', component: MemberlistComponent, title: '會員列表' },
+      // 社群管理
+      { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
+      //房間管理
+      { path: 'room-table-erp', component: RoomTableErpComponent, title: '房間管理' },
+      // 其他後台頁面可以在這裡添加
     ],
   },
 

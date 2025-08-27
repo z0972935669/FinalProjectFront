@@ -1,23 +1,70 @@
-<div class="card">
-  <div class="card-header">
-    <h4>房間資料</h4>
-  </div>
-  <div class="card-body">
-    <div class="row">
-      <div class="col-md-12">
-        <p><strong>姓名：</strong> {{ Member.fName }}</p>
-        <p><strong>身分證：</strong> {{ Member.fIdNumber }}</p>
-        <p><strong>房號：</strong> {{ RoomTable.fRoomName }}</p>
-        <p><strong>房名：</strong> {{ RoomTable.fRoomAlias }}</p>
-        <p><strong>房間類型：</strong> {{ RoomTable.fRoomType }}</p>
-        <p><strong>床位編號：</strong> {{ RoomBed.fBedCode }}</p>
-        <p><strong>房間價格：</strong> {{ RoomTable.fRoomPrice }}</p>
-        <p><strong>繳款狀態：</strong>
-          <span [ngClass]="RoomOccupancy.fBillingStatus === 1 ? 'text-success' : 'text-danger'">
-            {{ RoomOccupancy.fBillingStatus === 1 ? '已繳費，本月無須繳費' : '請盡速繳費' }}
-          </span>
-        </p>
+<div class="container py-3" *ngIf="!isLoading; else loading">
+  <div class="card shadow custom-card-width" *ngIf="!errorMessage; else error">
+    <div class="card-header text-start" style="font-size: 1.5rem; color: #ff6200;">
+      我的房間
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- 房間照片區域 - 左側 -->
+        <div class="col-12 col-md-4 room-images mb-4 mb-md-0">
+          <div class="row" *ngIf="roomImages.length > 0">
+            <div class="col-12" *ngFor="let image of roomImages; let i = index">
+              <img [src]="getImageUrl(image)" class="img-fluid rounded" alt="Room Image {{ i + 1 }}">
+            </div>
+          </div>
+          <div class="text-center" *ngIf="roomImages.length === 0">
+            無房間照片
+          </div>
+        </div>
+        <!-- 房間資訊區域 - 右側 -->
+        <div class="col-12 col-md-8">
+          <div class="row">
+            <div class="col-12">
+              <dl class="row">
+                <dt class="col-sm-4">姓名：</dt>
+                <dd class="col-sm-8">{{ Member.fName || '未提供' }}</dd>
+                <dt class="col-sm-4">身分證：</dt>
+                <dd class="col-sm-8">{{ Member.fIdNumber || '未提供' }}</dd>
+                <dt class="col-sm-4">房號：</dt>
+                <dd class="col-sm-8">{{ RoomTable.fRoomName || '未分配' }}</dd>
+                <dt class="col-sm-4">房名：</dt>
+                <dd class="col-sm-8">{{ RoomTable.fRoomAlias || '未命名' }}</dd>
+              </dl>
+            </div>
+            <div class="col-12">
+              <dl class="row">
+                <dt class="col-sm-4">房間類型：</dt>
+                <dd class="col-sm-8">{{ RoomTable.fRoomType !== null && RoomTable.fRoomType !== undefined ?
+                  (RoomTable.fRoomType ? '單人房' : '多人房') : '未指定' }}</dd>
+                <dt class="col-sm-4">床位編號：</dt>
+                <dd class="col-sm-8">{{ RoomBed.fBedCode || '未分配' }}</dd>
+                <dt class="col-sm-4">房間價格：</dt>
+                <dd class="col-sm-8">{{ RoomTable.fRoomPrice ? `NT $${RoomTable.fRoomPrice} 元/月` : '未設定' }}</dd>
+                <dt class="col-sm-4">繳款狀態：</dt>
+                <dd class="col-sm-8">
+                  <span
+                    [ngClass]="{'text-success': RoomOccupancy.fBillingStatus, 'text-danger': !RoomOccupancy.fBillingStatus}">
+                    {{ RoomOccupancy.fBillingStatus ? '已繳費，本月無須繳費' : '請盡速繳費' }}
+                  </span>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  <ng-template #error>
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+  </ng-template>
 </div>
+
+<ng-template #loading>
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">加載中...</span>
+    </div>
+  </div>
+</ng-template>
