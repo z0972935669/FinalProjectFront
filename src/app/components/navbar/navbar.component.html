@@ -25,9 +25,13 @@
 
           <!-- 購物車 -->
           @if (isLoggedIn() && memberName) {
-            <button class="btn btn-link p-0 me-4 my-auto" title="聊天" (click)="toggleChat()" style="border: none; background: none; outline: none; box-shadow: none;">
-              <i class="fas fa-comment-dots fa-2x"></i>
-            </button>
+          <div class="me-3 my-auto small text-muted">
+            歡迎，{{ memberName }}
+          </div>
+          <button class="btn btn-link p-0 me-4 my-auto" title="聊天" (click)="toggleChat()"
+            style="border: none; background: none; outline: none; box-shadow: none;">
+            <i class="fas fa-comment-dots fa-2x"></i>
+          </button>
           }
 
           <div class="nav-item">
