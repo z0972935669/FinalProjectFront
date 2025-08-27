@@ -35,8 +35,7 @@
       <h3>{{ room?.fRoomAlias }}</h3>
       <p>{{ room.fRoomDescription }}</p>
       <h4 class="text-primary">價格: NT${{ room.fRoomPrice | number:'1.0-0' }}</h4>
-      <p>床位數: {{ room.fBedCount }}</p>
-      <p>狀態: {{ room.isAvailable ? '可入住' : '已滿' }}</p>
+      <p>床位狀態: {{ room.isAvailable ? '可入住' : '已滿' }}</p>
       <button class="btn btn-primary btn-lg" [disabled]="!room.isAvailable" (click)="openBookingModal()">即刻入住</button>
     </div>
   </div>

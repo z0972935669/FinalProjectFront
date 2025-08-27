@@ -70,7 +70,8 @@ import { employeeAuthGuard } from './core/employee-auth.guard';
 
 // 社群
 import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
-
+//房間
+import { RoomTableErpComponent } from './pages/backend/room-table-erp/room-table-erp.component';
 
 export const routes: Routes = [
   // 根目錄自動轉到 /show 或 /show/home
@@ -128,7 +129,7 @@ export const routes: Routes = [
     component: BackendComponent,
     canActivate: [employeeAuthGuard],
     children: [
-      {path: 'memberlist',component: MemberlistComponent},
+      { path: 'memberlist', component: MemberlistComponent },
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
@@ -163,6 +164,8 @@ export const routes: Routes = [
 
       // 社群管理
       { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
+      //房間管理
+      { path: 'room-table-erp', component: RoomTableErpComponent, title: '房間管理' },
       // 其他後台頁面可以在這裡添加
     ],
   },

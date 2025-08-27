@@ -1,10 +1,26 @@
 .card {
   border-radius: 1rem;
+  margin-top: -20px;
+  /* 保持頂部對齊 */
+  margin-left: -25px;
+  /* 減少左側外邊距，靠近導覽列 */
+  padding-top: 0;
+
+}
+
+.custom-card-width {
+  width: 900px;
+  max-width: 100%;
 }
 
 .card-header {
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
+  font-size: 1.25rem;
+  color: #ff6200;
+  text-align: left;
+  padding: 0.25rem 1rem;
+  margin-top: 0;
 }
 
 .text-success {
@@ -13,4 +29,74 @@
 
 .text-danger {
   color: #dc3545;
+}
+
+/* 房間照片樣式 */
+.room-images img {
+  width: 100%;
+  height: 200px;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  /* 減少底部間距 */
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.room-images .text-center {
+  padding: 0.5rem;
+  /* 減少內部填充 */
+  color: #6c757d;
+  margin-top: 0;
+}
+
+.card-body dl dt {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  /* 減少底部間距 */
+  margin-top: 0;
+}
+
+.card-body dl dd {
+  margin-bottom: 0.25rem;
+  /* 減少底部間距 */
+  margin-left: 0;
+  margin-top: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 0;
+  padding: 0 5px;
+  /* 減少左右內邊距 */
+}
+
+.col-12 {
+  padding: 0 5px;
+  /* 減少左右填充，靠近邊界 */
+  margin-top: 0;
+}
+
+@media (min-width: 767px) {
+  .col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
+  .col-md-8 {
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+  }
+}
+
+@media (max-width: 767px) {
+  .col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .room-images img {
+    height: 150px;
+  }
 }

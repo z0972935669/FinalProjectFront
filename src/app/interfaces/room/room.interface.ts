@@ -27,7 +27,7 @@ export interface RoomVisitReservation { // 預約
   fReservationDate: string;
 }
 
-export interface RoomOccupancy { // 付款入住
+export interface RoomOccupancy { // paypal付款入住
   name?: string; // 可選（後端 DTO 無，但前端可收集）
   email?: string; // 可選
   contact: string; // 必填，電話
@@ -42,3 +42,25 @@ export interface RoomOccupancy { // 付款入住
   fBillingAmount: number; // 必填，從後端 DTO
   paypalOrderId?: string; // PayPal 支付連結 ID，可選
 }
+
+// 新增 MemberRoomData 介面，整合 API 回傳數據
+export interface MemberRoomData { //member-room使用
+  member: {
+    fName: string;
+    fIdNumber: string;
+  };
+  roomTable: {
+    fRoomName: string;
+    fRoomAlias: string;
+    fRoomType: boolean; // true 為單人房，false 為多人房
+    fRoomPrice?: number;
+    images?: string[]; // 可選，房間照片陣列
+  };
+  roomBed: {
+    fBedCode: string;
+  };
+  roomOccupancy: {
+    fBillingStatus: boolean;
+  };
+}
+
