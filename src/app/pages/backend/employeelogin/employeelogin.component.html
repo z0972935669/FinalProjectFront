@@ -1,0 +1,80 @@
+<!-- src/app/pages/backend/orders/orders.component.html -->
+<div class="login-page">
+  <div class="login-wrap">
+
+    <!-- 左：表單 -->
+    <section class="form-pane">
+      <h1 class="page-badge">員工登入</h1>
+
+      <div class="form-card">
+        <header class="card-head">
+          <div class="avatar">
+            <!-- 簡單 SVG 使用者圖示 -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 12c2.9 0 5-2.1 5-5s-2.1-5-5-5-5 2.1-5 5 2.1 5 5 5zm0 2c-4 0-10 2-10 6v2h20v-2c0-4-6-6-10-6z" />
+            </svg>
+          </div>
+          <h2 class="card-title">登入系統</h2>
+        </header>
+
+        <form #f="ngForm" (ngSubmit)="login(f)" class="login-form" novalidate>
+          <!-- 帳號 -->
+          <div class="field">
+            <label class="label" for="username">帳號</label>
+            <input id="username" name="username" [(ngModel)]="vm.username" required pattern="^[A-Za-z0-9]{6,12}$"
+              class="input" placeholder="輸入帳號" autocomplete="username">
+            <small class="hint">6–12 碼英數字</small>
+          </div>
+
+          <!-- 密碼 -->
+          <div class="field">
+            <label class="label" for="password">密碼</label>
+
+            <div class="input-wrap">
+              <input id="password" [type]="showPwd ? 'text' : 'password'" name="password" [(ngModel)]="vm.password"
+                required pattern="^[A-Za-z0-9]{4,12}$" class="input input-has-button" placeholder="輸入密碼"
+                autocomplete="current-password">
+
+              <button type="button" class="ghost-btn" (click)="showPwd=!showPwd" [attr.aria-pressed]="showPwd">
+                <span *ngIf="!showPwd" aria-hidden="true">👁️</span>
+                <span *ngIf="showPwd" aria-hidden="true">🙈</span>
+                <span class="sr-only">{{ showPwd ? '隱藏密碼' : '顯示密碼' }}</span>
+              </button>
+            </div>
+
+            <div class="row between align mt-8">
+              <label class="checkbox">
+                <input type="checkbox" id="RememberUsername" [(ngModel)]="vm.remember" name="remember">
+                <span>記住帳號</span>
+              </label>
+
+              <a class="link" routerLink="/erp/employeepasswordreset">忘記密碼？</a>
+            </div>
+          </div>
+
+          <!-- 錯誤訊息 -->
+          <div class="error" *ngIf="error">{{ error }}</div>
+
+          <!-- 登入按鈕 -->
+          <button type="submit" class="primary-btn w-100" style="color: white; background-color: rgb(76,200,68);"
+            [disabled]="loading || f.invalid">
+            {{ loading ? '登入中…' : '登入' }}
+          </button>
+        </form>
+
+        <footer class="card-foot">
+          尚無帳號？<a class="link-strong" routerLink="/erp/employeeregister">建立帳號</a>
+        </footer>
+      </div>
+    </section>
+
+    <!-- 右：插圖 -->
+    <!-- 右：插圖（改用 img） -->
+    <aside class="art-pane">
+      <img class="art-img" src="/assets/backend/images/logo/login.png" alt="登入插圖">
+
+    </aside>
+
+  </div>
+</div>

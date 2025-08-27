@@ -1,9 +1,21 @@
-.submenu-link {
-  font-size: large;
-  font-weight: bolder;
+/* icon 大小統一 */
+.app-nav .nav-icon i {
+  font-size: 1.25rem;
+  /* 等同 fs-4 */
+  line-height: 1;
 }
 
-a {
-  font-size: large;
-  font-weight: bolder;
+/* 標題文字 */
+.app-nav .nav-link-text {
+  font-size: 1.1rem;
+  /* 等同 fs-5 */
+  font-weight: 600;
+  /* 粗體 */
+}
+
+/* 子選單文字 */
+.app-nav .submenu-link {
+  font-size: 0.95rem;
+  /* 等同 fs-6 */
+  font-weight: 400;
 }

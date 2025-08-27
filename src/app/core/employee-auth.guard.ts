@@ -1,18 +1,13 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateChildFn, Router, UrlTree } from '@angular/router';
+import { EmployeeAuthService } from '../services/employee/employee-auth.service';
 
-export const employeeAuthGuard: CanActivateFn = (route, state) => {
+export const employeeAuthGuard: CanActivateChildFn = (_childRoute, state): boolean | UrlTree => {
   const router = inject(Router);
+  const auth = inject(EmployeeAuthService);
 
-  // 假設 JWT 存在 localStorage
-  const token = localStorage.getItem('jwtToken');
-
-  if (token) {
-    // ✅ 已登入，允許通行
-    return true;
-  } else {
-    // ❌ 未登入，導回後台登入畫面（orders 當作登入首頁）
-    router.navigate(['/erp/orders']);
-    return false;
-  }
+  // token 有效就放行；否則導到獨立的登入頁，並帶回跳網址
+  return auth.isTokenValid()
+    ? true
+    : router.createUrlTree(['/erp/login'], { queryParams: { returnUrl: state.url } });
 };

@@ -59,3 +59,71 @@ div.item-label {
     gap: 1.25rem;
   }
 }
+
+/* ===== 自訂 checkbox：.nh-check ===== */
+.nh-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1.2;
+}
+
+/* 1) 視覺上隱藏原生 checkbox，避免被全域 input 樣式影響 */
+.nh-check>input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+/* 2) 顯示的文字與「偽造的方塊」容器 */
+.nh-check>span {
+  position: relative;
+  padding-left: 1.6rem;
+  /* 給方塊留位置 */
+}
+
+/* 3) 方塊外框 */
+.nh-check>span::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #198754;
+  /* 綠色外框 */
+  border-radius: 0.25rem;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* 4) 勾選符號 */
+.nh-check>input[type='checkbox']:checked+span::after {
+  content: '';
+  position: absolute;
+  left: 0.35rem;
+  top: 50%;
+  transform: translateY(-58%) rotate(45deg);
+  width: 0.35rem;
+  height: 0.7rem;
+  border: solid #fff;
+  border-width: 0 0.14rem 0.14rem 0;
+}
+
+/* 5) 勾選時填滿背景顏色 */
+.nh-check>input[type='checkbox']:checked+span::before {
+  background: #198754;
+  border-color: #198754;
+}
+
+/* 微調：和你表單風格更一致 */
+.nh-check>span {
+  color: #495057;
+  /* bootstrap body-color */
+  font-size: 0.95rem;
+}

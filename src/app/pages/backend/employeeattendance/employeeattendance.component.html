@@ -5,49 +5,44 @@
       <h1 class="badge bg-primary mb-3" style="font-size: xx-large;">打卡系統</h1>
 
       <div class="row gy-4">
-        <!-- 左邊：基本資料（單一卡片） -->
+        <!-- 左邊 -->
         <div class="col-12 col-lg-6">
           <div class="app-card app-card-account shadow-lg">
-            <div class="app-card-header p-3 border-bottom-0">
-              <div class="d-flex align-items-center gap-3">
-
-
-              </div>
-            </div>
-
             <div class="app-card-body px-4">
-              <h1 class="mb-5 text-center fw-bold" style="font-size: 2.5rem;">上下班打卡</h1>
-              <p class="fs-3 mb-3 text-center">員工姓名：<span id="employee-name">余俊良</span></p>
-              <p class="fs-3 mb-3 text-center">現在時間：<span id="current-time">--:--:--</span></p>
-              <p class="fs-3 mb-3 text-center">上班時間：<span id="current-time">--:--:--</span></p>
-              <p class="fs-3 mb-5 text-center">下班時間：<span id="current-time">--:--:--</span></p>
+
+              <p class="fs-3 mb-3 pt-3 text-center">現在時間：<span id="current-time">{{ nowStr }}</span></p>
+              <p class="fs-3 mb-3 pt-3 text-center">上班時間：<span>{{ clockInStr }}</span></p>
+              <p class="fs-3 mb-3 pt-3 text-center">下班時間：<span>{{ clockOutStr }}</span></p>
 
 
               <div class="text-center">
                 <button type="button" class="btn app-btn-primary btn-lg w-100 mb-3"
-                  style="font-size:2rem; padding:0.5rem; color: white;">打卡</button>
+                  style="font-size:2rem; padding:0.5rem; color: white;" [disabled]="busy" (click)="onClockIn()">
+                  上班打卡
+                </button>
+
+                <button type="button" class="btn app-btn-primary btn-lg w-100 mb-3"
+                  style="font-size:2rem; padding:0.5rem; color: white;" [disabled]="busy" (click)="onClockOut()">
+                  下班打卡
+                </button>
+
                 <button type="button" class="btn btn-danger btn-lg w-100 mb-5"
-                  style="font-size:2rem; padding:0.5rem; color: white;">退出</button>
+                  style="font-size:2rem; padding:0.5rem; color: white;" routerLink="/erp/employeehome"
+                  routerLinkActive="active">
+                  退出
+                </button>
               </div>
-              <!-- 日期 -->
-
-
             </div>
-
-
           </div>
         </div>
 
-        <!-- 右邊：職務資訊 + 緊急連絡人資訊（兩張卡片堆疊，等寬） -->
+        <!-- 右邊圖片 -->
         <div class="col-12 col-lg-6 right-stack">
           <div class="d-none d-md-block"
             style="height:100%; background:#e8f5e9 url('assets/backend/images/logo/punch.png') center center / contain no-repeat; pointer-events:none;">
           </div>
-
-
-        </div><!-- /右側 -->
-
-      </div><!-- /row -->
+        </div>
+      </div>
 
     </div>
   </div>
