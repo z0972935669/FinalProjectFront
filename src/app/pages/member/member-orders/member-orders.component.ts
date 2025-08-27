@@ -1,156 +1,247 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {
+  MemberService,
+  MemberInfo,
+} from '../../../services/member/member.service';
 
-interface OrderItem {
+// ===== 後端 DTO 對應（查詢用） =====
+interface OrderListItemDto {
+  orderId: number;
+  orderNo: string;
+  orderTime: string; // ISO string from API
+  totalAmount: number;
+  status: string;
+}
+
+interface OrderDetailViewDto {
+  detailId: number;
+  productId: number;
   productName: string;
   quantity: number;
   unitPrice: number;
+  subtotal: number;
 }
 
-interface Order {
-  ordernumber: string;
-
+interface OrderViewDto {
+  orderId: number;
+  orderNo: string;
   orderTime: string;
-  customerPhone: string;
-  deliveryWay: string;
-  orderman: string;
-  receiver: string;
-  payWay: string;
-  address: string;
-  invoiceTitle: string;
-  invoiceWay: string;
-  invoiceCarrier: string;
-  notes: string;
-  orderStatus: string;
-  orderItems: OrderItem[];
+
+  buyerName?: string | null;
+  receiverName?: string | null;
+  receiverPhone?: string | null;
+
+  paymentMethod?: string | null;
+  deliveryMethod?: string | null;
+  deliveryAddress?: string | null;
+
+  invoiceTitle?: string | null;
+  invoiceTax?: string | null;
+  invoiceInMethod?: string | null;
+  carrierNumber?: string | null;
+
+  note?: string | null;
+  status?: string | null;
+  totalAmount: number;
+
+  details: OrderDetailViewDto[];
+}
+
+interface PagedResult<T> {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  items: T[];
 }
 
 @Component({
   selector: 'app-member-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   providers: [DatePipe],
   templateUrl: './member-orders.component.html',
   styleUrls: ['./member-orders.component.scss'],
 })
 export class MemberOrdersComponent {
-  orders = signal<Order[]>([
-    {
-      ordernumber: 'ORD-20250806-0001',
+  private http = inject(HttpClient);
+  private memberSvc = inject(MemberService);
+  private apiBase = 'https://localhost:7124/api/ShopOrders';
 
-      orderTime: '2025-06-01T10:00:00',
-      customerPhone: '0912345678',
-      deliveryWay: '宅配',
-      orderman: '張三',
-      receiver: '李四',
-      payWay: '信用卡',
-      address: '台北市中正區忠孝東路一段100號',
-      invoiceTitle: '張三公司',
-      invoiceWay: '電子發票',
-      invoiceCarrier: '/ABCD1234',
-      notes: '請儘速送達',
-      orderStatus: '處理中',
-      orderItems: [
-        { productName: '蘋果', quantity: 2, unitPrice: 30 },
-        { productName: '香蕉', quantity: 1, unitPrice: 20 }
-      ]
-    },
-    {
-      ordernumber: 'ORD-20250806-0002',
-
-      orderTime: '2025-06-01T11:00:00',
-      customerPhone: '0987654321',
-      deliveryWay: '超商取貨',
-      orderman: '春嬌',
-      receiver: '志明',
-      payWay: '貨到付款',
-      address: '台中市西區民生路200號',
-      invoiceTitle: '春嬌個人',
-      invoiceWay: '紙本發票',
-      invoiceCarrier: '',
-      notes: '下午送達',
-      orderStatus: '已完成',
-      orderItems: [
-        { productName: '鳳梨', quantity: 3, unitPrice: 50 }
-      ]
-    },
-    {
-      ordernumber: 'ORD-20250806-0003',
-
-      orderTime: '2025-06-01T12:00:00',
-      customerPhone: '0923456789',
-      deliveryWay: '宅配',
-      orderman: '王五',
-      receiver: '王五',
-      payWay: '銀行轉帳',
-      address: '高雄市前鎮區中山路300號',
-      invoiceTitle: '王五企業',
-      invoiceWay: '電子發票',
-      invoiceCarrier: '/EFGH5678',
-      notes: '無特殊要求',
-      orderStatus: '待付款',
-      orderItems: [
-        { productName: '蘋果', quantity: 1, unitPrice: 30 },
-        { productName: '香蕉', quantity: 2, unitPrice: 20 },
-        { productName: '葡萄', quantity: 1, unitPrice: 100 }
-      ]
-    }
-  ]);
-
+  // 使用者輸入
   keyword = signal('');
   currentPage = signal(1);
   pageSize = signal(10);
 
+  // 使用者資訊
+  memberId = signal<number | null>(null);
+  loadError = signal<string | null>(null);
+
+  // 清單（伺服器分頁）
+  orders = signal<OrderListItemDto[]>([]);
+  totalPages = signal(0);
+  totalCount = signal(0);
+  isLoadingList = signal(false);
+
+  // 明細快取（以 orderNo 為 key）
+  detailsMap = signal<Record<string, OrderViewDto | undefined>>({});
+  isLoadingDetail = signal<string | null>(null); // 存現在載入中的 orderNo
+
   constructor(private datePipe: DatePipe) {}
 
+  ngOnInit(): void {
+    // 取得登入會員
+    this.memberSvc.getMemberInfo().subscribe({
+      next: (me: MemberInfo) => {
+        this.memberId.set(me.memberId);
+        this.fetchOrders(); // 取得清單
+      },
+      error: (err) => {
+        console.error('無法取得登入者資料', err);
+        this.loadError.set('請先登入後再檢視訂單');
+      },
+    });
+  }
+
+  // 加在 class 裡面
+  paymentMethodMap: Record<string, string> = {
+    Credit: '信用卡',
+    ATM: 'ATM 轉帳',
+    CVS: '超商代碼繳費',
+    COD: '貨到付款',
+  };
+
+  // 安全轉換，如果資料庫有奇怪的值，就直接顯示原本的字串
+  translatePaymentMethod(method: string | null | undefined): string {
+    if (!method) return '';
+    return this.paymentMethodMap[method] ?? method;
+  }
+
+  // 查詢清單（伺服器分頁＋關鍵字）
+  fetchOrders(): void {
+    const mid = this.memberId();
+    if (!mid) return;
+
+    this.isLoadingList.set(true);
+    const params = new URLSearchParams({
+      page: this.currentPage().toString(),
+      pageSize: this.pageSize().toString(),
+    });
+    const kw = this.keyword().trim();
+    if (kw) params.set('keyword', kw);
+
+    this.http
+      .get<PagedResult<OrderListItemDto>>(
+        `${this.apiBase}/member/${mid}?${params.toString()}`
+      )
+      .subscribe({
+        next: (res) => {
+          this.orders.set(res.items ?? []);
+          this.totalPages.set(res.totalPages ?? 0);
+          this.totalCount.set(res.totalCount ?? 0);
+          this.isLoadingList.set(false);
+        },
+        error: (err) => {
+          console.error('載入訂單清單失敗', err);
+          this.isLoadingList.set(false);
+          this.loadError.set('載入訂單清單失敗');
+        },
+      });
+  }
+
+  // 變更關鍵字
   setKeyword(value: string) {
     this.keyword.set(value);
     this.currentPage.set(1);
+    this.fetchOrders();
   }
 
+  // 查詢按鈕
   search() {
     this.currentPage.set(1);
+    this.fetchOrders();
   }
 
-  filteredOrders = computed(() => {
-    const kw = this.keyword().toLowerCase().trim();
-    return this.orders().filter(
-      (o) =>
-        o.ordernumber.toLowerCase().includes(kw)
-    );
-  });
-
-  pagedOrders = computed(() => {
-    const start = (this.currentPage() - 1) * this.pageSize();
-    return this.filteredOrders().slice(start, start + this.pageSize());
-  });
-
-  totalPages = computed(() =>
-    Math.ceil(this.filteredOrders().length / this.pageSize())
-  );
-
+  // 換頁
   setPage(page: number) {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.currentPage.set(page);
-    }
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
+    this.fetchOrders();
   }
 
+  // 產生頁碼陣列
   getPageNumbers = computed(() => {
-    const pages = [];
-    for (let i = 0; i < this.totalPages(); i++) {
-      pages.push(i + 1);
-    }
+    const pages: number[] = [];
+    for (let i = 1; i <= this.totalPages(); i++) pages.push(i);
     return pages;
   });
 
-  // 格式化日期時間為 datetime-local 格式
+  // 打開 Modal 前載入明細（若尚未載入）
+  openModal(order: OrderListItemDto) {
+    if (!this.memberId()) return;
+    const key = order.orderNo;
+    const cache = this.detailsMap()[key];
+    if (cache) return; // 已載入
+
+    this.isLoadingDetail.set(key);
+    this.http
+      .get<OrderViewDto>(
+        `${this.apiBase}/member/${this.memberId()}/${order.orderId}`
+      )
+      .subscribe({
+        next: (res) => {
+          this.detailsMap.set({ ...this.detailsMap(), [key]: res });
+          this.isLoadingDetail.set(null);
+        },
+        error: (err) => {
+          console.error('載入訂單明細失敗', err);
+          this.isLoadingDetail.set(null);
+        },
+      });
+  }
+
+  // 取得 modal 要用的明細資料
+  getDetail(orderNo: string): OrderViewDto | undefined {
+    return this.detailsMap()[orderNo];
+  }
+
+  // 前端顯示用：格式化成 datetime-local
   formatDateTime(dateTime: string): string {
     return new Date(dateTime).toISOString().slice(0, 16);
   }
 
-  // 計算訂單總金額
-  getOrderTotal(order: Order): number {
-    return order.orderItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  // ===== 小計 / 運費 / 總金額（和 cart/checkout 一樣的思路） =====
+
+  /** 訂單明細小計合計 */
+  subtotalOf(detail?: OrderViewDto): number {
+    if (!detail) return 0;
+    let sum = 0;
+    for (const item of detail.details) sum += item.subtotal;
+    return sum;
+  }
+
+  /**
+   * 運費：用總金額 - 小計推算（最低 0）
+   * 若未來你要固定 60，這裡可改：return 60;
+   */
+  shippingOf(detail?: OrderViewDto): number {
+    if (!detail) return 0;
+    const subtotal = this.subtotalOf(detail);
+    const total = detail.totalAmount ?? 0;
+    return Math.max(0, total - subtotal);
+  }
+
+  /** 總金額：小計 + 運費（理論上等於 detail.totalAmount） */
+  totalOf(detail?: OrderViewDto): number {
+    if (!detail) return 0;
+    return this.subtotalOf(detail) + this.shippingOf(detail);
+  }
+
+  // 舊方法（可保留給相容的模板呼叫）
+  getOrderTotal(detail?: OrderViewDto): number {
+    return this.subtotalOf(detail);
   }
 }
