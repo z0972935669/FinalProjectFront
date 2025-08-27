@@ -9,7 +9,7 @@ import { Order } from '../../interfaces/order/order.interface';
   providedIn: 'root',
 })
 export class OrderService {
-  private apiUrl = 'https://localhost:7124/api/ShopOrders';
+  private apiUrl = 'https://localhost:7124/api/Checkout';
 
   constructor(private http: HttpClient) {}
 
