@@ -47,9 +47,9 @@
       </div>
 
       <!-- 利用Modal新增品項 -->
-      <div class="modal fade" id="addSuppliesModal" tabindex="-1" aria-labelledby="addSuppliesModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
+      <div class="modal fade" id="addSuppliesModal" data-bs-backdrop="static" tabindex="-1"
+        aria-labelledby="addSuppliesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
           <div class="modal-content">
             <form (ngSubmit)="submitAddProduct()" #addSuppliesForm="ngForm">
               <div class="modal-header">
@@ -92,14 +92,14 @@
                 <!-- 單價 -->
                 <div class="mb-3">
                   <label for="pricePerUnit" class="form-label">單價</label>
-                  <input type="number" id="pricePerUnit" class="form-control" [(ngModel)]="newProduct.pricePerUnit"
-                    name="pricePerUnit" required />
+                  <input type="number" id="pricePerUnit" class="form-control" placeholder="0"
+                    [(ngModel)]="newProduct.pricePerUnit" name="pricePerUnit" required />
                 </div>
                 <!-- 剩餘數量 -->
                 <div class="mb-3">
                   <label for="unitsInStock" class="form-label">剩餘數量</label>
-                  <input type="number" id="unitsInStock" class="form-control" [(ngModel)]="newProduct.unitsInStock"
-                    name="unitsInStock" required />
+                  <input type="number" id="unitsInStock" class="form-control" placeholder="0"
+                    [(ngModel)]="newProduct.unitsInStock" name="unitsInStock" required />
                 </div>
               </div>
               <div class="modal-footer">
@@ -117,66 +117,77 @@
       <!-- 新增用Modal -->
 
       <!-- 利用Modal修改品項 -->
-      <div class="modal fade" id="editSuppliesModal" tabindex="-1" aria-labelledby="editSuppliesModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
+      <div class="modal fade" id="editSuppliesModal" data-bs-backdrop="static" tabindex="-1"
+        aria-labelledby="editSuppliesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
           <div class="modal-content">
             <form (ngSubmit)="submitEditProduct()" #editSuppliesForm="ngForm">
               <div class="modal-header">
-                <h5 class="modal-title" id="editSuppliesModalLabel">新增品項</h5>
+                <h5 class="modal-title" id="editSuppliesModalLabel">品項修改</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <!-- 物品名稱 -->
                 <div class="mb-3">
-                  <label for="suppliesProductName" class="form-label">物品名稱</label>
-                  <input type="text" id="suppliesProductName" class="form-control"
-                    [(ngModel)]="newProduct.suppliesProductName" name="suppliesProductName" required />
+                  <label for="editSuppliesProductName" class="form-label">物品名稱</label>
+                  <input type="text" id="editSuppliesProductName" class="form-control"
+                    [(ngModel)]="newProduct.suppliesProductName" name="editSuppliesProductName" required />
                 </div>
                 <!-- 供應商名稱 (下拉式選單) -->
+                <!-- 取得該品項的供應商編號 -->
+                <div class="mb-3">
+                  <input type="text" id="editSuppliesSupplierId" class="form-control"
+                    [(ngModel)]="newProduct.supplierId" name="editSuppliesSupplierId" required hidden />
+                </div>
+
                 <div class="mb-3">
                   <label for="editSuppliesSupplierName" class="form-label">供應商名稱</label>
                   <select id="editSuppliesSupplierName" class="form-select" [(ngModel)]="newProduct.supplierId"
-                    name="editSupplierId" required (change)="onSupplierChange($event)">
+                    name="editSupplierId" (change)="onSupplierChange($event)">
                     <option [ngValue]="null" disabled>請選擇供應商</option>
                     @for(supplier of suppliers;track $index)
                     { <option [ngValue]="supplier.suppliesSupplierId">{{supplier.suppliesSupplierName}}</option> }
                   </select>
                 </div>
                 <!-- 類別名稱 (下拉式選單) -->
+                <!-- 取得該品項的類別編號 -->
+                <div class="mb-3">
+                  <input type="text" id="editSuppliesCategoryId" class="form-control"
+                    [(ngModel)]="newProduct.suppliesCategoryId" name="editSuppliesCategoryId" required hidden />
+                </div>
                 <div class="mb-3">
                   <label for="editSuppliesCategoryName" class="form-label">類別名稱</label>
                   <select id="editSuppliesCategoryName" class="form-select" [(ngModel)]="newProduct.suppliesCategoryId"
-                    name="editSuppliesCategoryId" required (change)="onCategoryChange($event)">
-                    <option [ngValue]="null" disabled [selected]="!newProduct.supplierId">請選擇類別</option>
+                    name="editSuppliesCategoryId" (change)="onCategoryChange($event)" required>
+                    <option [ngValue]="null" disabled>請選擇類別</option>
                     @for(category of categories;track $index)
                     { <option [ngValue]="category.suppliesCategoryId">{{category.suppliesCategoryName}}</option> }
                   </select>
                 </div>
                 <!-- 基本單位 -->
                 <div class="mb-3">
-                  <label for="quantityPerUnit" class="form-label">基本單位</label>
-                  <input type="text" id="quantityPerUnit" class="form-control" [(ngModel)]="newProduct.quantityPerUnit"
-                    name="quantityPerUnit" required />
+                  <label for="editQuantityPerUnit" class="form-label">基本單位</label>
+                  <input type="text" id="editQuantityPerUnit" class="form-control"
+                    [(ngModel)]="newProduct.quantityPerUnit" name="editQuantityPerUnit" required />
                 </div>
                 <!-- 單價 -->
                 <div class="mb-3">
-                  <label for="pricePerUnit" class="form-label">單價</label>
-                  <input type="number" id="pricePerUnit" class="form-control" [(ngModel)]="newProduct.pricePerUnit"
-                    name="pricePerUnit" required />
+                  <label for="editPricePerUnit" class="form-label">單價</label>
+                  <input type="number" id="editPricePerUnit" class="form-control" [(ngModel)]="newProduct.pricePerUnit"
+                    name="editPricePerUnit" required />
                 </div>
                 <!-- 剩餘數量 -->
                 <div class="mb-3">
-                  <label for="unitsInStock" class="form-label">剩餘數量</label>
-                  <input type="number" id="unitsInStock" class="form-control" [(ngModel)]="newProduct.unitsInStock"
-                    name="unitsInStock" required />
+                  <label for="editUnitsInStock" class="form-label">剩餘數量</label>
+                  <input type="number" id="editUnitsInStock" class="form-control" [(ngModel)]="newProduct.unitsInStock"
+                    name="editUnitsInStock" required />
                 </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                   取消
                 </button>
-                <button type="submit" class="btn btn-success" [disabled]="!addSuppliesForm.form.valid">
+                <button type="submit" class="btn btn-success" [disabled]="!editSuppliesForm.form.valid">
                   儲存
                 </button>
               </div>
@@ -185,6 +196,41 @@
         </div>
       </div>
       <!-- 修改用Modal -->
+
+      <!-- 利用Modal顯示詳細時間 -->
+      <div class="modal fade" id="suppliesDateModal" tabindex="-1" aria-labelledby="suppliesDateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+          <div class="modal-content modal-dialog-scrollable">
+            <div class="modal-body">
+              <table class="table app-table-hover mb-0 text-center">
+                <thead>
+                  <tr>
+                    <th class="cell">有效期限</th>
+                    <th class="cell">剩餘數量</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 顯示對應物品的時間資料 -->
+                  @for (date of selectedProductDates; track $index)
+                  {
+                  <tr>
+                    <td class="cell">{{date.expiryDate}}</td>
+                    <td class="cell">{{date.remainingStocks}}</td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 時間用Modal -->
 
       <div class="tab-content" id="orders-table-tab-content">
         <div class="tab-pane fade show active" id="orders-all">
@@ -211,7 +257,9 @@
                     <tr>
                       <td class="cell">{{product.suppliesProductID}}</td>
                       <td class="cell">{{product.suppliesProductName}}</td>
+                      <input type="hidden" name="hiddenSupplierId" [value]="product.supplierId" />
                       <td class="cell"><span class="truncate">{{product.suppliesSupplierName}}</span></td>
+                      <input type="hidden" name="hiddenCategoryId" [value]="product.suppliesCategoryId" />
                       <td class="cell">{{product.suppliesCategoryName}}</td>
                       <td class="cell"><span class="cell-data">{{product.quantityPerUnit}}</span><span
                           class="note"></span>
@@ -223,7 +271,8 @@
                           data-bs-target="#editSuppliesModal" (click)="editProduct(product)">
                           品項修改
                         </button>
-                        <a class="btn-sm app-btn-secondary" href="#">詳細時間</a>
+                        <button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
+                          data-bs-target="#suppliesDateModal" (click)="showProductDate(product)">詳細時間</button>
                       </td>
                     </tr>
                     }

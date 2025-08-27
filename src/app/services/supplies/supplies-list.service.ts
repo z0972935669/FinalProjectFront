@@ -19,7 +19,10 @@ export class SuppliesListService {
   addSuppliesProduct(product: Isupplieslist): Observable<Isupplieslist> {
     return this.http.post<Isupplieslist>(this.apiUrlsup, product);
   }
+
   editSuppliesProduct(product: Isupplieslist): Observable<Isupplieslist> {
-    return this.http.put<Isupplieslist>(this.apiUrlsup, product);
+    // 於路徑加上物品ID
+    const url = `${this.apiUrlsup}/${product.suppliesProductID}`;
+    return this.http.put<Isupplieslist>(url, product);
   }
 }

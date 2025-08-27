@@ -39,19 +39,158 @@
 
 
       <div>
-        <button class="app-btn-primary mb-4">新增供應商</button>
+        <button class="app-btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addSupplierModal"
+          (click)="resetNewSupplier()">新增供應商</button>
       </div>
 
+      <!-- 利用Modal新增供應商 -->
+      <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form (ngSubmit)="submitAddSupplier()" #addSupplierForm="ngForm">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addSupplierModalLabel">新增供應商</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <!-- 供應商名稱 -->
+                <div class="mb-3">
+                  <label for="suppliesSupplierName" class="form-label">供應商名稱</label>
+                  <input type="text" id="suppliesSupplierName" class="form-control"
+                    [(ngModel)]="newSupplier.suppliesSupplierName" name="suppliesSupplierName" required />
+                </div>
+                <!-- 統編 -->
+                <div class="mb-3">
+                  <label for="suppliesSupplierGui" class="form-label">統編</label>
+                  <input type="text" id="suppliesSupplierGui" class="form-control"
+                    [(ngModel)]="newSupplier.suppliesSupplierGui" name="suppliesSupplierGui" required />
+                </div>
+                <!-- 聯絡人 -->
+                <div class="mb-3">
+                  <label for="contactPerson" class="form-label">聯絡人</label>
+                  <input type="text" id="contactPerson" class="form-control" [(ngModel)]="newSupplier.contactPerson"
+                    name="contactPerson" required />
+                </div>
+                <!-- 聯絡電話 -->
+                <div class="mb-3">
+                  <label for="contactNumber" class="form-label">聯絡電話</label>
+                  <input type="text" id="contactNumber" class="form-control" [(ngModel)]="newSupplier.contactNumber"
+                    name="contactNumber" required />
+                </div>
+                <!-- 地址 -->
+                <div class="mb-3">
+                  <label for="address" class="form-label">地址</label>
+                  <input type="text" id="address" class="form-control" [(ngModel)]="newSupplier.address" name="address"
+                    required />
+                </div>
+                <!-- 類別名稱 (下拉式選單) -->
+                <div class="mb-3">
+                  <label for="supplierKeyword" class="form-label">類別名稱</label>
+                  <select id="supplierKeyword" class="form-select" [(ngModel)]="newSupplier.supplierKeyword"
+                    name="supplierKeyword" required (change)="onCategoryChange($event)">
+                    <option [ngValue]="null" disabled selected>請選擇類別</option>
+                    @for(category of categories;track $index)
+                    {<option [ngValue]="category.suppliesCategoryId">{{category.suppliesCategoryName}}</option>}
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  取消
+                </button>
+                <button type="submit" class="btn btn-success" [disabled]="!addSupplierForm.form.valid">
+                  儲存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- 新增用Modal -->
+
+      <!-- 利用Modal修改供應商 -->
+      <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="editSupplierModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form #editSupplierForm="ngForm">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editSupplierModalLabel">修改供應商</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <!-- 供應商名稱 -->
+                <div class="mb-3">
+                  <label for="suppliesSupplierName" class="form-label">供應商名稱</label>
+                  <input type="text" id="suppliesSupplierName" class="form-control"
+                    [(ngModel)]="newSupplier.suppliesSupplierName" name="suppliesSupplierName" required />
+                </div>
+                <!-- 統編 -->
+                <div class="mb-3">
+                  <label for="suppliesSupplierGui" class="form-label">統編</label>
+                  <input type="text" id="suppliesSupplierGui" class="form-control"
+                    [(ngModel)]="newSupplier.suppliesSupplierGui" name="suppliesSupplierGui" required />
+                </div>
+                <!-- 聯絡人 -->
+                <div class="mb-3">
+                  <label for="contactPerson" class="form-label">聯絡人</label>
+                  <input type="text" id="contactPerson" class="form-control" [(ngModel)]="newSupplier.contactPerson"
+                    name="contactPerson" required />
+                </div>
+                <!-- 聯絡電話 -->
+                <div class="mb-3">
+                  <label for="contactNumber" class="form-label">聯絡電話</label>
+                  <input type="text" id="contactNumber" class="form-control" [(ngModel)]="newSupplier.contactNumber"
+                    name="contactNumber" required />
+                </div>
+                <!-- 地址 -->
+                <div class="mb-3">
+                  <label for="address" class="form-label">地址</label>
+                  <input type="text" id="address" class="form-control" [(ngModel)]="newSupplier.address" name="address"
+                    required />
+                </div>
+                <!-- 類別名稱 (下拉式選單) -->
+                <div class="mb-3">
+                  <label for="supplierKeyword" class="form-label">類別名稱</label>
+                  <select id="supplierKeyword" class="form-select" [(ngModel)]="newSupplier.supplierKeyword"
+                    name="supplierKeyword" required (change)="onCategoryChange($event)">
+                    <option [ngValue]="null" disabled>請選擇類別</option>
+                    @for(category of categories;track $index)
+                    {<option [ngValue]="category.suppliesCategoryName">{{category.suppliesCategoryName}}</option>}
+                  </select>
+                </div>
+                <!-- 是否繼續合約 -->
+                <div class="mb-3 form-check">
+                  <input type="checkbox" id="continued" class="form-check-input" [(ngModel)]="newSupplier.continued"
+                    name="continued" />
+                  <label for="continued" class="form-check-label">合約中</label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  取消
+                </button>
+                <button type="button" (click)="submitEditSupplier()" class="btn btn-success"
+                  [disabled]="!editSupplierForm.form.valid">
+                  儲存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- 修改用Modal -->
 
       <nav id="suppliessuppliers-table-tab"
         class="suppliessuppliers-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
         <a class="flex-sm-fill text-sm-center nav-link active" id="suppliessuppliers-all-tab" data-bs-toggle="tab"
           href="#suppliessuppliers-all" role="tab" aria-controls="suppliessuppliers-all" aria-selected="true">總覽</a>
-        <a class="flex-sm-fill text-sm-center nav-link" id="suppliessuppliers-returned-tab" data-bs-toggle="tab"
-          href="#suppliessuppliers-returned" role="tab" aria-controls="suppliessuppliers-returned"
+        <a class="flex-sm-fill text-sm-center nav-link" id="suppliessuppliers-continued-tab" data-bs-toggle="tab"
+          href="#suppliessuppliers-continued" role="tab" aria-controls="suppliessuppliers-continued"
           aria-selected="false">合約中</a>
-        <a class="flex-sm-fill text-sm-center nav-link" id="suppliessuppliers-rentout-tab" data-bs-toggle="tab"
-          href="#suppliessuppliers-rentout" role="tab" aria-controls="suppliessuppliers-rentout"
+        <a class="flex-sm-fill text-sm-center nav-link" id="suppliessuppliers-cancelled-tab" data-bs-toggle="tab"
+          href="#suppliessuppliers-cancelled" role="tab" aria-controls="suppliessuppliers-cancelled"
           aria-selected="false">已解約</a>
       </nav>
 
@@ -77,17 +216,27 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for(supplier of suppliesSuppliers;track $index){
                     <tr>
-                      <td class="cell">SuppliesSupplierID</td>
-                      <td class="cell"><span class="truncate">SuppliesSupplierName</span></td>
-                      <td class="cell">SuppliesSupplierGUI</td>
-                      <td class="cell">ContactPerson</td>
-                      <td class="cell">ContactNumber</td>
-                      <td class="cell"><span class="truncate">Address</span></td>
-                      <td class="cell">SupplierKeyword</td>
-                      <td class="cell"><span class="badge bg-success">Continued</span></td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
+                      <td class="cell">{{supplier.suppliesSupplierId}}</td>
+                      <td class="cell"><span class="truncate">{{supplier.suppliesSupplierName}}</span></td>
+                      <td class="cell">{{supplier.suppliesSupplierGui}}</td>
+                      <td class="cell">{{supplier.contactPerson}}</td>
+                      <td class="cell">{{supplier.contactNumber}}</td>
+                      <td class="cell"><span class="truncate">{{supplier.address}}</span></td>
+                      <td class="cell">{{supplier.supplierKeyword}}</td>
+                      <td class="cell"><span class="badge"
+                          [ngClass]="supplier.continued ? 'bg-success' : 'bg-secondary'">{{supplier.continued ?
+                          '合約中':'已解約'}}</span>
+                      </td>
+                      <td class="cell">
+                        <button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
+                          data-bs-target="#editSupplierModal" (click)="editSupplier(supplier)">
+                          品項修改
+                        </button>
+                      </td>
                     </tr>
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
@@ -110,8 +259,8 @@
 
         </div><!--//tab-pane-->
 
-        <div class="tab-pane fade" id="suppliessuppliers-returned" role="tabpanel"
-          aria-labelledby="suppliessuppliers-returned-tab">
+        <div class="tab-pane fade" id="suppliessuppliers-continued" role="tabpanel"
+          aria-labelledby="suppliessuppliers-continued-tab">
           <div class="app-card app-card-orders-table mb-5">
             <div class="app-card-body">
               <div class="table-responsive">
@@ -131,15 +280,28 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <!-- 合約中的分頁 -->
+                    @for(supplier of suppliesSuppliers;track $index){
+                    @if(supplier.continued){
                     <tr>
-                      <td class="cell">#15346</td>
-                      <td class="cell"><span class="truncate">Lorem ipsum dolor sit amet eget volutpat erat</span></td>
-                      <td class="cell">John Sanders</td>
-                      <td class="cell"><span>17 Oct</span><span class="note">2:16 PM</span></td>
-                      <td class="cell">$259.35</td>
-                      <td class="cell"><span class="badge bg-success">合約中</span></td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                      <td class="cell">{{supplier.suppliesSupplierId}}</td>
+                      <td class="cell"><span class="truncate">{{supplier.suppliesSupplierName}}</span></td>
+                      <td class="cell">{{supplier.suppliesSupplierGui}}</td>
+                      <td class="cell">{{supplier.contactPerson}}</td>
+                      <td class="cell">{{supplier.contactNumber}}</td>
+                      <td class="cell"><span class="truncate">{{supplier.address}}</span></td>
+                      <td class="cell">{{supplier.supplierKeyword}}</td>
+                      <td class="cell"><span class="badge bg-success">合約中</span>
+                      </td>
+                      <td class="cell">
+                        <button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
+                          data-bs-target="#editSupplierModal" (click)="editSupplier(supplier)">
+                          品項修改
+                        </button>
+                      </td>
                     </tr>
+                    }
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
@@ -147,8 +309,8 @@
           </div><!--//app-card-->
         </div><!--//tab-pane-->
 
-        <div class="tab-pane fade" id="suppliessuppliers-rentout" role="tabpanel"
-          aria-labelledby="suppliessuppliers-rentout-tab">
+        <div class="tab-pane fade" id="suppliessuppliers-cancelled" role="tabpanel"
+          aria-labelledby="suppliessuppliers-cancelled-tab">
           <div class="app-card app-card-orders-table mb-5">
             <div class="app-card-body">
               <div class="table-responsive">
@@ -167,15 +329,28 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <!-- 已解約的分頁 -->
+                    @for(supplier of suppliesSuppliers;track $index){
+                    @if(!supplier.continued){
                     <tr>
-                      <td class="cell">#15345</td>
-                      <td class="cell"><span class="truncate">Consectetur adipiscing elit</span></td>
-                      <td class="cell">Dylan Ambrose</td>
-                      <td class="cell"><span class="cell-data">16 Oct</span><span class="note">03:16 AM</span></td>
-                      <td class="cell">$96.20</td>
-                      <td class="cell"><span class="badge bg-secondary">已解約</span></td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                      <td class="cell">{{supplier.suppliesSupplierId}}</td>
+                      <td class="cell"><span class="truncate">{{supplier.suppliesSupplierName}}</span></td>
+                      <td class="cell">{{supplier.suppliesSupplierGui}}</td>
+                      <td class="cell">{{supplier.contactPerson}}</td>
+                      <td class="cell">{{supplier.contactNumber}}</td>
+                      <td class="cell"><span class="truncate">{{supplier.address}}</span></td>
+                      <td class="cell">{{supplier.supplierKeyword}}</td>
+                      <td class="cell"><span class="badge bg-secondary">已解約</span>
+                      </td>
+                      <td class="cell">
+                        <button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
+                          data-bs-target="#editSupplierModal" (click)="editSupplier(supplier)">
+                          品項修改
+                        </button>
+                      </td>
                     </tr>
+                    }
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->

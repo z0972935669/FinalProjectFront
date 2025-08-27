@@ -1,6 +1,6 @@
 import { distinctUntilChanged } from 'rxjs';
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { SuppliesListService } from '../../../../services/supplies/supplies-list.service';
 import { Isupplieslist } from '../../../../interfaces/supplies/isupplieslist';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,8 @@ import { Isuppliessupplier } from '../../../../interfaces/supplies/isuppliessupp
 import { SuppliesSupplierService } from '../../../../services/supplies/supplies-supplier.service';
 import { Isuppliescategory } from '../../../../interfaces/supplies/isuppliescategory';
 import { SuppliesCategoryService } from '../../../../services/supplies/supplies-category.service';
+import { Isuppliesdate } from '../../../../interfaces/supplies/isuppliesdate';
+import { SuppliesDateService } from '../../../../services/supplies/supplies-date.service';
 
 @Component({
   selector: 'app-supplieslist',
@@ -19,12 +21,13 @@ import { SuppliesCategoryService } from '../../../../services/supplies/supplies-
 export class SupplieslistComponent {
   suppliesProducts: Isupplieslist[] = [];
   filteredProducts: Isupplieslist[] = [];
+  suppliesDate: Isuppliesdate[] = [];
   searchKeyword: string = '';
   suppliers: Isuppliessupplier[] = [];
   categories: Isuppliescategory[] = [];
 
 
-  constructor(private suppliesListService: SuppliesListService, private suppliesSupplierService: SuppliesSupplierService, private suppliesCategoryService: SuppliesCategoryService) { }
+  constructor(private suppliesListService: SuppliesListService, private suppliesSupplierService: SuppliesSupplierService, private suppliesCategoryService: SuppliesCategoryService, private suppliesDateService: SuppliesDateService, private router: Router) { }
 
   ngOnInit(): void {
     // 抓物料資料
@@ -39,6 +42,10 @@ export class SupplieslistComponent {
     // 抓類別資料
     this.suppliesCategoryService.getSuppliesCategoryData().subscribe((data: Isuppliescategory[]) => {
       this.categories = data;
+    })
+    // 抓物料時間
+    this.suppliesDateService.getSuppliesDateData().subscribe((data: Isuppliesdate[]) => {
+      this.suppliesDate = data;
     })
   }
 
@@ -84,6 +91,7 @@ export class SupplieslistComponent {
         this.suppliesListService.getSuppliesData().subscribe((data: Isupplieslist[]) => {
           this.suppliesProducts = data;
           this.filteredProducts = data;
+          alert('新增成功')
         });
       },
       error: (err) => {
@@ -96,18 +104,6 @@ export class SupplieslistComponent {
     this.resetNewProduct();
   }
   // 修改品項
-  editedProduct: Isupplieslist = {
-    suppliesProductID: this.newProduct.suppliesProductID,
-    suppliesProductName: this.newProduct.suppliesProductName,
-    quantityPerUnit: this.newProduct.quantityPerUnit,
-    unitsInStock: this.newProduct.unitsInStock,
-    pricePerUnit: this.newProduct.pricePerUnit,
-    supplierId: this.newProduct.supplierId,
-    suppliesSupplierName: this.newProduct.suppliesSupplierName,
-    suppliesCategoryId: this.newProduct.suppliesCategoryId,
-    suppliesCategoryName: this.newProduct.suppliesCategoryName,
-    exist: true
-  };
   submitEditProduct() {
     this.suppliesListService.editSuppliesProduct(this.newProduct).subscribe({
       next: (res) => {
@@ -115,6 +111,7 @@ export class SupplieslistComponent {
         this.suppliesListService.getSuppliesData().subscribe((data: Isupplieslist[]) => {
           this.suppliesProducts = data;
           this.filteredProducts = data;
+          alert('修改成功')
         });
       },
       error: (err) => {
@@ -144,5 +141,13 @@ export class SupplieslistComponent {
       suppliesCategoryName: '',
       exist: true
     };
+  }
+
+  // 時間對應表
+  selectedProductDates: Isuppliesdate[] = [];
+
+  showProductDate(product: Isupplieslist) {
+    // 根據 suppliesProductID 過濾出對應的時間資料
+    this.selectedProductDates = this.suppliesDate.filter(date => date.suppliesProductId === product.suppliesProductID);
   }
 }

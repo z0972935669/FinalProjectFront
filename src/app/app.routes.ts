@@ -128,7 +128,7 @@ export const routes: Routes = [
     component: BackendComponent,
     canActivate: [employeeAuthGuard],
     children: [
-      {path: 'memberlist',component: MemberlistComponent},
+      { path: 'memberlist', component: MemberlistComponent },
       // 沒有 backend 的 home，建議改成 orders
       { path: '', redirectTo: 'orders', pathMatch: 'full' },
       { path: 'orders', component: OrdersComponent },
