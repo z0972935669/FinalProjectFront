@@ -22,16 +22,6 @@
                 </form>
 
               </div><!--//col-->
-              <div class="col-auto">
-
-                <select class="form-select w-auto">
-                  <option selected value="option-1">--類別--</option>
-                  <option value="option-2"></option>
-                  <option value="option-3"></option>
-                  <option value="option-4"></option>
-
-                </select>
-              </div>
             </div><!--//row-->
           </div><!--//table-utilities-->
         </div><!--//col-auto-->
@@ -57,6 +47,54 @@
           href="#suppliessales-cancelled" role="tab" aria-controls="suppliessales-cancelled"
           aria-selected="false">已取消</a>
       </nav>
+
+      <!-- 利用Modal新增品項 -->
+      <div class="modal fade" id="addSalesModal" data-bs-backdrop="static" tabindex="-1"
+        aria-labelledby="addSalesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+            <form (ngSubmit)="submitAddSales()" #addSuppliesForm="ngForm">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addSalesModalLabel">新增品項</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <!-- 物品名稱 -->
+                <!-- <div class="mb-3">
+                  <label for="suppliesProductName" class="form-label">物品名稱</label>
+                  <input type="text" id="suppliesProductName" class="form-control"
+                    [(ngModel)]="newProduct.suppliesProductName" name="suppliesProductName" required />
+                </div> -->
+                <!-- 供應商名稱 (下拉式選單) -->
+                <!-- <div class="mb-3">
+                  <label for="suppliesSupplierName" class="form-label">供應商名稱</label>
+                  <select id="suppliesSupplierName" class="form-select" [(ngModel)]="newProduct.supplierId"
+                    name="supplierId" required (change)="onSupplierChange($event)">
+                    <option [ngValue]="null" disabled selected>請選擇供應商</option>
+                    @for(supplier of suppliers;track $index)
+                    { <option [ngValue]="supplier.suppliesSupplierId">{{supplier.suppliesSupplierName}}</option> }
+                  </select>
+                </div> -->
+                <!-- 剩餘數量 -->
+                <!-- <div class="mb-3">
+                  <label for="unitsInStock" class="form-label">剩餘數量</label>
+                  <input type="number" id="unitsInStock" class="form-control" placeholder="0"
+                    [(ngModel)]="newProduct.unitsInStock" name="unitsInStock" required />
+                </div> -->
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  取消
+                </button>
+                <button type="submit" class="btn btn-success" [disabled]="!addSuppliesForm.form.valid">
+                  儲存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- 新增用Modal -->
 
 
       <div class="tab-content" id="suppliessales-table-tab-content">

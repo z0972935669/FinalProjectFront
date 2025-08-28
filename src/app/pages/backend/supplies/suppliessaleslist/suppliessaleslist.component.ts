@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Isuppliessales } from '../../../../interfaces/supplies/isuppliessales';
 import { SuppliesSalesService } from '../../../../services/supplies/supplies-sales.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-suppliessaleslist',
-  imports: [RouterModule],
+  imports: [RouterModule, FormsModule],
   standalone: true,
   templateUrl: './suppliessaleslist.component.html',
   styleUrl: './suppliessaleslist.component.scss'
@@ -41,6 +42,10 @@ export class SuppliessaleslistComponent {
     expiryDate: new Date(),
 
     suppliesProductName: ''
+  }
+
+  submitAddSales() {
+
   }
 
   resetNewSales() {
