@@ -18,6 +18,8 @@ export class AuthInterceptor implements HttpInterceptor {
     '/api/EmployeeUserAccounts/login-cookie', // ⬅︎ 新增：Cookie 版登入
     '/api/EmployeeUserAccounts/login',        // 若還保留 JWT 端點也跳過
     '/api/EmployeeUserAccounts/register-full',
+    '/api/EmployeeUserAccounts/password/verify',   // 新增
+    '/api/EmployeeUserAccounts/password/change',   // 新增
     '/images/', '/uploads/',
   ];
 

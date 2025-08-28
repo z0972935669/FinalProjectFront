@@ -1,9 +1,10 @@
+// src/app/pages/backend/employeelistedit/employeelistedit.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { firstValueFrom, finalize, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { firstValueFrom, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
 import { EmployeeAuthService } from '../../../services/employee/employee-auth.service';
 import { EmployeeDetailDto } from '../../../models/employee-detail.dto';
@@ -58,6 +59,7 @@ export class EmployeelisteditComponent implements OnInit {
   form = this.fb.group({
     // 基本資料
     Name: ['', [Validators.required, Validators.maxLength(100)]],
+    Gender: [''],
     IdentityNumber: ['', [Validators.required, Validators.maxLength(20)]],
     BirthDate: <string | null>null,
     Phone: ['', [Validators.maxLength(20)]],
@@ -72,8 +74,8 @@ export class EmployeelisteditComponent implements OnInit {
 
     // 職務
     EmploymentStatusText: [''],
-    DepartmentId: <number | null>null,  // 用 ID 寫回
-    DepartmentName: [''],               // 顯示用
+    DepartmentId: <number | null>null,
+    DepartmentName: [''],
     JobTitleId: <number | null>null,
     JobTitleName: [''],
     HireDate: <string | null>null,
@@ -89,15 +91,25 @@ export class EmployeelisteditComponent implements OnInit {
     EmergencyContactRelationship: [''],
   });
 
-  ngOnInit(): void {
-    // 監聽參數變化：同元件重用時也會重載
+  async ngOnInit(): Promise<void> {
     this.route.paramMap.subscribe(async pm => {
       this.loading = true;
       this.error = null;
       this.formReady = false;
 
       const paramId = pm.get('id');
-      const myId = this.auth.getEmployeeIdFromToken() ?? 0;
+
+      // ✅ 先從快取拿自己的 id；沒有就 call /me
+      let myId = this.auth.getEmployeeIdCached() ?? 0;
+      if (!myId) {
+        try {
+          const me = await firstValueFrom(this.auth.fetchMe()); // { id, name }
+          myId = me?.id ?? 0;
+        } catch {
+          myId = 0;
+        }
+      }
+
       this.editingOthers = !!paramId;
       this.id = Number(paramId ?? myId);
 
@@ -109,7 +121,7 @@ export class EmployeelisteditComponent implements OnInit {
       }
 
       try {
-        // 1) 基本資料
+        // 1) 讀取詳情
         const dto = await firstValueFrom(this.auth.getEmployeeDetail(this.id));
         this.vm = dto;
         this.patchEmployeeToForm(dto);
@@ -127,16 +139,25 @@ export class EmployeelisteditComponent implements OnInit {
           this.auth.getDepartments().pipe(catchError(() => of<Dept[]>([])))
         );
 
+        // 先把職稱下拉關閉，等有資料再開
+        const jobCtrl = this.form.get('JobTitleId')!;
+        jobCtrl.disable({ emitEvent: false });
+
         // 部門變更 → 載入職稱
-        this.form.get('DepartmentId')!.valueChanges.subscribe(async (deptId) => {
-          this.form.get('JobTitleId')!.reset(null, { emitEvent: false });
+        this.form.get('DepartmentId')!.valueChanges.subscribe(async (deptIdRaw) => {
+          const deptId = deptIdRaw != null ? Number(deptIdRaw) : null; // ← 強制 number
+          jobCtrl.reset(null, { emitEvent: false });
+          jobCtrl.disable({ emitEvent: false });
           this.jobs = [];
-          if (deptId != null) {
+
+          if (deptId != null && !Number.isNaN(deptId)) {
             await this.loadJobsByDept(deptId);
+            if (this.jobs.length) jobCtrl.enable({ emitEvent: false });
+
             // 依名稱對回職稱ID（若原本只有名稱）
             const jtName = this.form.get('JobTitleName')?.value;
             const found = this.jobs.find(j => j.name === jtName);
-            if (found) this.form.get('JobTitleId')!.setValue(found.id, { emitEvent: false });
+            if (found) jobCtrl.setValue(found.id, { emitEvent: false });
           }
         });
 
@@ -168,7 +189,7 @@ export class EmployeelisteditComponent implements OnInit {
   /** 初始對回 DepartmentId/JobTitleId（優先 ID，否則用名稱比對） */
   private async initDeptAndJobFromDto(dto: EmployeeDetailDto) {
     // 部門
-    let deptId = (dto as any)?.DepartmentId ?? null;
+    let deptId = (dto as any)?.DepartmentId != null ? Number((dto as any).DepartmentId) : null;
     if (deptId == null && (dto as any)?.DepartmentName) {
       const hit = this.departments.find(d => d.name === (dto as any).DepartmentName);
       deptId = hit?.id ?? null;
@@ -176,10 +197,12 @@ export class EmployeelisteditComponent implements OnInit {
     if (deptId != null) {
       this.form.get('DepartmentId')!.setValue(deptId, { emitEvent: true });
       await this.loadJobsByDept(deptId);
+      // 有資料才啟用職稱下拉
+      if (this.jobs.length) this.form.get('JobTitleId')!.enable({ emitEvent: false });
     }
 
     // 職稱
-    let jobId = (dto as any)?.JobTitleId ?? null;
+    let jobId = (dto as any)?.JobTitleId != null ? Number((dto as any).JobTitleId) : null;
     if (jobId == null && (dto as any)?.JobTitleName && this.jobs.length) {
       const hit = this.jobs.find(j => j.name === (dto as any).JobTitleName);
       jobId = hit?.id ?? null;
@@ -204,11 +227,12 @@ export class EmployeelisteditComponent implements OnInit {
 
     this.form.patchValue({
       Name: dto?.Name ?? '',
+      Gender: (dto as any)?.Gender ?? (dto as any)?.GenderText ?? '',
       IdentityNumber: dto?.IdentityNumber ?? '',
       BirthDate: birth,
       Phone: dto?.Phone ?? '',
       Email: dto?.Email ?? '',
-      EducationLevel: this.inList(dto?.EducationLevel, this.educationOptions) ? dto!.EducationLevel! : '大學',
+      EducationLevel: dto?.EducationLevel ?? '大學',
       RegisteredAddress: dto?.RegisteredAddress ?? '',
       SameAsRegistered: false,
       CurrentAddress: dto?.CurrentAddress ?? '',
@@ -218,9 +242,10 @@ export class EmployeelisteditComponent implements OnInit {
 
       EmploymentStatusText: dto?.EmploymentStatusText ?? '',
 
-      DepartmentId: (dto as any)?.DepartmentId ?? null,
+      // ← 這裡也把 Id 轉 number
+      DepartmentId: (dto as any)?.DepartmentId != null ? Number((dto as any).DepartmentId) : null,
       DepartmentName: (dto as any)?.DepartmentName ?? '',
-      JobTitleId: (dto as any)?.JobTitleId ?? null,
+      JobTitleId: (dto as any)?.JobTitleId != null ? Number((dto as any).JobTitleId) : null,
       JobTitleName: (dto as any)?.JobTitleName ?? '',
 
       HireDate: hire,
@@ -231,8 +256,7 @@ export class EmployeelisteditComponent implements OnInit {
 
       EmergencyContactPerson: dto?.EmergencyContactPerson ?? '',
       EmergencyContactPhone: dto?.EmergencyContactPhone ?? '',
-      EmergencyContactRelationship: this.inList(dto?.EmergencyContactRelationship, this.relationshipOptions)
-        ? dto!.EmergencyContactRelationship! : this.relationshipOptions[0],
+      EmergencyContactRelationship: dto?.EmergencyContactRelationship ?? this.relationshipOptions[0],
     }, { emitEvent: false });
   }
 
@@ -246,7 +270,8 @@ export class EmployeelisteditComponent implements OnInit {
     const day = String(dt.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
   }
-  private inList<T>(v: T | null | undefined, list: T[]) { return v != null && list.includes(v); }
+
+  private inList<T>(v: T | null | undefined, list: T[]) { return v != null && list.includes(v as T); }
 
   /** 單選（是/否）手動設布林值 */
   setBool(ctrlName: string, v: boolean) { this.form.get(ctrlName)?.setValue(v); }
@@ -270,7 +295,7 @@ export class EmployeelisteditComponent implements OnInit {
     if (!this.id || !this.formReady || this.form.invalid) return;
     this.saving = true;
 
-    const payload = { ...this.form.getRawValue() };
+    const payload = { ...this.form.getRawValue() } as any;
     if (payload.SameAsRegistered) {
       payload.CurrentAddress = payload.RegisteredAddress ?? '';
     }
@@ -305,7 +330,7 @@ export class EmployeelisteditComponent implements OnInit {
       return;
     }
     alert('儲存成功');
-    // ✅ 無論是否編輯自己或他人，都明確帶 id 回詳細頁，避免丟失目標
+    // ✅ 明確帶 id 回詳細頁，避免丟失目標
     this.router.navigate(['/erp/employeelistdetail', this.id]);
   }
 
