@@ -1,0 +1,30 @@
+<!-- 後台公開頁 Layout：只放需要的頂欄/容器與 <router-outlet> -->
+<div class="erp-auth-wrap">
+  <header class="erp-auth-header border-bottom bg-white px-3 py-2 d-flex align-items-center gap-2">
+    <a routerLink="/erp/login" class="d-flex align-items-center text-decoration-none">
+      <img src="assets/backend/images/logo/logo.png" alt="logo" height="36" class="me-2" />
+      <strong class="h5 mb-0 text-dark">NursingHome ERP</strong>
+    </a>
+    <span class="text-muted ms-2">｜員工入口</span>
+    <div class="ms-auto">
+      <a routerLink="/show/home" class="btn btn-link btn-sm text-decoration-none">回前台</a>
+    </div>
+  </header>
+
+  <main class="erp-auth-content">
+    <div class="container-xl">
+      <!-- 置中卡片：把 login/register/reset 自己的內容渲染在這裡 -->
+      <div class="auth-center">
+        <div class="card shadow-sm auth-card">
+          <div class="card-body">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center text-muted small py-3">
+    © {{ currentYear }} NursingHome ERP
+  </footer>
+</div>

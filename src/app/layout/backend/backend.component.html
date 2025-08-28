@@ -1,17 +1,13 @@
-<!-- 只在 showShell 時顯示後台殼 -->
-<section *ngIf="showShell">
-  <!-- header 會透過 openedChange 回報開關 -->
-  <app-header [(opened)]="showSidepanel"></app-header>
+<!-- 頂欄（由 HeaderComponent 輸出，含歡迎/登出/行動裝置漢堡） -->
+<app-header [(opened)]="sidepanelOpen"></app-header>
 
-  <!-- 你的側邊欄（或在 header 裡輸出也行），記得綁定 showSidepanel -->
-  <nav id="app-sidepanel" class="app-sidepanel" [class.sidepanel-hidden]="!showSidepanel" aria-label="後台主選單">
-    <!-- ...側欄內容... -->
-  </nav>
+<!-- 側邊欄（跟著 sidepanelOpen 開合） -->
+<nav id="app-sidepanel" class="app-sidepanel" [class.sidepanel-hidden]="!sidepanelOpen" aria-label="後台主選單">
+  <!-- 你的側欄內容（略） -->
+</nav>
 
-  <router-outlet></router-outlet>
-</section>
-
-<!-- 非登入狀態或公開頁，可放 <router-outlet> 或其他內容 -->
-<section *ngIf="!showShell">
-  <router-outlet></router-outlet>
-</section>
+<main class="app-content pt-3 p-md-3 p-lg-4">
+  <div class="container-xl">
+    <router-outlet></router-outlet>
+  </div>
+</main>
