@@ -2,11 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import {
-  EmployeeDetailDto,
-  EmployeeDetailApi,
-  mapEmployeeDetail
+  EmployeeDetailDto, EmployeeDetailApi, mapEmployeeDetail
 } from '../../models/employee-detail.dto';
 
 export type RegisterFullReq = {
@@ -17,12 +14,12 @@ export type RegisterFullReq = {
   username: string;
   password: string;
 };
-
 export type LoginReq = { username: string; password: string; };
 
+// 兼容：可能同時回 token（舊 JWT）與 user（Cookie 登入）
 export type LoginRes = {
-  token: string;     // 後端 JWT
-  user?: any;        // 若有回傳使用者資料會優先採用
+  token?: string;
+  user?: any;
   expiresIn?: number;
 };
 
@@ -34,7 +31,6 @@ export type CurrentUser = {
   raw?: any;
 };
 
-// 與 component 一致
 export type Dept = { id: number; name: string };
 export type Job = { id: number; name: string; deptId?: number };
 
@@ -42,67 +38,57 @@ export type Job = { id: number; name: string; deptId?: number };
 export class EmployeeAuthService {
   private http = inject(HttpClient);
 
-  // ⬇️ 新增：把相對路徑補成完整 URL；空值給後端 noimage
-  private toAbsoluteUrl(p: string | null | undefined): string {
-    // 後端預設圖（請確保檔案在 wwwroot/images/employees/noimage.jpg）
-    const fallback = `${this.API_HOST}/images/employees/noimage.jpg`;
-
-    if (!p || !p.trim()) return fallback;
-    const src = p.trim();
-    if (/^https?:\/\//i.test(src)) return src;           // 已是完整 URL
-    const rel = src.startsWith('/') ? src : `/${src}`;   // 確保有前導斜線
-    return `${this.API_HOST}${rel}`;
-  }
-  // ⬇️ 新增：你的後端 Host（跟你測圖用的一樣）
+  /** 後端主機 */
   private readonly API_HOST = 'https://localhost:7124';
 
-  // 你的 UserAccounts API
-  private readonly BASE = 'https://localhost:7124/api/EmployeeUserAccounts';
-  private readonly LOGIN_PATH = `${this.BASE}/login`;
-  private readonly REGISTER_FULL_PATH = `${this.BASE}/register-full`;
+  /** 員工帳號 API */
+  private readonly BASE = `${this.API_HOST}/api/EmployeeUserAccounts`;
+  private readonly LOGIN_COOKIE = `${this.BASE}/login-cookie`;
+  private readonly REGISTER_FULL = `${this.BASE}/register-full`;
 
-  // 部門 / 職稱 API（依你的專案命名）
-  private readonly DEPTS_API = 'https://localhost:7124/api/EmployeeDepartments';
-  private readonly JOBS_API = 'https://localhost:7124/api/EmployeeJobTitles';
+  /** 其他後台 API */
+  private readonly DEPTS_API = `${this.API_HOST}/api/EmployeeDepartments`;
+  private readonly JOBS_API = `${this.API_HOST}/api/EmployeeJobTitles`;
 
+  /** XHR 必須帶 Cookie */
+  private readonly cred = { withCredentials: true };
+
+  /** 舊 JWT 流程相容 */
   private readonly TOKEN_KEY = 'employee_token';
   private readonly DISPLAYNAME_KEY = 'employee_display_name';
 
-  /** 全站可訂閱目前使用者（Header/SideNav 用這個拿名字） */
+  /** 全站目前使用者 */
   readonly currentUser$ = new BehaviorSubject<CurrentUser | null>(null);
 
   constructor() {
-    // App 啟動 / F5 時，嘗試從 localStorage/Token 還原
     this.loadFromStorage();
   }
 
-  /** 註冊 */
+  // =============== Auth ===============
+
+  /** 註冊（匿名） */
   registerFull(payload: RegisterFullReq): Observable<any> {
-    return this.http.post(this.REGISTER_FULL_PATH, payload, {
+    return this.http.post(this.REGISTER_FULL, payload, {
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  /** 登入：成功後保存 token 與 displayName（從回傳或 JWT claim 取） */
+  /** 🔑 登入（Cookie 版；成功後瀏覽器會收到 Set-Cookie: erp.emp=...） */
   login(payload: LoginReq): Observable<LoginRes> {
-    return this.http.post<LoginRes>(this.LOGIN_PATH, payload).pipe(
-      tap((res) => {
-        // 1) 存 token
-        if (res?.token) {
-          localStorage.setItem(this.TOKEN_KEY, res.token);
-        }
+    return this.http.post<LoginRes>(this.LOGIN_COOKIE, payload, this.cred).pipe(
+      tap(res => {
+        // 兼容：後端若仍回 token，就存起來讓舊程式可運作
+        if (res?.token) localStorage.setItem(this.TOKEN_KEY, res.token);
 
-        // 2) 取 displayName（先 user 欄位、再 JWT claims）
-        const displayName =
-          (res?.user?.displayName ??
-            res?.user?.name ??
-            res?.user?.nickName ??
-            this.getDisplayNameFromTokenInternal(res?.token ?? null)) ?? '';
+        const name =
+          res?.user?.Name ??
+          res?.user?.name ??
+          res?.user?.displayName ??
+          '';
 
-        // 3) 寫入 localStorage + 推送給訂閱者（Header/SideNav）
-        if (displayName) {
-          localStorage.setItem(this.DISPLAYNAME_KEY, displayName);
-          this.currentUser$.next({ displayName, name: displayName, raw: res?.user });
+        if (name) {
+          localStorage.setItem(this.DISPLAYNAME_KEY, name);
+          this.currentUser$.next({ displayName: name, name, raw: res?.user });
         } else {
           this.currentUser$.next(null);
         }
@@ -110,50 +96,26 @@ export class EmployeeAuthService {
     );
   }
 
-  /** 登出 */
+  /** 登出（清掉前端狀態；如需登出 Cookie 也可打 /logout-cookie） */
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.DISPLAYNAME_KEY);
     this.currentUser$.next(null);
   }
 
-  /** 是否已登入（token 存在且有效） */
+  /** ✅ 新：Cookie 流程的判斷（或有 JWT 也視為已登入） */
   isLoggedIn(): boolean {
-    return this.isTokenValid();
+    const t = this.getToken();
+    return !!t || !!this.getDisplayName();
   }
 
-  /** 啟動/重整時還原狀態 */
-  loadFromStorage(): void {
-    const token = this.getToken();
-    if (!token || !this.isTokenValid(token)) {
-      this.currentUser$.next(null);
-      return;
-    }
-
-    // 先用 localStorage 的名稱；若沒有再從 token 解析
-    let displayName = localStorage.getItem(this.DISPLAYNAME_KEY) || '';
-    if (!displayName) {
-      displayName = this.getDisplayNameFromTokenInternal(token) || '';
-      if (displayName) {
-        localStorage.setItem(this.DISPLAYNAME_KEY, displayName);
-      }
-    }
-
-    if (displayName) {
-      this.currentUser$.next({ displayName, name: displayName });
-    } else {
-      this.currentUser$.next(null);
-    }
-  }
-
-  /** 取得 token（攔截器會用到） */
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  /** 檢查 JWT 是否有效（exp > now） */
+  /** 🔁 舊相容：部分 guard/元件仍呼叫 isTokenValid() */
   isTokenValid(token: string | null = this.getToken()): boolean {
-    if (!token) return false;
+    if (!token) {
+      // 沒 token 時，在 Cookie 流程下用 displayName 檢查
+      return !!this.getDisplayName();
+    }
+    // 有 token → 解析 exp 檢查
     try {
       const p = this.decodeJwtPayload(token);
       const now = Math.floor(Date.now() / 1000);
@@ -163,12 +125,15 @@ export class EmployeeAuthService {
     }
   }
 
-  /** 直接取 displayName（給 Header 初次渲染） */
-  getDisplayName(): string {
-    return localStorage.getItem(this.DISPLAYNAME_KEY) || '';
+  loadFromStorage(): void {
+    const displayName = localStorage.getItem(this.DISPLAYNAME_KEY) || '';
+    if (displayName) this.currentUser$.next({ displayName, name: displayName });
   }
 
-  /** ✅ 提供給頁面顯示帳號（從 JWT 解析） */
+  getToken(): string | null { return localStorage.getItem(this.TOKEN_KEY); }
+  getDisplayName(): string { return localStorage.getItem(this.DISPLAYNAME_KEY) || ''; }
+
+  /** 🔁 舊相容：從 JWT 取使用者名稱（Cookie 流程沒有就回空字串） */
   getUsernameFromToken(): string {
     const t = this.getToken();
     if (!t) return '';
@@ -183,12 +148,13 @@ export class EmployeeAuthService {
     );
   }
 
-  /** 從 JWT 取 EmployeeId（後端以 ClaimTypes.NameIdentifier 寫入） */
+  /** 🔁 舊相容：從 JWT 取 EmployeeId（Cookie 流程沒有就回 null） */
   getEmployeeIdFromToken(): number | null {
     const t = this.getToken();
     if (!t) return null;
     const p = this.decodeJwtPayload(t);
     const idStr =
+      p?.employeeid ||
       p?.nameid ||
       p?.sub ||
       p?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
@@ -196,57 +162,29 @@ export class EmployeeAuthService {
     return Number.isFinite(id) ? id : null;
   }
 
-  /** 驗證舊密碼（不傳 username，後端從 JWT 判斷） */
-  verifyOldPassword(oldPassword: string) {
-    const url = `${this.BASE}/password/verify`;
-    return this.http.post(url, { oldPassword }, { responseType: 'text' });
-  }
+  // =============== 員工詳細（都帶 Cookie） ===============
 
-  /** 變更密碼：舊密碼 + 新密碼，一次完成 */
-  changePassword(oldPassword: string, newPassword: string) {
-    const url = `${this.BASE}/password/change`;
-    return this.http.post(url, { oldPassword, newPassword }, { responseType: 'text' });
-  }
-
-  /**
-   * 取得個人詳細資料（後端 camelCase → 前端 PascalCase）
-   * 並在 photoPath 缺漏時補上預設圖
-   */
   getEmployeeDetail(id: number): Observable<EmployeeDetailDto> {
     return this.http
-      .get<EmployeeDetailApi>(`${this.BASE}/${id}/detail`)
+      .get<EmployeeDetailApi>(`${this.BASE}/${id}/detail`, this.cred)
       .pipe(
         map(api => {
-          // 後端若沒給 photoPath，先用後端的 noimage 相對路徑
           const rawPath =
             api?.photoPath && api.photoPath.trim()
               ? api.photoPath.trim()
               : '/images/employees/noimage.jpg';
-
-          // 轉成完整 URL，再交給 mapEmployeeDetail
-          const withFull: EmployeeDetailApi = {
-            ...api,
-            photoPath: this.toAbsoluteUrl(rawPath),
-          };
-          return mapEmployeeDetail(withFull);
+          const abs = this.toAbsoluteUrl(rawPath);
+          return mapEmployeeDetail({ ...api, photoPath: abs });
         })
       );
   }
 
-
-  // ---------------- 更新、上傳 ----------------
-
-  /**
-   * 更新（把 form.getRawValue() 丟進來即可；同時送出名稱與 ID，避免資料遺失）
-   */
   updateEmployeeDetail(id: number, dto: any) {
     const body = {
       employeeId: id,
-
-      // 基本
       name: dto.Name,
       identityNumber: dto.IdentityNumber,
-      birthDate: dto.BirthDate, // yyyy-MM-dd
+      birthDate: dto.BirthDate,
       phone: dto.Phone,
       email: dto.Email,
       educationLevel: dto.EducationLevel,
@@ -255,94 +193,78 @@ export class EmployeeAuthService {
       height: dto.Height,
       weight: dto.Weight,
       payrollBankAccount: dto.PayrollBankAccount,
-
-      // 職務（同時傳名稱與ID，後端視情況採用）
       employmentStatusText: dto.EmploymentStatusText,
       departmentId: dto.DepartmentId ?? null,
       departmentName: dto.DepartmentName ?? null,
       jobTitleId: dto.JobTitleId ?? null,
       jobTitleName: dto.JobTitleName ?? null,
-
-      hireDate: dto.HireDate, // yyyy-MM-dd
+      hireDate: dto.HireDate,
       policeClearanceCertified: dto.PoliceClearanceCertified,
       isSupervisor: dto.IsSupervisor,
       isAdmin: dto.IsAdmin,
-
-      // 緊急聯絡人
       emergencyContactPerson: dto.EmergencyContactPerson,
       emergencyContactPhone: dto.EmergencyContactPhone,
       emergencyContactRelationship: dto.EmergencyContactRelationship,
     };
 
-    return this.http.put(`${this.BASE}/${id}/detail`, body, { responseType: 'text' });
+    return this.http.put(`${this.BASE}/${id}/detail`, body, {
+      ...this.cred, responseType: 'text'
+    });
   }
 
-  /** 上傳頭像（FormData） */
   uploadEmployeePhoto(id: number, file: File) {
     const fd = new FormData();
     fd.append('photo', file);
-    return this.http.post(`${this.BASE}/${id}/photo`, fd, { responseType: 'text' });
+    return this.http.post(`${this.BASE}/${id}/photo`, fd, {
+      ...this.cred, responseType: 'text'
+    });
   }
 
-  // ---------------- 部門 / 職稱 清單 ----------------
+  verifyOldPassword(oldPassword: string) {
+    return this.http.post(`${this.BASE}/password/verify`, { oldPassword }, {
+      ...this.cred, responseType: 'text'
+    });
+  }
 
-  /**
-   * 取得部門清單（對應 EmployeeDepartment）
-   * 期待後端回傳欄位：DepartmentID, DepartmentName
-   * GET https://localhost:7124/api/EmployeeDepartments
-   */
+  changePassword(oldPassword: string, newPassword: string) {
+    return this.http.post(`${this.BASE}/password/change`, { oldPassword, newPassword }, {
+      ...this.cred, responseType: 'text'
+    });
+  }
+
+  // =============== 部門 / 職稱（保險起見一律帶 Cookie） ===============
+
   getDepartments(): Observable<Dept[]> {
-    return this.http.get<any[]>(this.DEPARTS_API_FALLBACK()).pipe(
-      map(rows =>
-        (rows ?? []).map(r => ({
-          id: r.DepartmentID ?? r.departmentID ?? r.id,
-          name: r.DepartmentName ?? r.departmentName ?? r.name,
-        }) as Dept)
-      )
+    return this.http.get<any[]>(this.DEPTS_API, this.cred).pipe(
+      map(rows => (rows ?? []).map(r => ({
+        id: r.DepartmentID ?? r.id,
+        name: r.DepartmentName ?? r.name,
+      }) as Dept))
     );
   }
 
-  /**
-   * 依部門取得職稱清單（對應 EmployeeJobTitle）
-   * 期待後端回傳欄位：JobTitleID, TitleName, DepartmentID
-   * GET https://localhost:7124/api/EmployeeJobTitles?departmentId=1
-   */
   getJobsByDepartment(departmentId: number): Observable<Job[]> {
-    const params = { departmentId: String(departmentId) };
-    return this.http.get<any[]>(this.JOBS_API, { params }).pipe(
-      map(rows =>
-        (rows ?? []).map(r => ({
-          id: r.JobTitleID ?? r.jobTitleID ?? r.id,
-          name: r.TitleName ?? r.titleName ?? r.name,
-          deptId: r.DepartmentID ?? r.departmentID ?? r.deptId,
-        }) as Job)
-      )
+    return this.http.get<any[]>(this.JOBS_API, {
+      ...this.cred, params: { departmentId: String(departmentId) }
+    }).pipe(
+      map(rows => (rows ?? []).map(r => ({
+        id: r.JobTitleID ?? r.id,
+        name: r.TitleName ?? r.name,
+        deptId: r.DepartmentID ?? r.deptId,
+      }) as Job))
     );
   }
 
-  // 若你尚未建立 EmployeeDepartments Controller，可暫時改用此 fallback（請依實際情況移除）
-  private DEPARTS_API_FALLBACK() { return this.DEPARTS_API_EXISTS() ? this.DEPARTS_API_EXISTS() : this.DEPTS_API; }
-  private DEPARTS_API_EXISTS() { return this.DEPTS_API; }
+  // =============== helpers ===============
 
-  // ---------------- private helpers ----------------
-
-  /** 從 JWT 解出可能的名稱欄位 */
-  private getDisplayNameFromTokenInternal(token: string | null): string | null {
-    if (!token) return null;
-    const p = this.decodeJwtPayload(token);
-    if (!p) return null;
-    return (
-      p.name ||
-      p.displayName ||
-      p.username ||
-      p.unique_name ||
-      p.sub ||
-      p['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
-      null
-    );
+  private toAbsoluteUrl(p: string | null | undefined): string {
+    const fallback = `${this.API_HOST}/images/employees/noimage.jpg`;
+    if (!p || !p.trim()) return fallback;
+    if (/^https?:\/\//i.test(p)) return p;
+    const rel = p.startsWith('/') ? p : `/${p}`;
+    return `${this.API_HOST}${rel}`;
   }
 
-  /** 安全解析 JWT payload（支援瀏覽器 / SSR / 單元測試環境） */
   private decodeJwtPayload(token: string): any | null {
     try {
       const payload = token.split('.')[1] || '';
@@ -354,11 +276,8 @@ export class EmployeeAuthService {
     }
   }
 
-  /** Base64 解碼：瀏覽器用 atob；SSR/測試用 Buffer（若存在） */
   private base64Decode(src: string): string {
-    if (typeof globalThis.atob === 'function') {
-      return globalThis.atob(src);
-    }
+    if (typeof globalThis.atob === 'function') return globalThis.atob(src);
     const g: any = globalThis as any;
     if (g.Buffer && typeof g.Buffer.from === 'function') {
       return g.Buffer.from(src, 'base64').toString('utf-8');
