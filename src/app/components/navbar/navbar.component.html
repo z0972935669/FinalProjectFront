@@ -35,10 +35,10 @@
           }
 
           <div class="nav-item">
-            <a routerLink="/show/cart" class="position-relative me-4 my-auto">
+            <a [routerLink]="isLoggedIn() ? '/show/cart' : '/show/login'" class="position-relative me-4 my-auto">
               <i class="fa fa-shopping-bag"></i>
 
-              @if (cartCount > 0) {
+              @if (isLoggedIn() && cartCount > 0) {
               <span
                 class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1"
                 style="top: -15px; left: 23px; height: 20px; min-width: 20px">
