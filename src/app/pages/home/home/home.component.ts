@@ -4,17 +4,21 @@ import { SwiperComponent } from '../../../components/shared/swiper/swiper.compon
 import { BannerSwiperComponent } from '../../../components/shared/banner-swiper/banner-swiper.component';
 import { RoomSwiperComponent } from '../../room/room-swiper/room-swiper.component';
 import { Room } from '../../../interfaces/room/room.interface';
+import { IShopProductList } from '../../../interfaces/shop/shop-list';
 import { RoomSwiperService } from '../../../services/room/room-swiper.service';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, SwiperComponent, BannerSwiperComponent, RoomSwiperComponent],
+  imports: [RouterModule, SwiperComponent, BannerSwiperComponent, RoomSwiperComponent, HttpClientModule, CurrencyPipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
   roomItems: Room[] = [];
+  productList: IShopProductList[] = [];
 
   private fallbackRoomItems: Room[] = [
     {
@@ -55,7 +59,7 @@ export class HomeComponent implements OnInit {
     }
   ];
 
-  constructor(private roomService: RoomSwiperService) { }
+  constructor(private roomService: RoomSwiperService, private http: HttpClient) { }
 
   ngOnInit() {
     this.roomService.getRooms().subscribe({
@@ -83,6 +87,24 @@ export class HomeComponent implements OnInit {
         this.roomItems = this.fallbackRoomItems;
         console.log('使用後備 room data:', this.roomItems);
         console.log('使用 fallback，第一筆名稱:', this.fallbackRoomItems[0]?.fRoomAlias);
+      }
+    });
+
+    this.loadHotProducts();
+  }
+
+  private loadHotProducts(): void {
+    // 依你慣用的後端固定埠（你之前說用 7124）
+    const baseUrl = 'https://localhost:7124';
+    const url = `${baseUrl}/api/ShopProducts/list?page=1&pageSize=4`;
+    this.http.get<{ items: IShopProductList[]; totalCount: number }>(url).subscribe({
+      next: (res) => {
+        this.productList = Array.isArray(res?.items) ? res.items : [];
+        console.log('Hot products:', this.productList);
+      },
+      error: (err) => {
+        console.error('載入熱銷商品失敗：', err);
+        this.productList = []; // 留給前端顯示「目前沒有商品」
       }
     });
   }
