@@ -5,11 +5,16 @@ import { OrderService } from '../../../services/order/order.service';
 import { Order } from '../../../interfaces/order/order.interface';
 import { CartService, CartItem } from '../../../services/cart/cart.service';
 import { TrimPipe } from '../../../pipes/cart/checkout.pipe';
-import { MemberInfo, MemberService } from '../../../services/member/member.service';
+import {
+  MemberInfo,
+  MemberService,
+} from '../../../services/member/member.service';
 import { CityService } from '../../../services/city/checkout-city.service';
 import { PaymentService } from '../../../services/payment/payment.service';
 import { ECPayRequest } from '../../../interfaces/payment/ecpay.interface';
 import { CurrencyPipe } from '@angular/common';
+import Swal from 'sweetalert2';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-checkout',
@@ -101,7 +106,11 @@ export class CheckoutComponent {
         { label: '全家 取貨付款', value: 'CVS_FAMI_COD' },
         { label: '黑貓宅急便 貨到付款', value: 'HOME_BlackCat_COD' },
       ];
-    } else if (this.paymentMethod === 'Credit' || this.paymentMethod === 'ATM' || this.paymentMethod === 'CVS') {
+    } else if (
+      this.paymentMethod === 'Credit' ||
+      this.paymentMethod === 'ATM' ||
+      this.paymentMethod === 'CVS'
+    ) {
       return [
         { label: '7-11 超商取貨', value: 'CVS_711' },
         { label: '全家 超商取貨', value: 'CVS_FAMI' },
@@ -122,7 +131,21 @@ export class CheckoutComponent {
     return this.subtotal + this.shippingFee;
   }
 
-  placeOrder() {
+  async placeOrder() {
+    // SweetAlert2 確認視窗
+    const ok = await Swal.fire({
+      title: '確認送出訂單？',
+      html: `總金額 <b>${this.totalAmount.toLocaleString()}</b> 元`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '送出',
+      cancelButtonText: '再看看',
+      confirmButtonColor: '#22c55e',
+      cancelButtonColor: '#888',
+    });
+
+    if (!ok.isConfirmed) return; // 使用者取消
+
     const fullAddress = `${this.city}${this.district}${this.streetAddress}`;
 
     const order: Order = {
@@ -150,15 +173,39 @@ export class CheckoutComponent {
 
     // Step 1: 先建立訂單 (DB)
     this.orderService.createOrder(order).subscribe({
-      next: (res) => {
+      next: async (res) => {
         // 後端回傳的訂單編號（請確保後端有其一）
         const merchantTradeNo: string = res.merchantTradeNo ?? res.orderNo;
 
-        // === 貨到付款：直接清空 + 導成功頁 ===
+        // === 貨到付款：直接扣庫存 + 清空 + 導成功頁 ===
         if (this.paymentMethod === 'COD') {
+          try {
+            // 扣庫存（後端 /api/Checkout/DeductStock）
+            await firstValueFrom(
+              this.orderService.deductStock(merchantTradeNo)
+            );
+          } catch (e) {
+            console.error('扣庫存失敗', e);
+            // 不中斷使用者流程，但給提醒
+            await Swal.fire({
+              icon: 'warning',
+              title: '訂單已建立，但扣庫存失敗',
+              text: '請稍後到訂單查詢或聯繫客服處理。',
+            });
+          }
+
+          // 清空購物車 + 成功提示 + 導頁（與你原本一致）
           this.cartService.clearCart();
-          // 成功頁依舊帶 orderNo，方便顯示資訊
-          this.router.navigateByUrl(`/show/checkoutsuccessful?orderNo=${merchantTradeNo}`);
+          await Swal.fire({
+            icon: 'success',
+            title: '下單成功',
+            text: '您的訂單已成立，將為您導向成功頁。',
+            timer: 1400,
+            showConfirmButton: false,
+          });
+          this.router.navigateByUrl(
+            `/show/checkoutsuccessful?orderNo=${merchantTradeNo}`
+          );
           return;
         }
 
@@ -174,45 +221,84 @@ export class CheckoutComponent {
           ClientBackURL: clientBackUrl, // 關鍵：帶回成功頁
         };
 
-        this.paymentService.createOrder(ecpayRequest).subscribe((ecRes) => {
-          // Step 3: 自動產生 form 跳轉綠界
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
+        const ecRes = await firstValueFrom(this.paymentService.createOrder(ecpayRequest));
 
-          for (const key in ecRes) {
-            if (!ecRes.hasOwnProperty(key)) continue;
+        // 小提示（非必要）
+        await Swal.fire({
+          icon: 'info',
+          title: '前往綠界付款',
+          text: '即將前往付款頁面，請勿關閉視窗。',
+          timer: 1000,
+          showConfirmButton: false,
+        });
 
-            const input = document.createElement('input');
-            input.type = 'hidden';
+        // Step 3: 自動產生 form 跳轉綠界
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action =
+          'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
 
-            let properKey = key;
-            switch (key.toLowerCase()) {
-              case 'merchantid': properKey = 'MerchantID'; break;
-              case 'merchanttradeno': properKey = 'MerchantTradeNo'; break;
-              case 'merchanttradedate': properKey = 'MerchantTradeDate'; break;
-              case 'totalamount': properKey = 'TotalAmount'; break;
-              case 'tradedesc': properKey = 'TradeDesc'; break;
-              case 'itemname': properKey = 'ItemName'; break;
-              case 'returnurl': properKey = 'ReturnURL'; break;
-              case 'clientbackurl': properKey = 'ClientBackURL'; break;
-              case 'choosepayment': properKey = 'ChoosePayment'; break;
-              case 'encrypttype': properKey = 'EncryptType'; break;
-              case 'paymenttype': properKey = 'PaymentType'; break;
-              case 'checkmacvalue': properKey = 'CheckMacValue'; break;
-            }
+        for (const key in ecRes) {
+          if (!ecRes.hasOwnProperty(key)) continue;
 
-            input.name = properKey;
-            input.value = ecRes[key];
-            form.appendChild(input);
+          const input = document.createElement('input');
+          input.type = 'hidden';
+
+          let properKey = key;
+          switch (key.toLowerCase()) {
+            case 'merchantid':
+              properKey = 'MerchantID';
+              break;
+            case 'merchanttradeno':
+              properKey = 'MerchantTradeNo';
+              break;
+            case 'merchanttradedate':
+              properKey = 'MerchantTradeDate';
+              break;
+            case 'totalamount':
+              properKey = 'TotalAmount';
+              break;
+            case 'tradedesc':
+              properKey = 'TradeDesc';
+              break;
+            case 'itemname':
+              properKey = 'ItemName';
+              break;
+            case 'returnurl':
+              properKey = 'ReturnURL';
+              break;
+            case 'clientbackurl':
+              properKey = 'ClientBackURL';
+              break;
+            case 'choosepayment':
+              properKey = 'ChoosePayment';
+              break;
+            case 'encrypttype':
+              properKey = 'EncryptType';
+              break;
+            case 'paymenttype':
+              properKey = 'PaymentType';
+              break;
+            case 'checkmacvalue':
+              properKey = 'CheckMacValue';
+              break;
           }
 
-          document.body.appendChild(form);
-          form.submit();
-        });
+          input.name = properKey;
+          input.value = ecRes[key];
+          form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
       },
-      error: (err) => {
+      error: async (err) => {
         console.error('建立訂單失敗', err);
+        await Swal.fire({
+          icon: 'error',
+          title: '下單失敗',
+          text: '系統忙碌或連線不穩，請稍後再試。',
+        });
       },
     });
   }

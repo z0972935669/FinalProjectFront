@@ -16,4 +16,9 @@ export class OrderService {
   createOrder(order: Order): Observable<any> {
     return this.http.post(this.apiUrl, order);
   }
+
+  // 新增：扣庫存（後端請提供對應端點；此處以 POST /DeductStock 為例
+  deductStock(orderNo: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/DeductStock`, { orderNo });
+  }
 }
