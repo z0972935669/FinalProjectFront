@@ -79,7 +79,7 @@
                       <img [src]="p.thumbnailPhotoPath" class="img-fluid w-100 rounded-top" alt="{{ p.productName }}" />
                     </div>
                     <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                      <h4 class="shop-title">{{ p.productName }}</h4>
+                      <h4 class="shop-title text-start">{{ p.productName }}</h4>
                       <div class="d-flex justify-content-between flex-lg-wrap">
                         @if (p.originalPrice && p.originalPrice > (p.salePrice ?? 0)) {
                         <p class="text-muted mb-0">
