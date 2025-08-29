@@ -42,6 +42,30 @@ export class ShopDetailComponent implements AfterViewInit, AfterViewChecked {
     return (this.product?.stock ?? 0) > 0;
   }
 
+  // 購物車既有數量
+  private get existInCart(): number {
+    if (!this.product) return 0;
+    return (
+      this.cartService
+        .getCart()
+        .find((c) => c.productId === this.product!.productID)?.quantity ?? 0
+    );
+  }
+
+  // 庫存扣掉購物車既有數量後，最多還能再加多少
+  get maxCanAdd(): number {
+    if (!this.product) return 0;
+    const stock = Number(this.product.stock ?? 0);
+    const exist = Number(this.existInCart);
+    return Math.max(0, stock - exist);
+  }
+
+  // 是否超過可加入上限（用於模板與 addToCart 雙重保險)
+  get isOverStock(): boolean {
+    const qty = Number(this.count1 || 0);
+    return qty > this.maxCanAdd;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -146,6 +170,16 @@ export class ShopDetailComponent implements AfterViewInit, AfterViewChecked {
     });
   }
 
+  // 數量變更：超過庫存立即用 toast 提示
+  onQtyChange(newQty: number) {
+    this.count1 = newQty;
+    if (this.isOverStock) {
+      toast.warning('超過庫存', {
+        description: `最多可再加 ${this.maxCanAdd} 件（庫存 ${this.product?.stock}，購物車已有 ${this.existInCart} 件）。`,
+      });
+    }
+  }
+
   addToCart() {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
@@ -154,19 +188,29 @@ export class ShopDetailComponent implements AfterViewInit, AfterViewChecked {
     }
     if (!this.product || !this.inStock) return;
 
+    // 超過庫存就擋下來並提示
+    if (this.isOverStock) {
+      toast.error('超過庫存，無法加入', {
+        description: `庫存 ${this.product.stock} 件，購物車已有 ${this.existInCart} 件，最多可再加 ${this.maxCanAdd} 件。`,
+      });
+      return;
+    }
+
     const image =
       this.product.largePhotoPath ||
       this.product.galleryThumbPaths?.[0] ||
       this.product.galleryLargePaths?.[0] ||
       '';
 
+    // 多帶 stock 進購物車
     this.cartService.add({
       productId: this.product.productID,
       name: this.product.productName,
       price: this.product.salePrice!,
       quantity: this.count1,
       image,
-    });
+      stock: this.product.stock ?? 0,
+    } as any);
 
     toast.success('已加入購物車', {
       description: `${this.product.productName} × ${this.count1}`,

@@ -23,9 +23,9 @@
               <div class="swiper swiper-main mb-3">
                 <div class="swiper-wrapper">
                   @for (img of product?.galleryLargePaths; track $index) {
-                    <div class="swiper-slide">
-                      <img [src]="img" class="img-fluid rounded w-100" />
-                    </div>
+                  <div class="swiper-slide">
+                    <img [src]="img" class="img-fluid rounded w-100" />
+                  </div>
                   }
                 </div>
                 <div class="swiper-button-next"></div>
@@ -36,9 +36,9 @@
               <div class="swiper swiper-thumbs">
                 <div class="swiper-wrapper">
                   @for (img of product?.galleryThumbPaths; track $index) {
-                    <div class="swiper-slide">
-                      <img [src]="img" class="img-fluid rounded" style="height: 80px; width: auto;" />
-                    </div>
+                  <div class="swiper-slide">
+                    <img [src]="img" class="img-fluid rounded" style="height: 80px; width: auto;" />
+                  </div>
                   }
                 </div>
               </div>
@@ -49,32 +49,35 @@
             <h4 class="fw-bold mb-3">{{ product?.productName }}</h4>
             <div class="d-flex align-items-baseline gap-3 mb-2">
               @if (product && product.originalPrice > product.salePrice) {
-                <p class="text-muted">
-                  <del>{{ product.originalPrice | currency:'TWD':'symbol':'1.0-0' }}</del>
-                </p>
+              <p class="text-muted">
+                <del>{{ product.originalPrice | currency:'TWD':'symbol':'1.0-0' }}</del>
+              </p>
               }
               <h5 class="fw-bold mb-3">{{ product?.salePrice | currency:'TWD':'symbol':'1.0-0' }}</h5>
             </div>
 
             <div class="mb-3">
               @if(inStock) {
-                <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
-                  庫存：{{ product?.stock }}
-                </span>
+              <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
+                庫存：{{ product?.stock }}
+              </span>
               }
               @if(!inStock) {
-                <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2">
-                  缺貨
-                </span>
-              } 
+              <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2">
+                缺貨
+              </span>
+              }
             </div>
 
             <p class="mb-4" [innerHTML]="product?.summary"></p>
 
-            <app-quantity [(value)]="count1" [disabled]="!inStock"></app-quantity>
+            <app-quantity [(value)]="count1" (valueChange)="onQtyChange($event)" [disabled]="!inStock">
+            </app-quantity>
 
             <button class="btn border border-secondary rounded-pill px-4 py-2 mb-4 mt-4 text-primary"
-              [class.disabled]="!inStock" [attr.aria-disabled]="!inStock" (click)="addToCart()">
+              [class.disabled]="!inStock || isOverStock" [attr.aria-disabled]="!inStock || isOverStock"
+              [disabled]="!inStock || isOverStock" (click)="addToCart()"
+              [title]="!inStock ? '缺貨中' : (isOverStock ? '數量超過庫存' : '加入購物車')">
               <i class="fa fa-shopping-bag me-2 text-primary"></i>
               {{ inStock ? '加入購物車' : '缺貨中' }}
             </button>
@@ -150,39 +153,39 @@
           </div>
           <!-- 相關商品 -->
           @if(related.length) {
-            <div class="col-lg-12">
-              <h5 class="fw-bold mb-3">相關商品</h5>
-  
-              <div class="swiper related-swiper">
-                <div class="swiper-wrapper">
-                  @for (r of related; track $index) {
-                    <div class="swiper-slide">
-                      <a [routerLink]="['/show/shop', r.slug]" class="rounded position-relative fruite-item d-block h-100">
-                        <div class="fruite-img">
-                          <img [src]="r.thumbnailPhotoPath" class="img-fluid w-100 rounded-top" alt="{{ r.productName }}">
-                        </div>
-                        <div class="p-3 border border-secondary border-top-0 rounded-bottom h-100">
-                          <div class="small text-muted mb-1">{{ r.categoryName }}</div>
-                          <h6 class="mb-2 text-truncate">{{ r.productName }}</h6>
-                          <div class="d-flex align-items-baseline gap-2">
-                            @if(r.originalPrice && r.originalPrice > (r.salePrice ?? 0)) {
-                              <small class="text-muted">
-                                <del>{{ r.originalPrice | currency:'TWD':'symbol':'1.0-0' }}</del>
-                              </small>
-                            }
-                            <span class="fw-bold">{{ r.salePrice | currency:'TWD':'symbol':'1.0-0' }}</span>
-                          </div>
-                        </div>
-                      </a>
+          <div class="col-lg-12">
+            <h5 class="fw-bold mb-3">相關商品</h5>
+
+            <div class="swiper related-swiper">
+              <div class="swiper-wrapper">
+                @for (r of related; track $index) {
+                <div class="swiper-slide">
+                  <a [routerLink]="['/show/shop', r.slug]" class="rounded position-relative fruite-item d-block h-100">
+                    <div class="fruite-img">
+                      <img [src]="r.thumbnailPhotoPath" class="img-fluid w-100 rounded-top" alt="{{ r.productName }}">
                     </div>
-                  }
+                    <div class="p-3 border border-secondary border-top-0 rounded-bottom h-100">
+                      <div class="small text-muted mb-1">{{ r.categoryName }}</div>
+                      <h6 class="mb-2 text-truncate">{{ r.productName }}</h6>
+                      <div class="d-flex align-items-baseline gap-2">
+                        @if(r.originalPrice && r.originalPrice > (r.salePrice ?? 0)) {
+                        <small class="text-muted">
+                          <del>{{ r.originalPrice | currency:'TWD':'symbol':'1.0-0' }}</del>
+                        </small>
+                        }
+                        <span class="fw-bold">{{ r.salePrice | currency:'TWD':'symbol':'1.0-0' }}</span>
+                      </div>
+                    </div>
+                  </a>
                 </div>
-  
-                <!-- Swiper navigation -->
-                <div class="related-next swiper-button-next"></div>
-                <div class="related-prev swiper-button-prev"></div>
+                }
               </div>
+
+              <!-- Swiper navigation -->
+              <div class="related-next swiper-button-next"></div>
+              <div class="related-prev swiper-button-prev"></div>
             </div>
+          </div>
           }
 
           <!-- /相關商品 -->

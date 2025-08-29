@@ -1,3 +1,5 @@
+<ngx-sonner-toaster [position]="'top-right'" [richColors]="true"></ngx-sonner-toaster>
+
 <!-- Single Page Header start -->
 <div class="container-fluid page-header py-5 mt-0">
   <h1 class="text-center text-white display-6">購物車</h1>
@@ -86,7 +88,7 @@
             <h5 class="mb-0 ps-4 me-4">總金額</h5>
             <p class="mb-0 pe-4 text-primary display-5">${{ total }}</p>
           </div>
-          <button routerLink="/show/checkout"
+          <button (click)="proceedCheckout()"
                   class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4"
                   type="button">
             繼續結帳
