@@ -17,11 +17,12 @@ import {
 import { CartService } from '../../../services/cart/cart.service';
 import Swiper from 'swiper/bundle';
 import 'swiper/css/bundle';
+import { NgxSonnerToaster, toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-shop-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, QuantityComponent],
+  imports: [CommonModule, RouterModule, QuantityComponent, NgxSonnerToaster],
   templateUrl: './shop-detail.component.html',
   styleUrls: ['./shop-detail.component.scss'],
 })
@@ -167,6 +168,13 @@ export class ShopDetailComponent implements AfterViewInit, AfterViewChecked {
       image,
     });
 
-    alert('已加入購物車！');
+    toast.success('已加入購物車', {
+      description: `${this.product.productName} × ${this.count1}`,
+      duration: 2500,
+      action: {
+        label: '查看購物車',
+        onClick: () => this.router.navigate(['/show/cart']),
+      },
+    });
   }
 }
