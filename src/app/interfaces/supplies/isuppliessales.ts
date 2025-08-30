@@ -1,11 +1,11 @@
 export interface Isuppliessales {
   suppliesSalesOrderId: number,
 
-  orderDate?: Date,
+  orderDate?: string,
 
   customerName?: string,
 
-  receivedDate?: Date,
+  receivedDate?: string,
 
   orderStatus?: string,
 
@@ -15,7 +15,15 @@ export interface Isuppliessales {
 
   quantityOfSales?: number,
 
-  expiryDate?: Date,
+  expiryDate?: string,
 
   suppliesProductName?: string
+
+  suppliesCategoryId?: number,
+
+  suppliesCategoryName?: string,
+
+  suppliesSupplierId?: number,
+
+  suppliesSupplierName?: string
 }

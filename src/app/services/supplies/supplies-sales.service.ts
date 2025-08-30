@@ -14,4 +14,8 @@ export class SuppliesSalesService {
   getSuppliesSalesList(): Observable<Isuppliessales[]> {
     return this.http.get<Isuppliessales[]>(this.apiUrlsales)
   }
+
+  addSuppliesSalesList(sales: Isuppliessales): Observable<Isuppliessales> {
+    return this.http.post<Isuppliessales>(this.apiUrlsales, sales)
+  }
 }

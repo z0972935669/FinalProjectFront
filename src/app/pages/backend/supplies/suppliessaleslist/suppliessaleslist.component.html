@@ -48,45 +48,96 @@
           aria-selected="false">已取消</a>
       </nav>
 
-      <!-- 利用Modal新增品項 -->
+      <!-- 利用Modal新增銷貨單 -->
       <div class="modal fade" id="addSalesModal" data-bs-backdrop="static" tabindex="-1"
         aria-labelledby="addSalesModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg custom-modal-width">
           <div class="modal-content">
-            <form (ngSubmit)="submitAddSales()" #addSuppliesForm="ngForm">
+            <form (ngSubmit)="submitAddSales()" #addSalesModal="ngForm">
               <div class="modal-header">
-                <h5 class="modal-title" id="addSalesModalLabel">新增品項</h5>
+                <h5 class="modal-title" id="addSalesModalLabel">新增銷貨單</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
+              <div class="ms-3 mt-3">
+                <button type="button" class="btn-primary" (click)="addSalesItem()">新增物品</button>
+              </div>
               <div class="modal-body">
-                <!-- 物品名稱 -->
-                <!-- <div class="mb-3">
-                  <label for="suppliesProductName" class="form-label">物品名稱</label>
-                  <input type="text" id="suppliesProductName" class="form-control"
-                    [(ngModel)]="newProduct.suppliesProductName" name="suppliesProductName" required />
-                </div> -->
-                <!-- 供應商名稱 (下拉式選單) -->
-                <!-- <div class="mb-3">
-                  <label for="suppliesSupplierName" class="form-label">供應商名稱</label>
-                  <select id="suppliesSupplierName" class="form-select" [(ngModel)]="newProduct.supplierId"
-                    name="supplierId" required (change)="onSupplierChange($event)">
-                    <option [ngValue]="null" disabled selected>請選擇供應商</option>
-                    @for(supplier of suppliers;track $index)
-                    { <option [ngValue]="supplier.suppliesSupplierId">{{supplier.suppliesSupplierName}}</option> }
-                  </select>
-                </div> -->
-                <!-- 剩餘數量 -->
-                <!-- <div class="mb-3">
-                  <label for="unitsInStock" class="form-label">剩餘數量</label>
-                  <input type="number" id="unitsInStock" class="form-control" placeholder="0"
-                    [(ngModel)]="newProduct.unitsInStock" name="unitsInStock" required />
-                </div> -->
+                <!-- 顧客名稱 -->
+                <div class="mb-3 col-3">
+                  <label for="suppliesSalesCustomerName" class="form-label">顧客名稱</label>
+                  <input type="text" id="suppliesSalesCustomerName" class="form-control"
+                    [(ngModel)]="newSales.customerName" name="suppliesSalesCustomerName" required />
+                </div>
+                <table class="table table-bordered text-center align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width: 20%;">類別名稱</th>
+                      <th style="width: 25%;">供應商名稱</th>
+                      <th style="width: 30%;">物品名稱</th>
+                      <th style="width: 13%;">有效期限</th>
+                      <th style="width: 7%;">購買數量</th>
+                      <th style="width: 5%;"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for(item of salesItems; track $index) {
+                    <tr>
+                      <!-- 類別 -->
+                      <td>
+                        <select class="form-select" [(ngModel)]="item.suppliesCategoryId"
+                          name="suppliesCategoryId{{$index}}" required (change)="onCategoryChangeForItem($index)">
+                          <option [ngValue]="null" disabled selected>請選擇類別</option>
+                          @for(category of categories;track $index)
+                          { <option [ngValue]="category.suppliesCategoryId">{{category.suppliesCategoryName}}</option> }
+                        </select>
+                      </td>
+                      <!-- 供應商 -->
+                      <td>
+                        <select class="form-select" [(ngModel)]="item.suppliesSupplierId"
+                          name="suppliesSupplierId{{$index}}" required [disabled]="!item.suppliesCategoryId"
+                          (change)="onSupplierChangeForItem($index)">
+                          <option [ngValue]="null" disabled selected>請選擇供應商</option>
+                          @for(supplier of item.filteredSuppliers;track $index)
+                          { <option [ngValue]="supplier.suppliesSupplierId">{{supplier.suppliesSupplierName}}</option> }
+                        </select>
+                      </td>
+                      <!-- 物品 -->
+                      <td>
+                        <select class="form-select" [(ngModel)]="item.suppliesProductId"
+                          name="suppliesProductId{{$index}}" required [disabled]="!item.suppliesSupplierId"
+                          (change)="onProductChangeForItem($index)">
+                          <option [ngValue]="null" disabled selected>請選擇物品</option>
+                          @for(product of item.filteredProducts;track $index)
+                          { <option [ngValue]="product.suppliesProductID">{{product.suppliesProductName}}</option> }
+                        </select>
+                      </td>
+                      <!-- 有效期限 -->
+                      <td>
+                        <select class="form-select" [(ngModel)]="item.expiryDate" name="expiryDate{{$index}}" required
+                          [disabled]="!item.suppliesProductId">
+                          <option [ngValue]="null" disabled selected>請選擇期限</option>
+                          @for(date of item.filteredDates;track $index)
+                          { <option [ngValue]="date.expiryDate">{{date.expiryDate}}</option> }
+                        </select>
+                      </td>
+                      <!-- 購買數量 -->
+                      <td>
+                        <input type="number" class="form-control" placeholder="0" [(ngModel)]="item.quantityOfSales"
+                          name="quantityOfSales{{$index}}" required />
+                      </td>
+                      <td>
+                        <button type="button" class="btn-close" (click)="removeSalesItem($index)"></button>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearSalesItems()">
                   取消
                 </button>
-                <button type="submit" class="btn btn-success" [disabled]="!addSuppliesForm.form.valid">
+                <button type="submit" class="btn btn-success" [disabled]="!addSalesModal.form.valid">
                   儲存
                 </button>
               </div>
@@ -96,7 +147,56 @@
       </div>
       <!-- 新增用Modal -->
 
+      <!-- 利用Modal查看詳細 -->
+      <div class="modal fade" id="salesDetailModal" tabindex="-1" aria-labelledby="salesDetailModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg custom-modal-width">
+          <div class="modal-content">
+            <form #salesDetailModal="ngForm">
+              <div class="modal-header">
+                <h5 class="modal-title" id="salesDetailModalLabel">銷貨單詳細</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <table class="table table-bordered text-center align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width: 5%;">編號</th>
+                      <th style="width: 20%;">類別名稱</th>
+                      <th style="width: 25%;">供應商名稱</th>
+                      <th style="width: 30%;">物品名稱</th>
+                      <th style="width: 13%;">有效期限</th>
+                      <th style="width: 7%;">購買數量</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for(detail of selectedSalesOrder; track $index) {
+                    <tr>
+                      <td>
+                        @if($index === 0) { {{detail.suppliesSalesOrderId}} }
+                      </td>
+                      <td>{{detail.suppliesCategoryName}}</td>
+                      <td>{{detail.suppliesSupplierName}}</td>
+                      <td>{{detail.suppliesProductName}}</td>
+                      <td>{{detail.expiryDate}}</td>
+                      <td>{{detail.quantityOfSales}}</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  返回
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- 詳細用Modal -->
 
+      <!-- 全部 -->
       <div class="tab-content" id="suppliessales-table-tab-content">
         <div class="tab-pane fade show active" id="suppliessales-all" role="tabpanel"
           aria-labelledby="suppliessales-all-tab">
@@ -115,9 +215,9 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    {
                     <tr>
-                      @for(saleOrders of suppliesSales;track $index)
-                      {
                       <td class="cell">{{saleOrders.suppliesSalesOrderId}}</td>
                       <td class="cell"><span>{{saleOrders.orderDate}}</span><span class="note"></span></td>
                       <td class="cell">{{saleOrders.customerName}}</td>
@@ -127,9 +227,12 @@
                         @if(saleOrders.orderStatus === '未到貨'){<span class="badge bg-danger">未到貨</span>}
                         @if(saleOrders.orderStatus === '已取消'){<span class="badge bg-secondary">已取消</span>}
                       </td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
-                      }
+                      <td class="cell">
+                        <button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
+                          data-bs-target="#salesDetailModal" (click)="showSalesDetail(saleOrders)">詳細</button>
+                      </td>
                     </tr>
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
@@ -152,6 +255,7 @@
 
         </div><!--//tab-pane-->
 
+        <!-- 已到貨標籤 -->
         <div class="tab-pane fade" id="suppliessales-received" role="tabpanel"
           aria-labelledby="suppliessales-received-tab">
           <div class="app-card app-card-orders-table mb-5">
@@ -170,20 +274,20 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    {
+                    @if(saleOrders.orderStatus === '已到貨')
+                    {
                     <tr>
-                      @for(saleOrders of suppliesSales;track $index)
-                      {
-                      @if(saleOrders.orderStatus === '已到貨')
-                      {
                       <td class="cell">{{saleOrders.suppliesSalesOrderId}}</td>
                       <td class="cell"><span>{{saleOrders.orderDate}}</span><span class="note"></span></td>
                       <td class="cell">{{saleOrders.customerName}}</td>
                       <td class="cell"><span>{{saleOrders.receivedDate}}</span><span class="note"></span></td>
                       <td class="cell"><span class="badge bg-success">已到貨</span></td>
                       <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
-                      }
-                      }
                     </tr>
+                    }
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
@@ -191,6 +295,7 @@
           </div><!--//app-card-->
         </div><!--//tab-pane-->
 
+        <!-- 未到貨標籤 -->
         <div class="tab-pane fade" id="suppliessales-undelivered" role="tabpanel"
           aria-labelledby="suppliessales-undelivered-tab">
           <div class="app-card app-card-orders-table mb-5">
@@ -208,32 +313,33 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    {
+                    @if(saleOrders.orderStatus === '未到貨')
+                    {
                     <tr>
-                      @for(saleOrders of suppliesSales;track $index)
-                      {
-                      @if(saleOrders.orderStatus === '未到貨')
-                      {
                       <td class="cell">{{saleOrders.suppliesSalesOrderId}}</td>
                       <td class="cell"><span>{{saleOrders.orderDate}}</span><span class="note"></span></td>
                       <td class="cell">{{saleOrders.customerName}}</td>
                       <td class="cell"><span>{{saleOrders.receivedDate}}</span><span class="note"></span></td>
                       <td class="cell"><span class="badge bg-danger">未到貨</span></td>
                       <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
-                      }
-                      }
                     </tr>
+                    }
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
             </div><!--//app-card-body-->
           </div><!--//app-card-->
         </div><!--//tab-pane-->
+
+        <!-- 已取消標籤 -->
         <div class="tab-pane fade" id="suppliessales-cancelled" role="tabpanel"
           aria-labelledby="suppliessales-cancelled-tab">
           <div class="app-card app-card-orders-table mb-5">
             <div class="app-card-body">
               <div class="table-responsive">
-
                 <table class="table mb-0 text-center">
                   <thead>
                     <tr>
@@ -246,20 +352,20 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    {
+                    @if(saleOrders.orderStatus === '已取消')
+                    {
                     <tr>
-                      @for(saleOrders of suppliesSales;track $index)
-                      {
-                      @if(saleOrders.orderStatus === '已取消')
-                      {
                       <td class="cell">{{saleOrders.suppliesSalesOrderId}}</td>
                       <td class="cell"><span>{{saleOrders.orderDate}}</span><span class="note"></span></td>
                       <td class="cell">{{saleOrders.customerName}}</td>
                       <td class="cell"><span>{{saleOrders.receivedDate}}</span><span class="note"></span></td>
                       <td class="cell"><span class="badge bg-secondary">已取消</span></td>
                       <td class="cell"><a class="btn-sm app-btn-secondary" href="#">修改</a></td>
-                      }
-                      }
                     </tr>
+                    }
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
