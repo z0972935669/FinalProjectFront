@@ -106,7 +106,6 @@ export class MemberOrdersComponent {
     });
   }
 
-  // 加在 class 裡面
   paymentMethodMap: Record<string, string> = {
     Credit: '信用卡',
     ATM: 'ATM 轉帳',
@@ -118,6 +117,61 @@ export class MemberOrdersComponent {
   translatePaymentMethod(method: string | null | undefined): string {
     if (!method) return '';
     return this.paymentMethodMap[method] ?? method;
+  }
+
+  // 配送方式對照表
+  deliveryMethodMap: Record<string, string> = {
+    CVS_711_COD: '7-11 取貨付款',
+    CVS_FAMI_COD: '全家 取貨付款',
+    HOME_BlackCat_COD: '黑貓宅急便 貨到付款',
+
+    CVS_711: '7-11 超商取貨',
+    CVS_FAMI: '全家 超商取貨',
+    CVS_OK: 'OK 超商取貨',
+    CVS_HILIFE: '萊爾富 超商取貨',
+    HOME_BlackCat: '黑貓宅急便',
+  };
+
+  // 安全轉換（查不到就顯示原值）
+  // 配送方式中文：依付款方式區分
+  private deliveryLabelMap: {
+    nonCOD: Record<string, string>;
+    COD: Record<string, string>;
+  } = {
+    nonCOD: {
+      CVS_711: '7-11 超商取貨',
+      CVS_FAMI: '全家 超商取貨',
+      CVS_OK: 'OK 超商取貨',
+      CVS_HILIFE: '萊爾富 超商取貨',
+      HOME_BlackCat: '黑貓宅急便',
+    },
+    COD: {
+      CVS_711_COD: '7-11 取貨付款',
+      CVS_FAMI_COD: '全家 取貨付款',
+      HOME_BlackCat_COD: '黑貓宅急便 貨到付款',
+    },
+  };
+
+  // 轉中文（可只給 deliveryMethod，也可同時給 paymentMethod 讓它更精準）
+  translateDeliveryMethod(
+    method: string | null | undefined,
+    paymentMethod?: string | null | undefined
+  ): string {
+    if (!method) return '';
+    const isCOD =
+      (paymentMethod ?? '').toUpperCase() === 'COD' || method.endsWith('_COD');
+
+    const map = isCOD
+      ? this.deliveryLabelMap.COD
+      : this.deliveryLabelMap.nonCOD;
+
+    // 先用挑到的表；若沒對應，再嘗試另一表；最後回傳原字串
+    return (
+      map[method] ??
+      this.deliveryLabelMap.COD[method] ??
+      this.deliveryLabelMap.nonCOD[method] ??
+      method
+    );
   }
 
   // 查詢清單（伺服器分頁＋關鍵字）

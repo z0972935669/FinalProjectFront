@@ -100,7 +100,7 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-bold">訂單時間</label>
-                <input type="text" class="form-control" [value]="formatDateTime(detail.orderTime)" readonly />
+                <input type="text" class="form-control" [value]="formatDateTime(detail.orderTime).replace('T', ' ')" readonly />
               </div>
 
               <div class="col-md-6">
@@ -109,7 +109,7 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-bold">配送方式</label>
-                <input type="text" class="form-control" [value]="detail.deliveryMethod || ''" readonly />
+                <input type="text" class="form-control" [value]="translateDeliveryMethod(detail?.deliveryMethod, detail?.paymentMethod)" readonly />
               </div>
 
               <div class="col-md-6">
