@@ -74,7 +74,7 @@ export class EventDetailComponent {
             return;
           }
           this.event = this.mapToVM(res.dto);
-          // this.isRegistered = !!res.has;  //暫時把判斷使否以報名過的卡控拿掉
+          this.isRegistered = !!res.has; //暫時把判斷使否以報名過的卡控拿掉
           this.loading = false;
         },
         error: (err) => {

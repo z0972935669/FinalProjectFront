@@ -25,7 +25,7 @@ import { MembermanagementComponent } from './pages/member/membermanagement/membe
 import { MemberInfoComponent } from './pages/member/member-info/member-info.component';
 import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
-import { MemberEventComponent } from './pages/member/member-event/member-event.component';
+import { MemberEventComponent } from './pages/member/member-event/member-event-list/member-event.component';
 import { LoginLogsComponent } from './pages/member/login-logs/login-logs.component';
 
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
@@ -77,6 +77,9 @@ import { employeeAuthGuard } from './core/employee-auth.guard';
 import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
 // 房間管理
 import { RoomTableErpComponent } from './pages/backend/room-table-erp/room-table-erp.component';
+import { MemberCalendarComponent } from './pages/member/member-event/member-calendar/member-calendar.component';
+import { MemberActivityShellComponent } from './pages/member/member-event/member-activity-shell.component';
+import { MemberEventCouponComponent } from './pages/member/member-event/member-event-coupon/member-event-coupon.component';
 
 export const routes: Routes = [
   // 根目錄導向前台
@@ -100,16 +103,16 @@ export const routes: Routes = [
       {
         path: 'forgot-password',
         loadComponent: () =>
-          import('./pages/account/forgot-password/forgot-password.component').then(
-            (m) => m.ForgotPasswordComponent
-          ),
+          import(
+            './pages/account/forgot-password/forgot-password.component'
+          ).then((m) => m.ForgotPasswordComponent),
       },
       {
         path: 'reset-password',
         loadComponent: () =>
-          import('./pages/account/reset-password/reset-password.component').then(
-            (m) => m.ResetPasswordComponent
-          ),
+          import(
+            './pages/account/reset-password/reset-password.component'
+          ).then((m) => m.ResetPasswordComponent),
       },
 
       {
@@ -120,7 +123,22 @@ export const routes: Routes = [
           { path: 'info', component: MemberInfoComponent },
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
-          { path: 'event', component: MemberEventComponent },
+          {
+            path: '',
+            component: MemberActivityShellComponent,
+            children: [
+              { path: 'event', component: MemberEventComponent }, // 我的活動
+              {
+                path: 'member_event_calendar',
+                component: MemberCalendarComponent,
+              }, // 活動行事曆
+              {
+                path: 'member_event_coupon',
+                component: MemberEventCouponComponent,
+              }, //活動折價卷
+            ],
+          },
+          { path: 'event_calendar', component: MemberCalendarComponent },
           { path: 'room', component: MemberRoomComponent },
           { path: 'community', component: PersonalCommunityComponent },
           { path: 'login-logs', component: LoginLogsComponent },
@@ -155,9 +173,21 @@ export const routes: Routes = [
         component: ErpAuthShellComponent,
         children: [
           { path: '', redirectTo: 'login', pathMatch: 'full' },
-          { path: 'login', component: EmployeeLoginComponent, title: '員工登入' },
-          { path: 'employeeregister', component: EmployeeRegisterComponent, title: '員工註冊' },
-          { path: 'employeepasswordreset', component: EmployeepasswordresetComponent, title: '重設密碼' },
+          {
+            path: 'login',
+            component: EmployeeLoginComponent,
+            title: '員工登入',
+          },
+          {
+            path: 'employeeregister',
+            component: EmployeeRegisterComponent,
+            title: '員工註冊',
+          },
+          {
+            path: 'employeepasswordreset',
+            component: EmployeepasswordresetComponent,
+            title: '重設密碼',
+          },
         ],
       },
 
@@ -168,41 +198,145 @@ export const routes: Routes = [
         canActivateChild: [employeeAuthGuard],
         children: [
           { path: '', redirectTo: 'employeehome', pathMatch: 'full' },
-          { path: 'employeehome', component: EmployeehomeComponent, title: '員工首頁' },
+          {
+            path: 'employeehome',
+            component: EmployeehomeComponent,
+            title: '員工首頁',
+          },
 
           // 物料管理
-          { path: 'supplieslist', component: SupplieslistComponent, title: '物品列表' },
-          { path: 'suppliespurchasinglist', component: SuppliespurchasinglistComponent, title: '進貨單' },
-          { path: 'suppliessaleslist', component: SuppliessaleslistComponent, title: '銷貨單' },
-          { path: 'transferlist', component: TransferlistComponent, title: '轉倉單' },
-          { path: 'suppliessupplierlist', component: SuppliessupplierlistComponent, title: '供應商列表' },
+          {
+            path: 'supplieslist',
+            component: SupplieslistComponent,
+            title: '物品列表',
+          },
+          {
+            path: 'suppliespurchasinglist',
+            component: SuppliespurchasinglistComponent,
+            title: '進貨單',
+          },
+          {
+            path: 'suppliessaleslist',
+            component: SuppliessaleslistComponent,
+            title: '銷貨單',
+          },
+          {
+            path: 'transferlist',
+            component: TransferlistComponent,
+            title: '轉倉單',
+          },
+          {
+            path: 'suppliessupplierlist',
+            component: SuppliessupplierlistComponent,
+            title: '供應商列表',
+          },
 
           // 設備
-          { path: 'equipmentlist', component: EquipmentlistComponent, title: '設備列表' },
-          { path: 'equipmentpurchasinglist', component: EquipmentpurchasinglistComponent, title: '購置單' },
-          { path: 'equipmentrentlist', component: EquipmentrentlistComponent, title: '借出單' },
-          { path: 'equipmentmaintenancelist', component: EquipmentmaintenancelistComponent, title: '檢修單' },
-          { path: 'equipmentsupplierlist', component: EquipmentsupplierlistComponent, title: '供應商列表' },
+          {
+            path: 'equipmentlist',
+            component: EquipmentlistComponent,
+            title: '設備列表',
+          },
+          {
+            path: 'equipmentpurchasinglist',
+            component: EquipmentpurchasinglistComponent,
+            title: '購置單',
+          },
+          {
+            path: 'equipmentrentlist',
+            component: EquipmentrentlistComponent,
+            title: '借出單',
+          },
+          {
+            path: 'equipmentmaintenancelist',
+            component: EquipmentmaintenancelistComponent,
+            title: '檢修單',
+          },
+          {
+            path: 'equipmentsupplierlist',
+            component: EquipmentsupplierlistComponent,
+            title: '供應商列表',
+          },
 
           // 員工管理
-          { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },
-          { path: 'employeelistdetail', component: EmployeelistdetailComponent, title: '詳細資料' },
-          { path: 'employeelistdetail/:id', component: EmployeelistdetailComponent, title: '詳細資料' },
-          { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
-          { path: 'employeelistedit/:id', component: EmployeelisteditComponent, title: '編輯員工' },
+          {
+            path: 'employeelist',
+            component: EmployeelistComponent,
+            title: '員工列表',
+          },
+          {
+            path: 'employeelistdetail',
+            component: EmployeelistdetailComponent,
+            title: '詳細資料',
+          },
+          {
+            path: 'employeelistdetail/:id',
+            component: EmployeelistdetailComponent,
+            title: '詳細資料',
+          },
+          {
+            path: 'employeelistedit',
+            component: EmployeelisteditComponent,
+            title: '編輯員工',
+          },
+          {
+            path: 'employeelistedit/:id',
+            component: EmployeelisteditComponent,
+            title: '編輯員工',
+          },
 
-          { path: 'employeeapprovalflow', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
-          { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
-          { path: 'employeeattendance', component: EmployeeattendanceComponent, title: '員工考勤' },
-          { path: 'employeeattendancerecords', component: EmployeeattendancerecordsComponent, title: '考勤紀錄' },
-          { path: 'employeeleaveform', component: EmployeeleaveformComponent, title: '請假表單' },
-          { path: 'employeemissingpunchform', component: EmployeemissingpunchformComponent, title: '補打卡表單' },
-          { path: 'employeeschedule', component: EmployeescheduleComponent, title: '排班管理' },
+          {
+            path: 'employeeapprovalflow',
+            component: EmployeeapprovalflowComponent,
+            title: '員工審核流程',
+          },
+          {
+            path: 'employeeapprovallist',
+            component: EmployeeapprovallistComponent,
+            title: '員工入職流程',
+          },
+          {
+            path: 'employeeattendance',
+            component: EmployeeattendanceComponent,
+            title: '員工考勤',
+          },
+          {
+            path: 'employeeattendancerecords',
+            component: EmployeeattendancerecordsComponent,
+            title: '考勤紀錄',
+          },
+          {
+            path: 'employeeleaveform',
+            component: EmployeeleaveformComponent,
+            title: '請假表單',
+          },
+          {
+            path: 'employeemissingpunchform',
+            component: EmployeemissingpunchformComponent,
+            title: '補打卡表單',
+          },
+          {
+            path: 'employeeschedule',
+            component: EmployeescheduleComponent,
+            title: '排班管理',
+          },
 
           // 社群/房間管理
-          { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
-          { path: 'memberlist', component: MemberlistComponent, title: '會員列表' },
-          { path: 'room-table-erp', component: RoomTableErpComponent, title: '房間管理' },
+          {
+            path: 'board-management',
+            component: BoardManagementComponent,
+            title: '看板管理',
+          },
+          {
+            path: 'memberlist',
+            component: MemberlistComponent,
+            title: '會員列表',
+          },
+          {
+            path: 'room-table-erp',
+            component: RoomTableErpComponent,
+            title: '房間管理',
+          },
         ],
       },
     ],

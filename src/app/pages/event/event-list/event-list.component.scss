@@ -148,25 +148,23 @@
   }
 
   .fruite-item .subtitle {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 500;
     color: #4b5563;
   }
 
-  .fruite-item .price {
-    font-size: 1rem;
-  }
+  .fruite-item .price
+{
+  color: red;
+  font-size: 1.15rem;   /* 價錢更顯眼 */
+  font-weight: 700;
+}
 
   .fruite-item .Organizer {
     font-size: 0.9rem;
     color: #374151;
   }
 
-  .fruite-item .meta {
-    font-size: 0.85rem;
-    line-height: 1.4;
-    color: #6b7280;
-  }
   .meta-2rows {
   line-height: 1.25rem;                    /* 依你的實際字體可微調 */
   min-height: calc(1.25rem * 2 + 1rem);    /* 2 行 + 1 個 row-gap(=gap-3) */
@@ -193,7 +191,7 @@
   border-top: 1px solid #ddd;  /* 上方分隔線 */
   padding-top: 8px;
   text-align: center;          /* 置中 */
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #555;
   margin-top: 10px;
 }
@@ -284,7 +282,8 @@
     display: -webkit-box; /* 多行截斷布局 */
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2; /* 限制顯示 2 行 */
-    /* 非 WebKit 瀏覽器會退化為固定高度隱藏溢出（仍保留兩行空間） */
+    font-size: 1.15rem;   /* 放大字體 */
+    font-weight: 600;     /* 半粗體 */
   }
 //小標頭樣式  首頁/活動/xxx
   .activity-header {
@@ -305,3 +304,19 @@
   pointer-events: none;
   opacity: .5;
 }
+
+//每月活動 按鈕
+.cat-btn-large {
+  font-size: 1.5rem; /* 調整字體大小 */
+  font-weight: bold;
+  color: #3e2c21;
+}
+
+.fruite-item .card-title {
+  font-size: 1.35rem;   /* 原本大概 1.15rem，放大一點 */
+  font-weight: 700;     /* 加粗 */
+  color: #2c1b12;       /* 深咖啡色標題，和副標題做區隔 */
+  line-height: 1.4;
+}
+
+

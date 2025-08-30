@@ -72,17 +72,6 @@
               <input class="form-control" formControlName="internalRemarks" />
             </div>
           </div>
-          <div class="form-check mt-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="agree"
-              formControlName="agree"
-            />
-            <label class="form-check-label" for="agree"
-              >我已閱讀並同意報名須知</label
-            >
-          </div>
         </div>
       </div>
 
@@ -108,17 +97,6 @@
               <input
                 type="radio"
                 class="btn-check"
-                id="pm-card"
-                value="CARD"
-                formControlName="paymentMethod"
-              />
-              <label class="btn btn-outline-secondary" for="pm-card"
-                >信用卡</label
-              >
-
-              <input
-                type="radio"
-                class="btn-check"
                 id="pm-line"
                 value="LINEPAY"
                 formControlName="paymentMethod"
@@ -129,40 +107,40 @@
             </div>
           </div>
 
-          <div class="row g-3">
+          <div
+            class="row g-3"
+            *ngIf="form.get('payment.paymentMethod')?.value !== 'CASH'"
+          >
             <div class="col-md-4">
               <label class="form-label">發票形式</label>
               <select class="form-select" formControlName="invoiceType">
-                <option value="二聯式">二聯式</option>
-                <option value="三聯式">三聯式</option>
+                <option value="紙本">紙本</option>
                 <option value="電子發票">電子發票</option>
               </select>
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">發票抬頭（選填）</label>
-              <input class="form-control" formControlName="invoiceTitle" />
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">統一編號（選填）</label>
-              <input
-                class="form-control"
-                formControlName="taxId"
-                maxlength="8"
-              />
             </div>
 
             <div
               class="col-md-6"
               *ngIf="form.get('payment.invoiceType')?.value === '電子發票'"
             >
-              <label class="form-label">電子發票載具（選填）</label>
+              <label class="form-label">電子發票載具</label>
               <input
                 class="form-control"
                 formControlName="eInvoiceCarrier"
-                placeholder="/AB12345"
+                placeholder="請輸入手機條碼或自然人憑證條碼"
+                [class.is-invalid]="
+                  submitting && form.get('payment.eInvoiceCarrier')?.invalid
+                "
               />
+              <div
+                class="invalid-feedback"
+                *ngIf="
+                  submitting &&
+                  form.get('payment.eInvoiceCarrier')?.hasError('required')
+                "
+              >
+                付款為 LINE Pay 且選擇電子發票時，載具為必填。
+              </div>
             </div>
           </div>
         </div>
@@ -206,6 +184,18 @@
               >
             </li>
           </ol>
+
+          <div class="form-check mt-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="agree"
+              formControlName="agree"
+            />
+            <label class="form-check-label" for="agree"
+              >我已閱讀並同意報名須知</label
+            >
+          </div>
         </div>
       </div>
 

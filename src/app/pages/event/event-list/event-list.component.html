@@ -123,10 +123,10 @@
 
               <button
                 type="button"
-                class="btn cat-btn"
-                [routerLink]="['/show/event/calender']"
+                class="btn cat-btn-large"
+                [routerLink]="['/show/event/calendar']"
               >
-                每月活動
+                📅每月活動
               </button>
             </div>
 
@@ -169,11 +169,11 @@
                       class="p-4 border border-secondary border-top-0 rounded-bottom"
                     >
                       <h5 class="card-title fw-bold mb-2">{{ e.title }}</h5>
-                      <p class="card-text text-secondary mb-3 subtitle-2lines">
+                      <p class="card-text text-secondary subtitle-2lines">
                         {{ e.subtitle }}
                       </p>
 
-                      <p class="text-danger fw-bold fs-6 mb-2">
+                      <p class="price fw-bold mb-2">
                         {{ e.priceText }}
                       </p>
                       <p class="mb-3">

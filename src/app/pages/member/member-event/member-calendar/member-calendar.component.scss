@@ -1,0 +1,64 @@
+/* 月曆容器：左右留白、寬度限制 */
+.calendar-wrap {
+  max-width: 1100px;
+  margin: 16px auto 32px;
+  padding: 0 16px;
+
+  /* 日期號碼 → 深咖啡色 */
+  .fc-daygrid-day-number {
+    color: #6B4E3D;
+    font-weight: 800;
+  }
+
+  /* 星期表頭 → 深咖啡色 */
+  .fc-col-header-cell-cushion {
+    color: #5A3F2E;
+    font-weight: 800;
+  }
+.fc-daygrid-event {
+  background: #fff;
+    border: 2px solid #5c4033;
+    color: #5c4033;              /* 外層也設色，保險 */
+    padding: 4px 8px;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.2;            /* ← 讓高度足夠 */
+    cursor: pointer;
+    transition: background-color .2s ease;
+.fc-event-main,
+    .fc-event-title {
+      color: #5c4033 !important; /* ← 關鍵：強制咖啡色 */
+      white-space: normal;       /* ← 允許換行 */
+      overflow: visible;
+    }
+  }
+}
+
+/* 上方月份標題 + 導覽按鈕 */
+.calendar-header {
+  max-width: 1100px;
+  margin: 0 auto 16px;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h4 {
+    color: #5c4033;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .btn-outline-secondary {
+    border-color: #5c4033;
+    color: #5c4033;
+    font-weight: 600;
+
+    &:hover,
+    &:focus {
+      background-color: #5c4033;
+      border-color: #5c4033;
+      color: #fff;
+    }
+  }
+}

@@ -17,6 +17,16 @@
   box-shadow:0 1px 0 rgba(0,0,0,.03);/* 微陰影讓膠囊浮起來 */
 }
 
+.fc-event {
+  cursor: pointer;            /* 滑鼠移過去變成可點擊 */
+  text-decoration: none !important; /* 移除底線 */
+  color: #fff !important;     /* 改成白字 */
+  background-color: #007bff;  /* Bootstrap 藍按鈕 */
+  border: none;               /* 移除原本邊框 */
+  border-radius: 6px;
+  padding: 4px 6px;
+  transition: background-color 0.2s ease;
+}
 /* 標題能換行，不被截斷 */
 .calendar-wrap .fc .fc-event-title{
   white-space: normal;
@@ -43,7 +53,10 @@
 .calendar-wrap .fc .fc-event-time {
   color: #4A2C20 !important; /* 深咖啡 */
   text-decoration: none;
+
 }
+
+
 
 /*（可選）讓外框顏色也更協調一點 */
 .calendar-wrap .fc .fc-daygrid-event {
@@ -85,3 +98,10 @@
 
 /* 月曆容器避免滿版 */
 .calendar-wrap { margin-top: 8px; margin-bottom: 32px; }
+
+
+.fc-event:hover {
+  background-color: #0056b3; /* hover 像按鈕 */
+}
+
+

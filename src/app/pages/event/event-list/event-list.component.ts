@@ -110,11 +110,7 @@ export class EventListComponent implements OnInit {
 
       // ✅ 從最近梯次抓 batchId（大小寫容錯）
       const batchIdValue =
-        (upcoming as any)?.batchId ??
-        (upcoming as any)?.BatchId ??
-        (upcoming as any)?.batchID ??
-        (upcoming as any)?.eventBatchID ??
-        (upcoming as any)?.eventBatchId ??
+        (upcoming as any)?.batchId ?? //和後端api對應
         null;
 
       const durationText =

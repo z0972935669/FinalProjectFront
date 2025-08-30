@@ -1,5 +1,6 @@
 export interface EventList {
   //batchID 一律使用這個大小寫
+  //  batchId?: number | string; //api的
   /* ========== 前端顯示用型別 ========== */
 
   id: string;
@@ -153,4 +154,18 @@ export interface RegistrationListDto {
   EventName: string;
   EventDateTimeStart: string;
   EventLocation: string;
+}
+//我的活動
+export interface MyRegistrationDto {
+  registrationId: number;
+  registrationNum: string;
+  eventBatchId: number;
+  memberId: number;
+  amountDue: number;
+  registrationDateTime: string; // ISO
+  currentStatus: number; // 1=有效(報名成功/待參加) … 依你後端定義
+  internalRemarks: string | null;
+  eventName: string;
+  eventDateTimeStart: string; // ISO
+  eventLocation: string;
 }

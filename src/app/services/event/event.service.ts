@@ -7,6 +7,7 @@ import {
   RegistrationCreateDto,
   RegistrationResDto,
   RegistrationListDto,
+  MyRegistrationDto,
 } from '../../interfaces/event/event-list';
 
 @Injectable({ providedIn: 'root' })
@@ -65,25 +66,9 @@ export class EventService {
     Observable<RegistrationListDto[]>
   >();
 
-  getMyRegistrations(
-    memberId: number,
-    status?: number
-  ): Observable<RegistrationListDto[]> {
-    const key = `${memberId}|${status ?? 'all'}`;
-    const cached = this.registrationsCache.get(key);
-    if (cached) return cached;
-
-    const url =
-      status != null
-        ? `${this.apiRoot}/EventRegistration/memberId/${memberId}?status=${status}`
-        : `${this.apiRoot}/EventRegistration/memberId/${memberId}`;
-
-    const req$ = this.httpClient.get<RegistrationListDto[]>(url).pipe(
-      catchError(() => of([])),
-      shareReplay(1) // 🔒 記住結果，供多處共用
+  getMyRegistrations(memberId: number): Observable<MyRegistrationDto[]> {
+    return this.httpClient.get<MyRegistrationDto[]>(
+      `${this.apiRoot}/EventRegistration/memberId/${memberId}`
     );
-
-    this.registrationsCache.set(key, req$);
-    return req$;
   }
 }

@@ -8,7 +8,6 @@
   />
   <div class="hero__overlay"></div>
   <div class="hero__toolbar">
-    <!-- <div id="heroTitle" class="hero__title">Loading…</div> -->
     <div class="hero__nav">
       <button (click)="nav('prev')">〈 上月</button>
       <button (click)="nav('today')">今天</button>
@@ -19,4 +18,5 @@
 
 <div class="calendar-wrap">
   <full-calendar #fc [options]="calendarOptions"></full-calendar>
+  <!-- #fc(元件名稱) [options]="calendarOptions"(屬性細節) -->
 </div>

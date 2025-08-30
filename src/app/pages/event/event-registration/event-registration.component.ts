@@ -49,7 +49,8 @@ export class EventRegistrationComponent {
   loading = true;
   error = '';
   event?: EventRegistrationVM;
-  submitting = false;
+  submitting = false; //這兩個差在哪裡????????????????????
+  submitted = false; //這兩個差在哪裡????????????????????
   private destroy$ = new Subject<void>();
 
   form = this.fb.group({
@@ -69,8 +70,8 @@ export class EventRegistrationComponent {
 
     agree: [false, Validators.requiredTrue],
     payment: this.fb.group({
-      paymentMethod: ['CASH', Validators.required],
-      invoiceType: ['二聯式', Validators.required],
+      paymentMethod: ['CASH'],
+      invoiceType: ['紙本'],
       invoiceTitle: [''],
       taxId: ['', Validators.pattern(/^\d{8}$/)],
       eInvoiceCarrier: [''],
@@ -208,6 +209,12 @@ export class EventRegistrationComponent {
   }
 
   submit() {
+    this.submitted = true;
+    const payGroup = this.form.get('payment') as FormGroup;
+    const invoiceType = payGroup.get('invoiceType')?.value;
+    const carrier = payGroup.get('eInvoiceCarrier')?.value?.trim();
+    const method = this.form.get('payment.paymentMethod')?.value;
+    const amount = Number(this.form.get('amountDue')?.value ?? 0);
     // 先把 memberId 轉成 number
     const memberIdNum = Number(
       this.me?.memberId ?? this.me?.memberId ?? this.form.get('memberId')?.value
@@ -223,21 +230,21 @@ export class EventRegistrationComponent {
       alert('會員資料異常，請重新登入後再試。');
       return;
     }
+    if (method === 'LINEPAY' && invoiceType === '電子發票' && !carrier) {
+      alert('付款為 LINE Pay 且選擇電子發票時，必須填寫載具！');
+      return;
+    }
 
     //免費時，不檢查表單整體 invalid；非免費才檢查
     if (!this.isFree && this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    // 電子發票載具（付費且選電子發票才檢查）
-    const invType = this.form.get('payment.invoiceType')?.value;
-    if (
-      invType === '電子發票' &&
-      !this.form.get('payment.eInvoiceCarrier')?.value
-    ) {
-      this.form.get('payment.eInvoiceCarrier')?.setErrors({ required: true });
+    // 電子發票載具（檢查載具欄位是否填寫）0828
+    this.submitting = false;
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
-      return;
+      return; // 阻止送出，讓錯誤訊息顯示
     }
 
     this.submitting = true;
@@ -269,8 +276,8 @@ export class EventRegistrationComponent {
         };
 
     // 若要走 LINEPAY，先開小視窗與鎖畫面（同一使用者點擊事件）
-    const method = this.form.get('payment.paymentMethod')?.value;
-    const amount = Number(this.form.get('amountDue')?.value ?? 0);
+    // const method = this.form.get('payment.paymentMethod')?.value;
+    // const amount = Number(this.form.get('amountDue')?.value ?? 0);
     if (method === 'LINEPAY' && amount > 0) {
       this.payWin = this.openPopupSkeleton();
     }
