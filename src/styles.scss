@@ -56,6 +56,32 @@
       display: flex;
     }
   }
+
+  .swiper-button-prev {
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+      border: 1px solid var(--bs-white);
+      background: var(--bs-primary);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff !important;
+      --swiper-navigation-size: 26px;
+    }
+
+    .swiper-button-next {
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+      border: 1px solid var(--bs-white);
+      background: var(--bs-primary);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffffff !important;
+      --swiper-navigation-size: 26px;
+    }
 }
 
 // 後台寫.theme-backend
