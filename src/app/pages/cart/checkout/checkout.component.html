@@ -224,6 +224,21 @@
               下訂單
             </button>
           </div>
+          <!-- 一鍵填入（透明按鈕） -->
+          <div class="row g-2 mt-3">
+            <div class="col-12">
+              <button type="button" class="btn w-100 py-2 bg-transparent border border-secondary-subtle text-secondary"
+                (click)="fillFake('Credit')" style="opacity: 0.1;">
+                一鍵填入：付款方式（信用卡）
+              </button>
+            </div>
+            <div class="col-12">
+              <button type="button" class="btn w-100 py-2 bg-transparent border border-secondary-subtle text-secondary"
+                (click)="fillFake('COD')" style="opacity: 0.1;">
+                一鍵填入：付款方式（貨到付款）
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </form>

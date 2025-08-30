@@ -131,6 +131,53 @@ export class CheckoutComponent {
     return this.subtotal + this.shippingFee;
   }
 
+  // 一鍵帶入假資料（Credit / COD)
+  fillFake(kind: 'Credit' | 'COD') {
+    // 基本資料
+    if (kind === 'Credit') {
+      this.buyerName = '王小明';
+      this.receiverName = '王小明';
+      this.receiverPhone = '0912345678';
+      this.paymentMethod = 'Credit';
+      this.invoiceType = '載具';
+      this.vehicleNumber = '/AB123456'; // 隨機載具
+      this.invoiceTitle = '';
+      this.invoiceTax = '';
+      this.note = '測試用－信用卡';
+    } else {
+      this.buyerName = '李小華';
+      this.receiverName = '李小華';
+      this.receiverPhone = '0987654321';
+      this.paymentMethod = 'COD';
+      this.invoiceType = '三聯式發票';
+      this.invoiceTitle = '御景長村';
+      this.invoiceTax = '12345678';
+      this.vehicleNumber = '';
+      this.note = '測試用－貨到付款';
+    }
+
+    // 地址（盡量選到存在的縣市/區）
+    const preferCity = kind === 'COD' ? '新北市' : '台北市';
+    const fallbackCity = Object.keys(this.cityData)[0] ?? '';
+    this.city = this.cityData[preferCity] ? preferCity : fallbackCity;
+    this.onCityChange();
+
+    const preferDistrict = kind === 'COD' ? '板橋區' : '中正區';
+    const list = this.cityData[this.city] || [];
+    this.district = list.includes(preferDistrict)
+      ? preferDistrict
+      : list[0] || '';
+    this.streetAddress =
+      kind === 'COD' ? '文化路一段 1 號' : '忠孝東路一段 1 號';
+
+    // 配送方式（依付款方式自動選）
+    const preferDelivery = kind === 'COD' ? 'CVS_711_COD' : 'CVS_711';
+    const available = this.availableDeliveryMethods.map((x) => x.value);
+    this.deliveryMethod = available.includes(preferDelivery)
+      ? preferDelivery
+      : available[0] || '';
+  }
+
   async placeOrder() {
     // SweetAlert2 確認視窗
     const ok = await Swal.fire({
@@ -181,9 +228,7 @@ export class CheckoutComponent {
         if (this.paymentMethod === 'COD') {
           try {
             // 扣庫存（後端 /api/Checkout/DeductStock）
-            await firstValueFrom(
-              this.orderService.deductStock(merchantTradeNo)
-            );
+            await firstValueFrom(this.orderService.deductStock(res.orderNo));
           } catch (e) {
             console.error('扣庫存失敗', e);
             // 不中斷使用者流程，但給提醒
@@ -221,7 +266,9 @@ export class CheckoutComponent {
           ClientBackURL: clientBackUrl, // 關鍵：帶回成功頁
         };
 
-        const ecRes = await firstValueFrom(this.paymentService.createOrder(ecpayRequest));
+        const ecRes = await firstValueFrom(
+          this.paymentService.createOrder(ecpayRequest)
+        );
 
         // 小提示（非必要）
         await Swal.fire({
