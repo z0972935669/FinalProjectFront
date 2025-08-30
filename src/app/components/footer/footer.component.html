@@ -14,5 +14,11 @@
 
 
 <!-- Back to Top -->
-<button class="btn btn-primary border-3 border-primary rounded-circle back-to-top" id="gotop" style="display: none; opacity: 0;"><i
-    class="fa fa-arrow-up"></i></button>
+<button
+  id="gotop"
+  class="btn btn-primary border-3 border-primary rounded-circle back-to-top"
+  [style.display]="showGoTop ? 'block' : 'none'"
+  [style.opacity]="showGoTop ? 1 : 0"
+  (click)="goTop()">
+  <i class="fa fa-arrow-up"></i>
+</button>
