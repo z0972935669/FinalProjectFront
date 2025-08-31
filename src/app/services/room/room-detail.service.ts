@@ -17,7 +17,7 @@ export class RoomDetailService {
     return this.http.get<{ message: string, data: RoomDetail }>(`${this.apiUrl}/${id}`).pipe(
       tap(response => {
         if (response.data && response.data.images) {
-          response.data.images.forEach(img => console.log('API回傳的圖片路徑:', img));
+          // response.data.images.forEach(img => console.log('API回傳的圖片路徑:', img));
         }
       }),
       catchError(err => {

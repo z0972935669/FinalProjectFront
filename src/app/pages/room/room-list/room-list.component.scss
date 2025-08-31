@@ -9,12 +9,13 @@
 .card-img-top {
   height: 200px;
   object-fit: cover;
-  border-radius: 8px 8px 0 0;
+  border-radius: 4px;
 }
 
 .btn-primary {
   background-color: #16cc5c;
   border-color: #25d61e;
+  margin-right: 70px; //按鈕左右位置
 }
 
 .container {
@@ -38,13 +39,15 @@
 .btn-primary {
   background-color: #28a745;
   border-color: #28a745;
-  padding: 10px 30px;
+  padding: 10px 10px;
   font-size: 16px;
   border-radius: 5px;
-  transition: background-color 0.3s;
+  transition: background-color 0.5s;
+  // transform: translateX(-50px);
 
   &:hover {
-    background-color: #218838;
+    background-color: #03f740;
+    border-color: #e2f5e6;
   }
 }
 
@@ -78,9 +81,10 @@
 }
 
 .form-check-input {
-  margin-top: 0;
+  margin-top: 11PX;
   /* 調整 checkbox 的垂直位置 */
   align-self: center;
+  margin-left: 40px; //左右調整
 }
 
 .form-group {
@@ -101,12 +105,10 @@
 
 .custom-select .form-select {
   appearance: none;
-  /* 移除默認箭頭 */
   cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='currentColor' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
-  /* 調整下拉箭頭位置 */
   background-size: 12px;
   /* 控制箭頭大小 */
 }
@@ -130,10 +132,44 @@
   /* 統一字體大小 */
 }
 
-/* 針對瀏覽器特定渲染問題 */
 @supports (-webkit-overflow-scrolling: touch) or (-moz-appearance: none) {
   .custom-select .form-select option {
     padding-top: 0;
     padding-bottom: 0;
   }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pagination a {
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  border-radius: 8px;
+}
+
+.pagination a:hover {
+  background-color: #e0e7ff;
+  border-color: #c7d2fe;
+  color: #16cc5c;
+  /* 調整為房間主題色 */
+}
+
+.pagination a.active {
+  background-color: #16cc5c;
+  /* 調整為房間主題色 */
+  border-color: #16cc5c;
+  color: white;
+}
+
+.pagination a.disabled {
+  pointer-events: none;
+  opacity: .5;
 }

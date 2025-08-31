@@ -45,26 +45,23 @@
               </div>
             </div>
 
-            <!-- 房間類型 -->
+            <!-- 僅顯示可入住 -->
             <div class="col-6 col-md-4">
-              <div class="custom-select">
-                <select class="form-select" (change)="onRoomTypeChange($event)">
-                  <option value="">所有類型</option>
-                  <option value="single">單人房</option>
-                  <option value="double">雙人房</option>
-                  <option value="four">四人房</option>
-                  <option value="six">六人房</option>
-                </select>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="availableOnly"
+                  (change)="onAvailabilityChange($event)">
+                <label class="form-check-label" for="availableOnly">僅顯示可入住</label>
               </div>
             </div>
 
-            <!-- 僅顯示可入住的空位房間 -->
-            <div class="col-12 col-md-4">
-              <div class="form-group">
-                <label class="form-check-label d-flex align-items-center">
-                  <input type="checkbox" class="form-check-input me-2" (change)="onAvailabilityChange($event)">
-                  僅顯示可入住的空位房間
-                </label>
+            <!-- 排序 -->
+            <div class="col-6 col-md-4">
+              <div class="custom-select">
+                <select class="form-select" (change)="onSortChange($event)">
+                  <option value="">預設排序</option>
+                  <option value="highToLow">價格高到低</option>
+                  <option value="lowToHigh">價格低到高</option>
+                </select>
               </div>
             </div>
           </div>
@@ -73,34 +70,23 @@
     </div>
   </div>
 
-  <!-- 排序區塊 -->
-  <div class="mb-3 text-end">
-    <div class="custom-select d-inline-block" style="width: 200px;">
-      <select class="form-select" (change)="onSortChange($event)">
-        <option value="">排序方式</option>
-        <option value="highToLow">由價格高至低</option>
-        <option value="lowToHigh">由價格低至高</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- 房型列表 -->
-  <div class="row g-4" *ngIf="filteredRooms.length > 0; else noRooms">
-    <div class="col-12" *ngFor="let room of filteredRooms">
-      <div class="card mb-3 shadow-sm">
-        <div class="row g-0 align-items-center">
+  <!-- 房間列表 -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-4" *ngFor="let room of pageRooms; trackBy: trackById">
+      <div class="card shadow-sm h-100">
+        <div class="row g-0 h-100">
           <!-- 左邊圖片 -->
           <div class="col-md-4">
-            <img [src]="getImageUrl(room.image)" class="card-img-top img-fluid" alt="{{ room.fRoomAlias }}"
-              (error)="handleImageError($event)" *ngIf="room.image && room.image.trim() !== ''"
-              style="object-fit: cover; height: 200px; border-top-left-radius: 5px; border-bottom-left-radius: 5px;">
+            <img [src]="getImageUrl(room.image)" class="img-fluid rounded-start" alt="房間圖片"
+              (error)="handleImageError($event)"
+              style="object-fit: cover; height: 240px; border-top-left-radius: 5px; border-bottom-left-radius: 5px;">
           </div>
           <!-- 右邊內容 -->
           <div class="col-md-8">
             <div class="card-body">
               <h5 class="card-title">{{ room.fRoomAlias }}</h5>
               <p class="card-text" [title]="room.fRoomDescription">{{ room.fRoomDescription | slice:0:15 }}...</p>
-              <p class="card-text"><strong>價格: NT $ {{ room.fRoomPrice }} 元</strong></p>
+              <p class="card-text"><strong>價格: NT $ {{ room.fRoomPrice ?? '未設定' }} 元</strong></p>
               <p class="card-text">剩餘可入住床位數量: {{ room.availableBeds }}</p>
               <a [routerLink]="['/show/room-detail', room.fRoomId]" class="btn btn-primary float-end">查看房間內容</a>
             </div>
@@ -109,11 +95,29 @@
       </div>
     </div>
   </div>
+
+  <!-- 沒有資料時 -->
   <ng-template #noRooms>
     <div class="text-center">
       <p class="text-muted">暫無房間資料</p>
     </div>
   </ng-template>
+  <div *ngIf="filteredRooms.length === 0" [ngTemplateOutlet]="noRooms"></div>
+
+  <!-- 分頁器（獨立一塊，根據資料自動產生頁數） -->
+  <div class="col-12" *ngIf="totalPages > 1">
+    <div class="pagination d-flex justify-content-center mt-5">
+      <a href class="rounded" [class.disabled]="currentPage === 1"
+        (click)="$event.preventDefault(); prevPage()">&laquo;</a>
+      <a href class="rounded" *ngFor="let p of pageNumbers" [class.active]="p === currentPage"
+        (click)="$event.preventDefault(); goToPage(p)">{{ p }}</a>
+      <a href class="rounded" [class.disabled]="currentPage === totalPages"
+        (click)="$event.preventDefault(); nextPage()">&raquo;</a>
+    </div>
+    <div class="text-center small text-muted mt-2">
+      第 {{ currentPage }} / {{ totalPages }} 頁，共 {{ filteredRooms.length }} 筆
+    </div>
+  </div>
 
   <!-- 預約參訪表單 -->
   <div class="container mt-5">

@@ -63,26 +63,14 @@ export class HomeComponent implements OnInit {
         if (response && Array.isArray(response.data)) {
           this.roomItems = response.data;
         } else {
-          console.error('API 回傳格式錯誤，data 無效:', response);
           this.roomItems = [];
         }
-        console.log('API room data:', this.roomItems);
-        if (response.message) {
-          console.log('API message:', response.message);
-        }
         if (this.roomItems.length === 0) {
-          console.warn('API 返回空資料，使用後備');
           this.roomItems = this.fallbackRoomItems;
-          console.log('使用 fallback，第一筆名稱:', this.fallbackRoomItems[0]?.fRoomAlias);
-        } else {
-          console.log('使用 API，第一筆名稱:', this.roomItems[0]?.fRoomAlias);
         }
       },
       error: (err) => {
-        console.error('API 錯誤:', err);
         this.roomItems = this.fallbackRoomItems;
-        console.log('使用後備 room data:', this.roomItems);
-        console.log('使用 fallback，第一筆名稱:', this.fallbackRoomItems[0]?.fRoomAlias);
       }
     });
   }

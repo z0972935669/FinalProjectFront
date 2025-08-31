@@ -42,10 +42,10 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    console.log('路由參數 id:', id);
+    // console.log('路由參數 id:', id);
     this.roomService.getRoomById(id).pipe(timeout(5000)).subscribe({
       next: (response) => {
-        console.log('API 回傳資料:', response);
+        // console.log('API 回傳資料:', response);
         this.room = response.data;
         if (this.room?.images) {
           this.room.images = this.room.images.filter(img => img && img.trim() !== '');
@@ -111,7 +111,8 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   }
 
   isFormReady(): boolean {
-    console.log('檢查表單準備狀態 - contact:', this.bookingForm.contact, 'checkInDate:', this.bookingForm.checkInDate);
+    // console.log('檢查表單準備狀態 - contact:'
+    //   , this.bookingForm.contact, 'checkInDate:', this.bookingForm.checkInDate);
     return !!this.bookingForm.contact.trim() && !!this.bookingForm.checkInDate.trim();
   }
 
