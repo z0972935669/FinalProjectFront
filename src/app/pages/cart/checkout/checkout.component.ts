@@ -344,7 +344,7 @@ export class CheckoutComponent {
         await Swal.fire({
           icon: 'error',
           title: '下單失敗',
-          text: '系統忙碌或連線不穩，請稍後再試。',
+          text: '',
         });
       },
     });
