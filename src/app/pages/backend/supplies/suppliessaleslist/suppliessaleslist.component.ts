@@ -12,9 +12,12 @@ import { Isupplieslist } from '../../../../interfaces/supplies/isupplieslist';
 import { SuppliesDateService } from '../../../../services/supplies/supplies-date.service';
 import { Isuppliesdate } from '../../../../interfaces/supplies/isuppliesdate';
 
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+
+
 @Component({
   selector: 'app-suppliessaleslist',
-  imports: [RouterModule, FormsModule],
+  imports: [RouterModule, FormsModule, HttpClientModule],
   standalone: true,
   templateUrl: './suppliessaleslist.component.html',
   styleUrl: './suppliessaleslist.component.scss'
@@ -29,7 +32,9 @@ export class SuppliessaleslistComponent {
   suppliesDate: Isuppliesdate[] = [];
   filteredDate: Isuppliesdate[] = []; // 新增單中用物品過濾有效期限用
 
-  constructor(private suppliesSalesService: SuppliesSalesService, private suppliesCategoryService: SuppliesCategoryService, private suppliesSupplierService: SuppliesSupplierService, private suppliesListService: SuppliesListService, private suppliesDateService: SuppliesDateService) { }
+  constructor(private http: HttpClient,
+    private suppliesSalesService: SuppliesSalesService,
+    private suppliesCategoryService: SuppliesCategoryService, private suppliesSupplierService: SuppliesSupplierService, private suppliesListService: SuppliesListService, private suppliesDateService: SuppliesDateService) { }
 
   ngOnInit(): void {
     // 抓銷貨單資料
@@ -114,70 +119,104 @@ export class SuppliessaleslistComponent {
     // 或清空錯誤訊息、選單等
   }
 
-  onCategoryChange(event: any) {
-    const selected = this.categories.find(c => c.suppliesCategoryId === this.newSales.suppliesCategoryId);
-    this.newSales.suppliesCategoryName = selected ? selected.suppliesCategoryName : '';
+  // onCategoryChange(event: any) {
+  //   const selected = this.categories.find(c => c.suppliesCategoryId === this.newSales.suppliesCategoryId);
+  //   this.newSales.suppliesCategoryName = selected ? selected.suppliesCategoryName : '';
 
-    // 根據選到的類別過濾供應商
-    this.filteredSuppliers = this.suppliers.filter(supplier =>
-      supplier.supplierKeyword === this.newSales.suppliesCategoryName
-    );
-    // 若沒有對應供應商則清空選擇
-    this.newSales.suppliesSupplierId = 0;
-    this.newSales.suppliesSupplierName = '';
-    // 清空物品選擇
-    this.filteredProducts = [];
-    this.newSales.suppliesProductId = 0;
-    this.newSales.suppliesProductName = '';
-  }
+  //   // 根據選到的類別過濾供應商
+  //   this.filteredSuppliers = this.suppliers.filter(supplier =>
+  //     supplier.supplierKeyword === this.newSales.suppliesCategoryName
+  //   );
+  //   // 若沒有對應供應商則清空選擇
+  //   this.newSales.suppliesSupplierId = 0;
+  //   this.newSales.suppliesSupplierName = '';
+  //   // 清空物品選擇
+  //   this.filteredProducts = [];
+  //   this.newSales.suppliesProductId = 0;
+  //   this.newSales.suppliesProductName = '';
+  // }
 
-  onSupplierChange(event: any) {
-    const selected = this.suppliers.find(s => s.suppliesSupplierId === this.newSales.suppliesSupplierId);
-    this.newSales.suppliesSupplierName = selected ? selected.suppliesSupplierName : '';
+  // onSupplierChange(event: any) {
+  //   const selected = this.suppliers.find(s => s.suppliesSupplierId === this.newSales.suppliesSupplierId);
+  //   this.newSales.suppliesSupplierName = selected ? selected.suppliesSupplierName : '';
 
-    // 根據選到的供應商過濾物品
-    this.filteredProducts = this.suppliesProducts.filter(supplies =>
-      supplies.supplierId === this.newSales.suppliesSupplierId
-    );
-    // 若沒有對應物品則清空選擇
-    this.newSales.suppliesProductId = 0;
-    this.newSales.suppliesProductName = '';
-  }
+  //   // 根據選到的供應商過濾物品
+  //   this.filteredProducts = this.suppliesProducts.filter(supplies =>
+  //     supplies.supplierId === this.newSales.suppliesSupplierId
+  //   );
+  //   // 若沒有對應物品則清空選擇
+  //   this.newSales.suppliesProductId = 0;
+  //   this.newSales.suppliesProductName = '';
+  // }
 
-  onSuppliesChange(event: any) {
-    const selected = this.suppliesProducts.find(s => s.suppliesProductID === this.newSales.suppliesProductId);
-    this.newSales.suppliesProductName = selected ? selected.suppliesProductName : '';
-  }
+  // onSuppliesChange(event: any) {
+  //   const selected = this.suppliesProducts.find(s => s.suppliesProductID === this.newSales.suppliesProductId);
+  //   this.newSales.suppliesProductName = selected ? selected.suppliesProductName : '';
+  // }
+  // submitAddSales() {
+  //   const today = new Date();
+  //   // 組合主單資料
+  //   const order = {
+  //     suppliesSalesOrderId: 0,
+  //     suppliesSalesOrderDetailId: 0,
+  //     orderDate: today.toISOString().split('T')[0],
+  //     customerName: this.newSales.customerName,
+  //     receivedDate: today.toISOString().split('T')[0],
+  //     orderStatus: '已到貨',
+  //     details: this.salesItems.map(item => ({
+  //       suppliesProductId: item.suppliesProductId,
+  //       quantityOfSales: item.quantityOfSales,
+  //       expiryDate: item.expiryDate,
+  //       suppliesProductName: item.suppliesProductName,
+  //       suppliesCategoryId: item.suppliesCategoryId,
+  //       suppliesCategoryName: item.suppliesCategoryName,
+  //       suppliesSupplierId: item.suppliesSupplierId,
+  //       suppliesSupplierName: item.suppliesSupplierName
+  //     }))
+  //   };
+
+  //   this.suppliesSalesService.addSuppliesSalesList(order).subscribe({
+  //     next: (res) => {
+  //       this.suppliesSalesService.getSuppliesSalesList().subscribe((data: Isuppliessales[]) => {
+  //         this.suppliesSales = data;
+  //         alert('新增成功');
+  //       });
+  //     },
+  //     error: (err) => {
+  //       alert('新增失敗');
+  //     }
+  //   });
+  //   this.resetNewSales();
+  //   this.clearSalesItems();
+  // }
   submitAddSales() {
     const today = new Date();
-    // 組合主單資料
+
+    // 組合主單資料（符合 SuppliesSalesOrderDto）
     const order = {
-      suppliesSalesOrderId: 0,
-      suppliesSalesOrderDetailId: 0,
-      orderDate: today.toISOString().split('T')[0],
+      orderDate: today.toISOString(),  // ISO 格式，後端可直接綁到 DateTime?
       customerName: this.newSales.customerName,
-      receivedDate: today.toISOString().split('T')[0],
+      receivedDate: today.toISOString(),
       orderStatus: '已到貨',
       details: this.salesItems.map(item => ({
         suppliesProductId: item.suppliesProductId,
         quantityOfSales: item.quantityOfSales,
-        expiryDate: item.expiryDate,
-        suppliesProductName: item.suppliesProductName,
-        suppliesCategoryId: item.suppliesCategoryId,
-        suppliesCategoryName: item.suppliesCategoryName,
-        suppliesSupplierId: item.suppliesSupplierId,
-        suppliesSupplierName: item.suppliesSupplierName
+        expiryDate: item.expiryDate
+          ? new Date(item.expiryDate).toISOString()  // 確保是 ISO 格式
+          : null
       }))
     };
 
-    this.suppliesSalesService.addSuppliesSalesList(order).subscribe({
-      next: (res) => {
+    this.http.post('https://localhost:7124/api/SuppliesSalesOrders', order, {
+      headers: { 'Content-Type': 'application/json' }
+    }).subscribe({
+      next: res => {
         this.suppliesSalesService.getSuppliesSalesList().subscribe((data: Isuppliessales[]) => {
           this.suppliesSales = data;
           alert('新增成功');
         });
       },
-      error: (err) => {
+      error: err => {
         alert('新增失敗');
       }
     });

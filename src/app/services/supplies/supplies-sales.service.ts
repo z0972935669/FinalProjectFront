@@ -17,5 +17,8 @@ export class SuppliesSalesService {
 
   addSuppliesSalesList(sales: Isuppliessales): Observable<Isuppliessales> {
     return this.http.post<Isuppliessales>(this.apiUrlsales, sales)
+    //     return this.http.post('https://localhost:7124/api/SuppliesSalesOrders', sales, {
+    //   headers: { 'Content-Type': 'application/json' }
+    // });
   }
 }
