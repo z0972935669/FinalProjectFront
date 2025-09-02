@@ -20,7 +20,27 @@
                       [(ngModel)]="account"
                       name="account"
                       required
+                      (ngModelChange)="onAccountChange()"
+                      (blur)="checkAccount()"
+                      #acc="ngModel"
                     />
+                    <!-- 必填紅字 -->
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="acc.invalid && (acc.dirty || acc.touched)"
+                    >
+                      <div *ngIf="acc.errors?.['required']">請輸入帳號</div>
+                    </div>
+                    <!-- 重複紅字 / 檢查中文字 -->
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="accountTaken === true"
+                    >
+                      此帳號已被註冊
+                    </div>
+                    <div class="text-muted small" *ngIf="checkingAccount">
+                      檢查中…
+                    </div>
                   </div>
 
                   <!-- 姓名 -->
@@ -32,7 +52,14 @@
                       [(ngModel)]="name"
                       name="name"
                       required
+                      #nm="ngModel"
                     />
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="nm.invalid && (nm.dirty || nm.touched)"
+                    >
+                      <div *ngIf="nm.errors?.['required']">請輸入姓名</div>
+                    </div>
                   </div>
 
                   <!-- 性別 -->
@@ -43,11 +70,18 @@
                       [(ngModel)]="gender"
                       name="gender"
                       required
+                      #gd="ngModel"
                     >
                       <option value="" disabled selected>請選擇性別</option>
                       <option value="男">男</option>
                       <option value="女">女</option>
                     </select>
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="gd.invalid && (gd.dirty || gd.touched)"
+                    >
+                      <div *ngIf="gd.errors?.['required']">請選擇性別</div>
+                    </div>
                   </div>
 
                   <!-- 生日 -->
@@ -81,7 +115,28 @@
                       [(ngModel)]="email"
                       name="email"
                       required
+                      (ngModelChange)="onEmailChange()"
+                      (blur)="checkEmail()"
+                      #em="ngModel"
                     />
+                    <!-- 格式/必填紅字 -->
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="em.invalid && (em.dirty || em.touched)"
+                    >
+                      <div *ngIf="em.errors?.['required']">請輸入 Email</div>
+                      <div *ngIf="em.errors?.['email']">Email 格式不正確</div>
+                    </div>
+                    <!-- 重複紅字 / 檢查中文字 -->
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="emailTaken === true"
+                    >
+                      此 Email 已被註冊
+                    </div>
+                    <div class="text-muted small" *ngIf="checkingEmail">
+                      檢查中…
+                    </div>
                   </div>
 
                   <!-- 密碼 -->
@@ -93,6 +148,8 @@
                       [(ngModel)]="password"
                       name="password"
                       required
+                      minlength="6"
+                      #pw="ngModel"
                     />
                     <i
                       class="fas"
@@ -105,6 +162,13 @@
                         cursor: pointer;
                       "
                     ></i>
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="pw.invalid && (pw.dirty || pw.touched)"
+                    >
+                      <div *ngIf="pw.errors?.['required']">請輸入密碼</div>
+                      <div *ngIf="pw.errors?.['minlength']">密碼至少 6 碼</div>
+                    </div>
                   </div>
 
                   <!-- 確認密碼 -->
@@ -116,6 +180,7 @@
                       [(ngModel)]="confirmPassword"
                       name="confirmPassword"
                       required
+                      #cpw="ngModel"
                     />
                     <i
                       class="fas"
@@ -130,6 +195,23 @@
                         cursor: pointer;
                       "
                     ></i>
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="cpw.invalid && (cpw.dirty || cpw.touched)"
+                    >
+                      <div *ngIf="cpw.errors?.['required']">請再次輸入密碼</div>
+                    </div>
+                    <!-- 兩次密碼不一致紅字（即時） -->
+                    <div
+                      class="text-danger small mt-1"
+                      *ngIf="
+                        password &&
+                        confirmPassword &&
+                        password !== confirmPassword
+                      "
+                    >
+                      兩次密碼不一致
+                    </div>
                   </div>
 
                   <!-- 大頭貼上傳與預覽 -->
@@ -154,6 +236,9 @@
                     <input
                       class="form-check-input me-2"
                       type="checkbox"
+                      [(ngModel)]="agree"
+                      name="agree"
+                      #agreeCtrl="ngModel"
                       required
                     />
                     <label class="form-check-label"
@@ -161,9 +246,30 @@
                     >
                   </div>
 
+                  <!-- 未勾選時的紅字提示 -->
+                  <div
+                    class="text-danger text-center small mb-3"
+                    *ngIf="
+                      agreeCtrl.invalid &&
+                      (agreeCtrl.dirty || agreeCtrl.touched)
+                    "
+                  >
+                    請先勾選同意
+                  </div>
+
                   <!-- 送出 -->
                   <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-primary btn-lg">
+                    <button
+                      type="submit"
+                      class="btn btn-primary btn-lg"
+                      [disabled]="
+                        !agree ||
+                        checkingAccount ||
+                        checkingEmail ||
+                        accountTaken ||
+                        emailTaken
+                      "
+                    >
                       註冊
                     </button>
                   </div>

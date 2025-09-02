@@ -25,6 +25,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   showBanDialog = false;
   banMessage = '您的帳號已被停權，請聯繫安養院或客服。';
 
+  // ===== 新增：記住帳號 =====
+  rememberMe = false;
+  private readonly REMEMBER_ACCOUNT_KEY = 'remember_account';
+
   // ===== 常數（只改這裡即可統一導頁與 Token key）=====
   private readonly apiBase = 'https://localhost:7124/api/account';
   private readonly TOKEN_KEYS = ['jwt', 'jwtToken'];
@@ -35,6 +39,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // 進登入頁先清掉壞掉或過期 token，避免路由守門員自動把你帶離登入頁
     this.clearIfInvalidToken();
+
+    // ===== 新增：進頁時自動帶出被記住的帳號 =====
+    const saved = localStorage.getItem(this.REMEMBER_ACCOUNT_KEY);
+    if (saved) {
+      this.account = saved;
+      this.rememberMe = true;
+    }
+
 
     // 初始化 Google 登入
     google.accounts.id.initialize({
@@ -95,7 +107,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     const loginData = { account: this.account, password: this.password };
 
-    // 送出前清掉舊 token，避免守門員誤帶走
     this.clearToken();
 
     this.http.post<any>(`${this.apiBase}/login`, loginData).subscribe({
@@ -103,6 +114,15 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.setToken(res.token);
         localStorage.setItem('memberName', res.name ?? '');
         this.loading = false;
+
+        // ===== 新增：成功後依勾選狀態記住或清除帳號 =====
+        const acc = (this.account ?? '').trim();
+        if (this.rememberMe && acc) {
+          localStorage.setItem(this.REMEMBER_ACCOUNT_KEY, acc);
+        } else {
+          localStorage.removeItem(this.REMEMBER_ACCOUNT_KEY);
+        }
+
         this.router.navigateByUrl(this.LOGIN_REDIRECT);
       },
       error: (err: HttpErrorResponse) => {
@@ -253,7 +273,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       const sec = this.extractSeconds(msg) ?? 60;
       this.errMsg = `已暫時鎖定，${sec} 秒後可再嘗試。`;
       this.startLockCountdown(sec);
-      return; // 不導頁
+      return;
     }
 
     if (err.status === 401) {
