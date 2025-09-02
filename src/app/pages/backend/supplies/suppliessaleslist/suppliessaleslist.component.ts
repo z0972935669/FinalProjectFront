@@ -31,6 +31,14 @@ export class SuppliessaleslistComponent {
   filteredProducts: Isupplieslist[] = []; // 新增單中用供應商過濾物品用
   suppliesDate: Isuppliesdate[] = [];
   filteredDate: Isuppliesdate[] = []; // 新增單中用物品過濾有效期限用
+  searchKeyword: string = ''; // 查詢關鍵字用
+
+  // 分頁用屬性
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 0;
+  totalCount: number = 0;
+
 
   constructor(private http: HttpClient,
     private suppliesSalesService: SuppliesSalesService,
@@ -58,7 +66,52 @@ export class SuppliessaleslistComponent {
     this.suppliesDateService.getSuppliesDateData().subscribe((data: Isuppliesdate[]) => {
       this.suppliesDate = data;
     })
+    this.loadSalesOrders();
   }
+
+  // 抓後端資料（支援分頁）
+  loadSalesOrders() {
+    this.suppliesSalesService.getSuppliesSalesList(this.searchKeyword, this.currentPage, this.pageSize)
+      .subscribe(res => {
+        this.suppliesSales = res.data;
+        this.totalCount = res.totalCount;
+        this.totalPages = res.totalPages;
+      });
+  }
+
+  // 查詢關鍵字
+  searchSalesOrders() {
+    this.currentPage = 1; // 查詢時回到第一頁
+    this.loadSalesOrders();
+  }
+
+  // 換頁
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadSalesOrders();
+  }
+
+  // 動態頁碼（最多顯示 5 頁）
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    let start = Math.max(1, this.currentPage - 2);
+    let end = Math.min(this.totalPages, this.currentPage + 2);
+
+    if (end - start < 4) {
+      if (start === 1) {
+        end = Math.min(5, this.totalPages);
+      } else if (end === this.totalPages) {
+        start = Math.max(1, this.totalPages - 4);
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
 
   newSales: Isuppliessales = {
     suppliesSalesOrderId: 0,
@@ -119,76 +172,6 @@ export class SuppliessaleslistComponent {
     // 或清空錯誤訊息、選單等
   }
 
-  // onCategoryChange(event: any) {
-  //   const selected = this.categories.find(c => c.suppliesCategoryId === this.newSales.suppliesCategoryId);
-  //   this.newSales.suppliesCategoryName = selected ? selected.suppliesCategoryName : '';
-
-  //   // 根據選到的類別過濾供應商
-  //   this.filteredSuppliers = this.suppliers.filter(supplier =>
-  //     supplier.supplierKeyword === this.newSales.suppliesCategoryName
-  //   );
-  //   // 若沒有對應供應商則清空選擇
-  //   this.newSales.suppliesSupplierId = 0;
-  //   this.newSales.suppliesSupplierName = '';
-  //   // 清空物品選擇
-  //   this.filteredProducts = [];
-  //   this.newSales.suppliesProductId = 0;
-  //   this.newSales.suppliesProductName = '';
-  // }
-
-  // onSupplierChange(event: any) {
-  //   const selected = this.suppliers.find(s => s.suppliesSupplierId === this.newSales.suppliesSupplierId);
-  //   this.newSales.suppliesSupplierName = selected ? selected.suppliesSupplierName : '';
-
-  //   // 根據選到的供應商過濾物品
-  //   this.filteredProducts = this.suppliesProducts.filter(supplies =>
-  //     supplies.supplierId === this.newSales.suppliesSupplierId
-  //   );
-  //   // 若沒有對應物品則清空選擇
-  //   this.newSales.suppliesProductId = 0;
-  //   this.newSales.suppliesProductName = '';
-  // }
-
-  // onSuppliesChange(event: any) {
-  //   const selected = this.suppliesProducts.find(s => s.suppliesProductID === this.newSales.suppliesProductId);
-  //   this.newSales.suppliesProductName = selected ? selected.suppliesProductName : '';
-  // }
-  // submitAddSales() {
-  //   const today = new Date();
-  //   // 組合主單資料
-  //   const order = {
-  //     suppliesSalesOrderId: 0,
-  //     suppliesSalesOrderDetailId: 0,
-  //     orderDate: today.toISOString().split('T')[0],
-  //     customerName: this.newSales.customerName,
-  //     receivedDate: today.toISOString().split('T')[0],
-  //     orderStatus: '已到貨',
-  //     details: this.salesItems.map(item => ({
-  //       suppliesProductId: item.suppliesProductId,
-  //       quantityOfSales: item.quantityOfSales,
-  //       expiryDate: item.expiryDate,
-  //       suppliesProductName: item.suppliesProductName,
-  //       suppliesCategoryId: item.suppliesCategoryId,
-  //       suppliesCategoryName: item.suppliesCategoryName,
-  //       suppliesSupplierId: item.suppliesSupplierId,
-  //       suppliesSupplierName: item.suppliesSupplierName
-  //     }))
-  //   };
-
-  //   this.suppliesSalesService.addSuppliesSalesList(order).subscribe({
-  //     next: (res) => {
-  //       this.suppliesSalesService.getSuppliesSalesList().subscribe((data: Isuppliessales[]) => {
-  //         this.suppliesSales = data;
-  //         alert('新增成功');
-  //       });
-  //     },
-  //     error: (err) => {
-  //       alert('新增失敗');
-  //     }
-  //   });
-  //   this.resetNewSales();
-  //   this.clearSalesItems();
-  // }
   submitAddSales() {
     const today = new Date();
 
@@ -197,7 +180,7 @@ export class SuppliessaleslistComponent {
       orderDate: today.toISOString(),  // ISO 格式，後端可直接綁到 DateTime?
       customerName: this.newSales.customerName,
       receivedDate: today.toISOString(),
-      orderStatus: '已到貨',
+      orderStatus: '未到貨',
       details: this.salesItems.map(item => ({
         suppliesProductId: item.suppliesProductId,
         quantityOfSales: item.quantityOfSales,
@@ -211,10 +194,8 @@ export class SuppliessaleslistComponent {
       headers: { 'Content-Type': 'application/json' }
     }).subscribe({
       next: res => {
-        this.suppliesSalesService.getSuppliesSalesList().subscribe((data: Isuppliessales[]) => {
-          this.suppliesSales = data;
-          alert('新增成功');
-        });
+        this.loadSalesOrders();
+        alert('新增成功');
       },
       error: err => {
         alert('新增失敗');
@@ -300,5 +281,40 @@ export class SuppliessaleslistComponent {
       }
     });
     return Array.from(map.values());
+  }
+
+  // 確認銷貨單在改變狀態後就不能變動
+  canUpdateStatus(): boolean {
+    if (!this.selectedSalesOrder || this.selectedSalesOrder.length === 0) return false;
+    const status = this.selectedSalesOrder[0].orderStatus;
+    return status !== '已到貨' && status !== '已取消';
+  }
+
+  // 確認與呼叫更新
+  confirmUpdateOrderStatus(status: '已取消' | '已到貨') {
+    const orderId = this.selectedSalesOrder[0]?.suppliesSalesOrderId;
+    if (!orderId) return;
+
+    const message = status === '已取消'
+      ? '確定要取消此單嗎？'
+      : '確定要將此單標記為已到貨嗎？';
+
+    if (confirm(message)) {
+      this.suppliesSalesService.updateOrderStatus(orderId, status).subscribe({
+        next: () => {
+          // 更新前端資料
+          const order = this.uniqueSalesOrders.find(o => o.suppliesSalesOrderId === orderId);
+          if (order) {
+            order.orderStatus = status;
+          }
+          alert('更新成功！');
+          this.loadSalesOrders();
+        },
+        error: err => {
+          console.error(err);
+          alert('更新失敗！');
+        }
+      });
+    }
   }
 }

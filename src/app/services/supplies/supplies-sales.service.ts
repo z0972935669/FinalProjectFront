@@ -11,14 +11,25 @@ export class SuppliesSalesService {
 
   constructor(private http: HttpClient) { }
 
-  getSuppliesSalesList(): Observable<Isuppliessales[]> {
-    return this.http.get<Isuppliessales[]>(this.apiUrlsales)
+  getSuppliesSalesList(keyword: string = '', page: number = 1, pageSize: number = 10, status: string = ''): Observable<any> {
+    let url = `${this.apiUrlsales}?page=${page}&pageSize=${pageSize}`;
+    if (keyword) {
+      url += `&keyword=${encodeURIComponent(keyword)}`;
+    }
+    if (status) {
+      url += `&status=${encodeURIComponent(status)}`;
+    }
+    return this.http.get<any>(url); // 回傳物件 { totalCount, page, pageSize, totalPages, data }
   }
 
   addSuppliesSalesList(sales: Isuppliessales): Observable<Isuppliessales> {
     return this.http.post<Isuppliessales>(this.apiUrlsales, sales)
-    //     return this.http.post('https://localhost:7124/api/SuppliesSalesOrders', sales, {
-    //   headers: { 'Content-Type': 'application/json' }
-    // });
   }
+
+  updateOrderStatus(orderId: number, status: string): Observable<any> {
+    // 依照 API 規劃，這裡我假設是 /{id}/status
+    return this.http.put(`${this.apiUrlsales}/${orderId}/status`, { status });
+  }
+
+
 }
