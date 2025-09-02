@@ -17,7 +17,8 @@
                       d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
                   </svg>
                 </div>
-                <h4 class="app-card-title mb-0">申請人：余俊良</h4>
+                <h4 class="app-card-title mb-0">申請人：{{ meName || '—' }}</h4>
+
               </div>
             </div>
 
@@ -48,7 +49,11 @@
 
             <div class="app-card-footer p-4">
               <button type="button" class="btn app-btn-primary btn-lg w-100 mb-3"
-                style="font-size:2rem; padding:0.5rem; color: white;">送出</button>
+                style="font-size:2rem; padding:0.5rem; color: white;" (click)="submit()" [disabled]="submitting">
+                {{ submitting ? '送出中…' : '送出' }}
+              </button>
+
+              <div *ngIf="err" class="text-danger fw-bold mt-2">{{ err }}</div>
 
             </div>
           </div>

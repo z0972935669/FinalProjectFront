@@ -196,8 +196,9 @@ export const routes: Routes = [
           { path: 'employeelistdetail/:id', component: EmployeelistdetailComponent, title: '詳細資料' },
           { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
           { path: 'employeelistedit/:id', component: EmployeelisteditComponent, title: '編輯員工' },
-
           { path: 'employeeapprovalflow', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
+          { path: 'employeeapprovalflow/:formType/:formId/:approvalId', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
+          { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
           { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
           { path: 'employeeattendance', component: EmployeeattendanceComponent, title: '員工考勤' },
           { path: 'employeeattendancerecords', component: EmployeeattendancerecordsComponent, title: '考勤紀錄' },

@@ -35,7 +35,7 @@ const TITLES: Title[] = [
   { id: 20, name: '財會部長', departmentId: 5 }, { id: 21, name: '財務專員', departmentId: 5 },
   { id: 22, name: '採購專員', departmentId: 5 },
   { id: 23, name: '人資部長', departmentId: 6 }, { id: 24, name: '人資專員', departmentId: 6 },
-  { id: 25, name: '資訊科長', departmentId: 7 }, { id: 26, name: '資訊工程師', departmentId: 7 },
+  { id: 25, name: '資訊部長', departmentId: 7 }, { id: 26, name: '資訊工程師', departmentId: 7 },
 ];
 
 @Component({

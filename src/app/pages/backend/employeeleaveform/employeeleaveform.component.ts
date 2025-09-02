@@ -2,27 +2,75 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import {
+  EmployeeLeaveService,
+  EmployeeLeaveTypeDto,
+  EmployeeAgentDto,
+  EmployeeLeaveCreateDto,
+} from '../../../services/employee/employee-leave.service';
 
 @Component({
   selector: 'app-employeeleaveform',
+  standalone: true, // ★ 必須為 true 才能在 Component 上使用 imports
   imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './employeeleaveform.component.html',
-  styleUrl: './employeeleaveform.component.scss'
+  styleUrls: ['./employeeleaveform.component.scss'],
 })
 export class EmployeeleaveformComponent implements OnInit {
+  // 申請人（由後端取得）
+  applicantName = '';
 
-  // 日期 & 時間
-  leaveDate: string | null = null;
+  // 日期（後端需要開始/結束各一個）
+  startDate: string | null = null; // yyyy-MM-dd
+  endDate: string | null = null;   // yyyy-MM-dd
 
-  timeOptions: string[] = [];     // 00:00 ~ 23:30，每 30 分鐘
+  // 時間
+  timeOptions: string[] = []; // 00:00 ~ 23:30，每 30 分
   startTime = '09:00';
   endTime = '18:00';
 
+  // 假別
+  leaveTypes: EmployeeLeaveTypeDto[] = [];
+  leaveTypeId: number | null = null;
+
+  // 職務代理人（必填；可選自己，但後端會擋主管身分）
+  agents: EmployeeAgentDto[] = [];
+  agentId: number | null = null;
+
+  // 其他
+  reason = '';
+  loading = false;
+  errMsg = '';
+  okMsg = '';
+
+  constructor(private leaveSvc: EmployeeLeaveService) { }
+
   ngOnInit(): void {
+    // 申請人姓名
+    this.leaveSvc.me().subscribe({
+      next: me => (this.applicantName = me.applicantName),
+      error: _ => (this.applicantName = '(未知)'),
+    });
+
+    // 假別清單
+    this.leaveSvc.getTypes().subscribe({
+      next: list => (this.leaveTypes = list),
+      error: _ => (this.errMsg = '無法載入假別清單'),
+    });
+
+    // 同部門代理人（含「自己（申請人）」；後端已排除主管）
+    this.leaveSvc.getAgents().subscribe({
+      next: list => {
+        this.agents = list;
+        // 預設帶入「自己（申請人）」以降低填寫失敗
+        const me = list.find(a => a.display === '自己（申請人）');
+        if (me) this.agentId = me.employeeId;
+      },
+      error: _ => (this.errMsg = '無法載入代理人清單'),
+    });
+
     this.timeOptions = this.buildTimeOptions();
-    // 可在此設定預設日期
-    // this.leaveDate = this.toTodayISO();
-    this.enforceMinGap();          // 初始校正
+    this.enforceMinGap();
   }
 
   /** 產生 00:00 ~ 23:30、每 30 分鐘的選項 */
@@ -54,7 +102,7 @@ export class EmployeeleaveformComponent implements OnInit {
     const startMin = this.toMinutes(this.startTime);
     const minEnd = startMin + 30;
 
-    let endMin = this.toMinutes(this.endTime);
+    const endMin = this.toMinutes(this.endTime);
     if (endMin < minEnd) {
       const rounded = Math.ceil(minEnd / 30) * 30;
       const safe = Math.min(rounded, 23 * 60 + 30);
@@ -67,7 +115,7 @@ export class EmployeeleaveformComponent implements OnInit {
     const endMin = this.toMinutes(this.endTime);
     const maxStart = endMin - 30;
 
-    let startMin = this.toMinutes(this.startTime);
+    const startMin = this.toMinutes(this.startTime);
     if (startMin > maxStart) {
       const rounded = Math.floor(maxStart / 30) * 30;
       const safe = Math.max(rounded, 0);
@@ -75,7 +123,6 @@ export class EmployeeleaveformComponent implements OnInit {
     }
   }
 
-  // Template 事件處理
   onStartChange(_: string): void {
     this.enforceMinGap();
   }
@@ -98,21 +145,43 @@ export class EmployeeleaveformComponent implements OnInit {
     return this.toMinutes(t) < minEnd;
   }
 
-  /** 取得今天 yyyy-MM-dd（可選） */
-  private toTodayISO(): string {
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+  submit(): void {
+    this.errMsg = this.okMsg = '';
+
+    if (!this.startDate || !this.endDate) {
+      this.errMsg = '請選擇開始/結束日期';
+      return;
+    }
+    if (!this.leaveTypeId) {
+      this.errMsg = '請選擇假別';
+      return;
+    }
+    if (!this.agentId) {
+      this.errMsg = '請選擇職務代理人（可選自己）';
+      return;
+    }
+
+    const payload: EmployeeLeaveCreateDto = {
+      leaveTypeId: this.leaveTypeId,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      startTime: this.startTime,
+      endTime: this.endTime,
+      reason: this.reason?.trim() || null,
+      // ★ 帶到後端，第一關一定由代理人簽
+      agentEmployeeId: this.agentId,
+    };
+
+    this.loading = true;
+    this.leaveSvc.create(payload).subscribe({
+      next: _ => {
+        this.loading = false;
+        this.okMsg = '已送出申請';
+      },
+      error: err => {
+        this.loading = false;
+        this.errMsg = (err?.error ?? '送出失敗').toString();
+      },
+    });
   }
-
-  leaveTypes: string[] = [
-    '特休', '補休', '病假', '生理假', '公傷病假', '公假',
-    '事假', '婚假', '喪假', '產假', '陪產假', '安胎假'
-  ];
-
-  leaveType: string = ''; // 預設為未選
 }
-
-

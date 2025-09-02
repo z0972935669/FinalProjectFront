@@ -5,7 +5,7 @@
       <h1 class="badge bg-primary mb-3" style="font-size: xx-large;">請休假申請單</h1>
 
       <div class="row gy-4">
-        <!-- 左邊：基本資料（單一卡片） -->
+        <!-- 左邊：基本資料 -->
         <div class="col-12 col-lg-6">
           <div class="app-card app-card-account shadow-lg">
             <div class="app-card-header p-3 border-bottom-0">
@@ -17,18 +17,21 @@
                       d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
                   </svg>
                 </div>
-                <h4 class="app-card-title mb-0">申請人：余俊良</h4>
+                <h4 class="app-card-title mb-0">申請人：{{ applicantName || '...' }}</h4>
               </div>
             </div>
 
             <div class="app-card-body px-4">
 
-              <!-- 日期 -->
+              <!-- 訊息 -->
+              <div *ngIf="errMsg" class="alert alert-danger">{{ errMsg }}</div>
+              <div *ngIf="okMsg" class="alert alert-success">{{ okMsg }}</div>
+
+              <!-- 開始日期 -->
               <div class="edit-row">
                 <div class="edit-label">開始日期</div>
                 <div class="edit-field">
-                  <input id="leaveDate" type="date" class="form-control form-control-sm" [(ngModel)]="leaveDate"
-                    name="leaveDate" />
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="startDate" name="startDate" />
                 </div>
               </div>
 
@@ -45,13 +48,14 @@
                 </div>
               </div>
 
+              <!-- 結束日期 -->
               <div class="edit-row">
                 <div class="edit-label">結束日期</div>
                 <div class="edit-field">
-                  <input id="leaveDate" type="date" class="form-control form-control-sm" [(ngModel)]="leaveDate"
-                    name="leaveDate" />
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="endDate" name="endDate" />
                 </div>
               </div>
+
               <!-- 結束時間 -->
               <div class="edit-row">
                 <div class="edit-label">結束時間</div>
@@ -65,58 +69,60 @@
                 </div>
               </div>
 
+              <!-- 假別 -->
               <div class="edit-row">
                 <div class="edit-label">選擇假別</div>
                 <div class="edit-field">
-                  <select class="form-control form-control-sm" [(ngModel)]="leaveType" name="leaveType" required>
-                    <option value="" disabled selected>請選擇假別</option>
-                    <option *ngFor="let t of leaveTypes" [value]="t">{{ t }}</option>
+                  <select class="form-control form-control-sm" [(ngModel)]="leaveTypeId" name="leaveTypeId" required>
+                    <option [ngValue]="null" disabled>請選擇假別</option>
+                    <option *ngFor="let t of leaveTypes" [ngValue]="t.leaveTypeId">
+                      {{ t.typeName }}
+                    </option>
                   </select>
                 </div>
               </div>
 
+              <!-- 請假原因 -->
               <div class="edit-row">
                 <div class="edit-label">請假原因</div>
                 <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" placeholder="非必填">
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="reason" name="reason"
+                    placeholder="非必填">
                 </div>
               </div>
 
+              <!-- 職務代理人（必填，可選自己；後端已排除主管） -->
               <div class="edit-row">
-                <div class="edit-label">職務代理人</div>
+                <div class="edit-label">職務代理人 <small class="text-muted">(必填，可選自己)</small></div>
                 <div class="edit-field">
-                  <input type="text" class="form-control form-control-sm" placeholder="非必填">
-                </div>
-              </div>
-
-              <div class="edit-row">
-                <div class="edit-label">上傳附件</div>
-                <div class="edit-field">
-                  <input type="file" class="form-control form-control-sm" placeholder="非必填" accept="all">
+                  <select class="form-control form-control-sm" [(ngModel)]="agentId" name="agentId" required>
+                    <option [ngValue]="null" disabled>請選擇代理人</option>
+                    <option *ngFor="let a of agents" [ngValue]="a.employeeId">
+                      {{ a.display || (a.jobTitleName ? (a.jobTitleName + '-' + a.name) : a.name) }}
+                    </option>
+                  </select>
                 </div>
               </div>
 
             </div>
 
             <div class="app-card-footer p-4">
-              <button type="button" class="btn app-btn-primary btn-lg w-100 mb-3"
-                style="font-size:2rem; padding:0.5rem; color: white;">送出</button>
-
+              <button type="button" class="btn app-btn-primary btn-lg w-100 mb-3" [disabled]="loading"
+                (click)="submit()" style="font-size:2rem; padding:0.5rem; color: white;">
+                {{ loading ? '送出中…' : '送出' }}
+              </button>
             </div>
+
           </div>
         </div>
 
-        <!-- 右邊：職務資訊 + 緊急連絡人資訊（兩張卡片堆疊，等寬） -->
+        <!-- 右側裝飾圖 -->
         <div class="col-12 col-lg-6 right-stack">
           <div class="d-none d-md-block"
             style="height:100%; background:#e8f5e9 url('assets/backend/images/logo/leaveform.png') center center / contain no-repeat; pointer-events:none;">
           </div>
-
-
-        </div><!-- /右側 -->
-
-      </div><!-- /row -->
-
+        </div>
+      </div>
     </div>
   </div>
 </div>
