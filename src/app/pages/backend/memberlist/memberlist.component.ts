@@ -4,7 +4,9 @@ import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http'
 import { FormsModule } from '@angular/forms';
 import { CityService, CityMap } from '../../../services/city/city.service';
 import { take } from 'rxjs/operators';
-declare let bootstrap: any;
+
+// Bootstrap 5.0 只有全域物件與 getInstance，沒有 getOrCreateInstance
+declare const bootstrap: any;
 
 interface Member {
   fMemberId: number;
@@ -51,18 +53,16 @@ export class MemberlistComponent implements OnInit {
   totalPages = 0;
   isLoading = false;
 
-  // 由 Service 餵資料
+  // 城市資料
   cityMap: CityMap = {};
   cityOptions: string[] = [];
   districtOptions: string[] = [];
 
-
   /** 編輯會員 */
   selectedMember: Member | null = null;
 
-  /** 新增健康紀錄（卡片） */
+  /** 新增健康紀錄（Modal） */
   selectedHealthMember: Member | null = null;
-  // showHealthForm = false;
   healthRecord: HealthRecordPayload = {
     recordDate: this.todayString(),
     systolic: null,
@@ -78,37 +78,41 @@ export class MemberlistComponent implements OnInit {
   healthList: any[] = [];
   isHealthListLoading = false;
 
-  constructor(private http: HttpClient,
+  constructor(
+    private http: HttpClient,
     private citySvc: CityService
   ) {}
 
-ngOnInit(): void {
-  this.loadMembers();
+  ngOnInit(): void {
+    this.loadMembers();
 
-  // 預先載入一次城市對照（CityService 內有 shareReplay，不會重複打）
-this.citySvc.getCityMap().pipe(take(1)).subscribe({
-  next: (map) => {
-    this.cityMap = map;
-    this.cityOptions = Object.keys(map);
-  },
-  error: () => {
-    console.error('載入縣市資料失敗');
+    // 預先載入一次城市對照（CityService 內有 shareReplay，不會重複打）
+    this.citySvc.getCityMap().pipe(take(1)).subscribe({
+      next: (map) => {
+        this.cityMap = map;
+        this.cityOptions = Object.keys(map);
+      },
+      error: () => console.error('載入縣市資料失敗')
+    });
   }
-});
-}
 
-  /** Auth 標頭 */
+  /** ===== 工具：Auth 標頭 ===== */
   private getAuthHeaders(): { headers: HttpHeaders } {
     const token = localStorage.getItem('jwtToken') ?? '';
     return { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
   }
 
-  /** 今天 yyyy-MM-dd */
+  /** ===== 工具：今天 yyyy-MM-dd ===== */
   private todayString(): string {
     const d = new Date();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     return `${d.getFullYear()}-${mm}-${dd}`;
+  }
+
+  /** ===== 工具：保證拿到一個 Modal instance（5.0 相容寫法）===== */
+  private ensureModal(el: HTMLElement) {
+    return bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
   }
 
   /** 讀取會員 */
@@ -140,80 +144,77 @@ this.citySvc.getCityMap().pipe(take(1)).subscribe({
   }
 
   /** 開啟編輯會員 Modal */
-editMember(member: Member): void {
-  this.http.get<Member>(`${this.apiUrl}/${member.fMemberId}`, this.getAuthHeaders())
-    .subscribe({
-      next: (res) => {
-        this.selectedMember = {
-          ...res,
-          fBirthDate: res.fBirthDate
-            ? new Date(res.fBirthDate).toISOString().split('T')[0]
-            : null
-        };
+  editMember(member: Member): void {
+    this.http.get<Member>(`${this.apiUrl}/${member.fMemberId}`, this.getAuthHeaders())
+      .subscribe({
+        next: (res) => {
+          this.selectedMember = {
+            ...res,
+            fBirthDate: res.fBirthDate
+              ? new Date(res.fBirthDate).toISOString().split('T')[0]
+              : null
+          };
 
-        const open = () => {
-          // 有城市資料才刷新區域，才能把 中和區 帶入選單並預選
-          this.refreshDistrictOptions(this.selectedMember!.fCity || '');
+          const open = () => {
+            // 有城市資料才刷新區域，才能把已存的區帶入選單並預選
+            this.refreshDistrictOptions(this.selectedMember!.fCity || '');
 
-          const el = document.getElementById('editMemberModal');
-          if (!el) return;
-          if (el.parentElement !== document.body) document.body.appendChild(el);
-          bootstrap.Modal.getOrCreateInstance(el).show();
-        };
+            const el = document.getElementById('editMemberModal');
+            if (!el) return;
+            if (el.parentElement !== document.body) document.body.appendChild(el);
+            this.ensureModal(el).show();
+          };
 
-        // 若 cityMap 尚未載好 => 先取一次，再 open
-        if (!this.cityOptions.length) {
-          this.citySvc.getCityMap().pipe(take(1)).subscribe({
-            next: (map) => {
-              this.cityMap = map;
-              this.cityOptions = Object.keys(map);
-              open();
-            },
-            error: () => open() // 就算失敗也讓使用者能編其他欄位
-          });
-        } else {
-          open();
+          // 若 cityMap 尚未載好 => 先取一次，再 open
+          if (!this.cityOptions.length) {
+            this.citySvc.getCityMap().pipe(take(1)).subscribe({
+              next: (map) => {
+                this.cityMap = map;
+                this.cityOptions = Object.keys(map);
+                open();
+              },
+              error: () => open() // 就算失敗也讓使用者能編其他欄位
+            });
+          } else {
+            open();
+          }
+        },
+        error: (err) => {
+          console.error('載入會員資料失敗', err);
+          alert('載入會員資料失敗');
         }
-      },
-      error: (err) => {
-        console.error('載入會員資料失敗', err);
-        alert('載入會員資料失敗');
-      }
-    });
-}
+      });
+  }
 
-
-
-    onCityChange() {
+  /** 城市變更 */
+  onCityChange(): void {
     const city = this.selectedMember?.fCity || '';
     this.refreshDistrictOptions(city);
   }
 
-private refreshDistrictOptions(city: string | null | undefined): void {
-  const c = (city ?? '').trim();
-  const districts = this.cityMap[c];
+  private refreshDistrictOptions(city: string | null | undefined): void {
+    const c = (city ?? '').trim();
+    const districts = this.cityMap[c];
 
-  // 1) 還沒拿到對應城市的區域清單 => 先不要動目前值，等資料來了再刷新
-  if (!districts) {
-    this.districtOptions = [];
-    return;
+    // 還沒拿到對應城市的區域清單
+    if (!districts) {
+      this.districtOptions = [];
+      return;
+    }
+
+    // 有資料才刷新清單並檢查當前區域是否合法
+    this.districtOptions = districts;
+    if (!this.selectedMember) return;
+
+    const current = (this.selectedMember.fDistrict ?? '').trim();
+    if (current && this.districtOptions.includes(current)) {
+      // 合法就保留
+      this.selectedMember.fDistrict = current;
+    } else {
+      // 不合法才清空
+      this.selectedMember.fDistrict = '';
+    }
   }
-
-  // 2) 有資料才刷新清單並檢查當前區域是否合法
-  this.districtOptions = districts;
-  if (!this.selectedMember) return;
-
-  const current = (this.selectedMember.fDistrict ?? '').trim();
-  if (current && this.districtOptions.includes(current)) {
-    // 合法就保留
-    this.selectedMember.fDistrict = current;
-  } else {
-    // 不合法才清空
-    this.selectedMember.fDistrict = '';
-  }
-}
-
-
 
   /** 儲存會員 */
   saveMember(): void {
@@ -295,62 +296,55 @@ private refreshDistrictOptions(city: string | null | undefined): void {
     this.selectedMember = null;
     const el = document.getElementById('editMemberModal');
     if (!el) return;
-    const modal = bootstrap.Modal.getInstance(el) ?? bootstrap.Modal.getOrCreateInstance(el);
+    const modal = bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
     modal.hide();
   }
 
-  /** 開啟新增表單卡片（僅入住者會看到按鈕） */
-openHealthModal(member: Member): void {
-  this.selectedHealthMember = member;
-  this.healthRecord = {
-    recordDate: this.todayString(),
-    systolic: null,
-    diastolic: null,
-    pulse: null,
-    ioRecord: '',
-    checkPeriod: '',
-    notes: ''
-  };
+  /** 開啟新增健康紀錄 Modal */
+  openHealthModal(member: Member): void {
+    this.selectedHealthMember = member;
+    this.healthRecord = {
+      recordDate: this.todayString(),
+      systolic: null,
+      diastolic: null,
+      pulse: null,
+      ioRecord: '',
+      checkPeriod: '',
+      notes: ''
+    };
 
-  const el = document.getElementById('addHealthRecordModal');
-  if (!el) return;
-  const modal = bootstrap.Modal.getOrCreateInstance(el);
-  modal.show();
-}
+    const el = document.getElementById('addHealthRecordModal');
+    if (!el) return;
+    this.ensureModal(el).show();
+  }
 
-  /** 關閉新增表單卡片 */
-  // cancelHealthRecord(): void {
-  //   this.showHealthForm = false;
-  //   this.selectedHealthMember = null;
-  // }
+  /** 送出健康紀錄 */
+  submitHealthRecord(): void {
+    if (!this.selectedHealthMember) return;
 
-  /** 送出健康紀錄（你後端收 querystring 的 memberId） */
- submitHealthRecord(): void {
-  if (!this.selectedHealthMember) return;
+    const url = `${this.healthApi}?memberId=${this.selectedHealthMember.fMemberId}`;
+    const payload = { ...this.healthRecord };
 
-  const url = `${this.healthApi}?memberId=${this.selectedHealthMember.fMemberId}`;
-  const payload = { ...this.healthRecord };
+    this.http.post<any>(url, payload, this.getAuthHeaders()).subscribe({
+      next: () => {
+        alert('健康紀錄新增成功');
 
-  this.http.post<any>(url, payload, this.getAuthHeaders()).subscribe({
-    next: () => {
-      alert('健康紀錄新增成功');
+        // 關閉 Modal
+        const el = document.getElementById('addHealthRecordModal');
+        if (el) {
+          const modal = bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
+          modal.hide();
+        }
 
-      // 關閉 Modal
-      const el = document.getElementById('addHealthRecordModal');
-      if (el) {
-        const modal = bootstrap.Modal.getInstance(el);
-        modal?.hide();
+        this.selectedHealthMember = null;
+      },
+      error: (err) => {
+        alert('健康紀錄新增失敗：' + (err?.error?.message ?? '請稍後再試'));
       }
+    });
+  }
 
-      this.selectedHealthMember = null;
-    },
-    error: (err) => {
-      alert('健康紀錄新增失敗：' + (err?.error?.message ?? '請稍後再試'));
-    }
-  });
-}
-
-  /** 檢視近 7 天健康紀錄（Bootstrap Modal） */
+  /** 檢視近 7 天健康紀錄（Modal） */
   openHealthList(member: Member): void {
     if (!member.fResidesInCareHomeStatus) {
       alert('僅限已入住會員可檢視健康紀錄');
@@ -366,8 +360,7 @@ openHealthModal(member: Member): void {
 
         const el = document.getElementById('healthListModal');
         if (!el) return;
-        const modal = bootstrap.Modal.getOrCreateInstance(el);
-        modal.show();
+        this.ensureModal(el).show();
       },
       error: (err) => {
         console.error('載入健康紀錄失敗', err);
