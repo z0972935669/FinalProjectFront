@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-
-import { EmployeeDetailDto } from '../../../models/employee-detail.dto';
+import { take, switchMap, of, map } from 'rxjs';
 import { EmployeeAuthService } from '../../../services/employee/employee-auth.service';
+
+type EmployeeDetailDto = any; // 你的 DTO 介面（此處簡化）
 
 @Component({
   selector: 'app-employeelistdetail',
@@ -17,13 +18,12 @@ export class EmployeelistdetailComponent implements OnInit {
   error: string | null = null;
   vm: EmployeeDetailDto | null = null;
 
-  /** 目前正在檢視的員工ID（模板也會用到） */
   currentId!: number;
-
-  /** 後端靜態檔的預設頭像（依實際調整） */
-  readonly FALLBACK_PHOTO = 'https://localhost:7124/images/employees/noimage.jpg';
-  /** 綁定到 <img [src]>；vm 載入時設定 */
+  readonly FALLBACK_PHOTO = 'assets/backend/images/logo/user.png';
   photoUrl = this.FALLBACK_PHOTO;
+
+  /** ✅ 新增：性別顯示文字 */
+  genderText = '—';
 
   constructor(
     private route: ActivatedRoute,
@@ -32,23 +32,36 @@ export class EmployeelistdetailComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // 用 paramMap 監聽路由變化：同一組件被重用時(切換不同 :id)也會重新載入
-    this.route.paramMap.subscribe((pm) => {
-      const fromRoute = pm.get('id');
-      const myId = this.auth.getEmployeeIdFromToken(); // 允許不帶 id 時看自己
-      const id = fromRoute ? Number(fromRoute) : Number(myId);
+    this.route.paramMap
+      .pipe(
+        take(1),
+        switchMap(pm => {
+          // 1) URL 有 id → 直接用
+          const fromRoute = pm.get('id');
+          if (fromRoute) {
+            const id = Number(fromRoute);
+            return of(!Number.isNaN(id) && id > 0 ? id : null);
+          }
 
-      if (!id || Number.isNaN(id)) {
-        // 沒 id、也沒有登入：導去登入並帶回跳網址
-        this.router.navigate(['/erp/login'], {
-          queryParams: { returnUrl: '/erp/employeelistdetail' },
-        });
-        return;
-      }
+          // 2) 沒 id → 試著從快取拿 employeeId
+          const cached = this.auth.getEmployeeIdCached();
+          if (cached) return of(cached);
 
-      this.currentId = id;
-      this.loadDetail(id);
-    });
+          // 3) 快取也沒有 → 打 /me
+          return this.auth.fetchMe().pipe(map(me => me.id));
+        })
+      )
+      .subscribe(id => {
+        if (!id) {
+          this.router.navigate(['/erp/login'], {
+            queryParams: { returnUrl: '/erp/employeelistdetail' },
+            replaceUrl: true,
+          });
+        } else {
+          this.currentId = id;
+          this.loadDetail(id);
+        }
+      });
   }
 
   private loadDetail(id: number) {
@@ -58,28 +71,49 @@ export class EmployeelistdetailComponent implements OnInit {
     this.auth.getEmployeeDetail(id).subscribe({
       next: (dto) => {
         this.vm = dto;
-        // 若服務已回傳完整 URL 直接用；否則退回預設圖
         this.photoUrl = dto?.PhotoPath?.trim() ? dto.PhotoPath : this.FALLBACK_PHOTO;
+        this.genderText = this.getGenderText(dto);
         this.loading = false;
       },
       error: (err) => {
-        this.error = err?.message ?? '載入失敗';
+        this.error = err?.error?.message ?? '載入失敗';
         this.loading = false;
       },
     });
   }
 
-  /** <img> 載入失敗時回退預設圖 */
+  /** 通用性別轉文字：支援 Gender/Sex/GenderText、多種型別 */
+  private getGenderText(d: any): string {
+    const v =
+      d?.Gender ?? d?.gender ??
+      d?.Sex ?? d?.sex ??
+      d?.GenderText ?? d?.genderText ?? null;
+
+    if (v == null) return '—';
+
+    // boolean
+    if (typeof v === 'boolean') return v ? '男' : '女';
+
+    // number 1/0
+    if (typeof v === 'number') return v === 1 ? '男' : v === 0 ? '女' : '—';
+
+    // string：轉小寫處理
+    const s = String(v).trim();
+    const lower = s.toLowerCase();
+
+    if (['m', 'male', '男', 'man', 'boy'].includes(lower)) return '男';
+    if (['f', 'female', '女', 'woman', 'girl'].includes(lower)) return '女';
+
+    // 其他文字，若已是「男 / 女」就直接顯示，否則「—」
+    if (s === '男' || s === '女') return s;
+    return '—';
+  }
+
   onImgError(ev: Event) {
     const img = ev.target as HTMLImageElement;
     if (img && img.src !== this.FALLBACK_PHOTO) img.src = this.FALLBACK_PHOTO;
   }
 
-  /** 供模板綁定的導頁方法（也可以用 routerLink 寫法，見下方備註） */
-  goEdit() {
-    this.router.navigate(['/erp/employeelistedit', this.currentId]);
-  }
-  goList() {
-    this.router.navigate(['/erp/employeelist']);
-  }
+  goEdit() { this.router.navigate(['/erp/employeelistedit', this.currentId]); }
+  goList() { this.router.navigate(['/erp/employeelist']); }
 }

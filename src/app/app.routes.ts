@@ -70,6 +70,7 @@ import { EmployeeRegisterComponent } from './pages/backend/employeeregister/empl
 import { EmployeehomeComponent } from './pages/backend/employeehome/employeehome.component';
 import { EmployeeLoginComponent } from './pages/backend/employeelogin/employeelogin.component';
 
+
 // 守衛
 import { employeeAuthGuard } from './core/employee-auth.guard';
 
@@ -77,6 +78,8 @@ import { employeeAuthGuard } from './core/employee-auth.guard';
 import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
 // 房間管理
 import { RoomTableErpComponent } from './pages/backend/room-table-erp/room-table-erp.component';
+import { EmployeeforgotpasswordComponent } from './pages/backend/employeeforgotpassword/employeeforgotpassword.component';
+import { EmployeesetnewpasswordComponent } from './pages/backend/employeesetnewpassword/employeesetnewpassword.component';
 
 export const routes: Routes = [
   // 根目錄導向前台
@@ -157,7 +160,10 @@ export const routes: Routes = [
           { path: '', redirectTo: 'login', pathMatch: 'full' },
           { path: 'login', component: EmployeeLoginComponent, title: '員工登入' },
           { path: 'employeeregister', component: EmployeeRegisterComponent, title: '員工註冊' },
-          { path: 'employeepasswordreset', component: EmployeepasswordresetComponent, title: '重設密碼' },
+          { path: 'employeeforgotpassword', component: EmployeeforgotpasswordComponent, title: '忘記密碼' },
+          { path: 'employeesetnewpassword', component: EmployeesetnewpasswordComponent, title: '重設密碼' },
+
+
         ],
       },
 
@@ -190,14 +196,16 @@ export const routes: Routes = [
           { path: 'employeelistdetail/:id', component: EmployeelistdetailComponent, title: '詳細資料' },
           { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
           { path: 'employeelistedit/:id', component: EmployeelisteditComponent, title: '編輯員工' },
-
           { path: 'employeeapprovalflow', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
+          { path: 'employeeapprovalflow/:formType/:formId/:approvalId', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
+          { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
           { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
           { path: 'employeeattendance', component: EmployeeattendanceComponent, title: '員工考勤' },
           { path: 'employeeattendancerecords', component: EmployeeattendancerecordsComponent, title: '考勤紀錄' },
           { path: 'employeeleaveform', component: EmployeeleaveformComponent, title: '請假表單' },
           { path: 'employeemissingpunchform', component: EmployeemissingpunchformComponent, title: '補打卡表單' },
           { path: 'employeeschedule', component: EmployeescheduleComponent, title: '排班管理' },
+          { path: 'employeepasswordreset', component: EmployeepasswordresetComponent, title: '重設密碼' },
 
           // 社群/房間管理
           { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },

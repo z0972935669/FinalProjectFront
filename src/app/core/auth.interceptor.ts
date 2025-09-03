@@ -23,15 +23,13 @@ export class AuthInterceptor implements HttpInterceptor {
     '/api/account/reset-password'
   ];
 
-  // 你原本就有跳過的一些路徑
+  // 跳過掛 Token 或錯誤處理的路徑（原本清單 + 新增的 password/verify、password/change）
   private readonly SKIP_PATHS = [
     '/api/EmployeeUserAccounts/login-cookie', // 後台 Cookie 版登入
-    '/api/EmployeeUserAccounts/login',        // 後台 JWT 端點
-    '/api/EmployeeUserAccounts/register-full',
-    '/images/', '/uploads/',
+    '/api/EmployeeUserAccounts/password/change', // ⬅ 來自第二段
   ];
 
-  //  後台 API 的前綴（只有這些 401 才要全域導「員工登入」）
+  // 後台 API 的前綴（只有這些 401 才要全域導「員工登入」）
   private readonly BACKEND_PREFIXES = [
     '/api/EmployeeUserAccounts',
     '/api/backend',
@@ -46,7 +44,7 @@ export class AuthInterceptor implements HttpInterceptor {
     } catch { return null; }
   }
 
-
+  // 僅視為我方 API 的條件：/api 前綴 + （同源 或 在 API_HOSTS 白名單）
   private isMyApi(u: URL): boolean {
     const isApi = u.pathname.startsWith('/api');
     const known = this.API_HOSTS.has(u.host);
@@ -54,7 +52,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return isApi && (known || sameOrigin);
   }
 
-
+  // 是否為後台 API
   private isBackendApi(u: URL): boolean {
     return this.BACKEND_PREFIXES.some(p => u.pathname.startsWith(p));
   }
@@ -69,13 +67,12 @@ export class AuthInterceptor implements HttpInterceptor {
     let forward = req;
 
     if (url && this.isMyApi(url)) {
-
-      //  後台 API 一律帶 Cookie；前台不需要
+      // 後台 API 一律帶 Cookie；前台不需要
       if (this.isBackendApi(url)) {
         forward = forward.clone({ withCredentials: true });
       }
 
-      //  只對「後台 API」自動掛後台員工的 JWT；前台會員 API 不自動掛
+      // 只對「後台 API」自動掛後台員工的 JWT；前台會員 API 不自動掛
       const token = this.auth.getToken();
       if (token && this.isBackendApi(url) && !this.isSkip(url) && !req.headers.has('Authorization')) {
         forward = forward.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
@@ -85,7 +82,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(forward).pipe(
       catchError((err: unknown) => {
         if (err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403)) {
-          //  只有「後台 API」的 401/403 才做全域導頁
+          // 只有「後台 API」的 401/403 才做全域導頁；前台維持原頁面呈現錯誤
           if (url && this.isMyApi(url) && this.isBackendApi(url) && !this.isSkip(url)) {
             const returnUrl = this.router.url || '/';
             this.auth.logout?.();

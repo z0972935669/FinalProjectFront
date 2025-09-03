@@ -1,4 +1,3 @@
-<!-- src/app/pages/backend/employeelistedit/employeelistedit.component.html -->
 <div class="app-wrapper" *ngIf="!loading; else state">
   <div class="app-content pt-3 p-md-3 p-lg-4">
     <div class="container-xl">
@@ -18,22 +17,45 @@
 
               <div class="app-card-body px-4">
                 <!-- 大頭照 -->
+                <!-- 大頭照 -->
                 <div class="edit-row">
                   <div class="edit-label">大頭照</div>
-                  <div class="edit-field d-flex align-items-center gap-3">
+                  <!-- 垂直排：圖片在上、按鈕在下 -->
+                  <div class="edit-field d-flex flex-column align-items-start gap-2 photo-field">
                     <img [src]="previewUrl" (error)="onImgError($event)" alt="頭像"
                       style="width:120px;height:120px;object-fit:cover;border-radius:8px;" />
+
                     <input type="file" class="form-control form-control-sm" accept="image/*"
-                      (change)="onFileChange($event)">
+                      (change)="onFileChange($event)" />
                   </div>
                 </div>
 
+
                 <!-- 基本欄位 -->
+                <!-- 姓名 -->
                 <div class="edit-row">
                   <div class="edit-label">姓名</div>
-                  <div class="edit-field"><input type="text" class="form-control form-control-sm"
-                      formControlName="Name"></div>
+                  <div class="edit-field">
+                    <input type="text" class="form-control form-control-sm" formControlName="Name">
+                  </div>
                 </div>
+
+                <!-- ✅ 性別 -->
+                <div class="edit-row">
+                  <div class="edit-label">性別</div>
+                  <div class="edit-field">
+                    <div class="btn-group" role="group" aria-label="Gender">
+                      <input type="radio" class="btn-check" name="gender" id="gM"
+                        [checked]="form.get('Gender')?.value === '男'" (change)="form.get('Gender')?.setValue('男')">
+                      <label class="btn btn-sm btn-outline-primary me-3 rounded" for="gM">男</label>
+
+                      <input type="radio" class="btn-check" name="gender" id="gF"
+                        [checked]="form.get('Gender')?.value === '女'" (change)="form.get('Gender')?.setValue('女')">
+                      <label class="btn btn-sm btn-outline-danger rounded" for="gF">女</label>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="edit-row">
                   <div class="edit-label">身分證字號</div>
                   <div class="edit-field"><input type="text" class="form-control form-control-sm"
@@ -70,20 +92,20 @@
                       formControlName="RegisteredAddress"></div>
                 </div>
 
-                <!-- 現居地址（自訂 checkbox 樣式，不受全域 input 規則影響） -->
+                <!-- 現居地址 + 同戶籍 -->
                 <div class="edit-row align-items-center">
                   <div class="edit-label">現居地址</div>
                   <div class="edit-field">
-                    <!-- 自訂 checkbox：原生 input 被隱藏，用 span::before/::after 畫外觀 -->
+                    <!-- ✅ 自訂綠色核取方塊，功能不變（仍綁 formControlName） -->
                     <label class="nh-check">
                       <input type="checkbox" formControlName="SameAsRegistered" />
                       <span>同戶籍地址</span>
                     </label>
 
-                    <!-- 這個輸入框會跟著 TS 裡的 disable()/enable() 自動鎖定/解鎖 -->
                     <input type="text" class="form-control form-control-sm mt-2" formControlName="CurrentAddress" />
                   </div>
                 </div>
+
 
                 <div class="edit-row">
                   <div class="edit-label">身高 (cm)</div>
@@ -116,14 +138,13 @@
                   {{ saving ? '儲存中…' : '儲存資料' }}
                 </button>
 
-                <!-- ✅ 帶著 id 回詳細頁；若 id 尚未就緒，先回不帶 id 的頁面（看自己） -->
+                <!-- 明確帶 id 回詳細頁；若 id 還沒就緒，先回看自己 -->
                 <a class="btn app-btn-secondary"
                   [routerLink]="id ? ['/erp/employeelistdetail', id] : ['/erp/employeelistdetail']"
                   style="font-size: large; font-weight: bolder;">
                   回到詳細資料
                 </a>
               </div>
-
             </div>
           </div>
 
@@ -137,15 +158,15 @@
                 </div>
               </div>
               <div class="app-card-body px-4">
-                <!-- 是否在職 -->
+                <!-- 在職狀態 -->
                 <div class="edit-row">
                   <div class="edit-label">在職狀態</div>
                   <div class="edit-field">
-                    <div class="btn-group" role="group" aria-label="Employment status">
+                    <div class="btn-group" role="group">
                       <input type="radio" class="btn-check" name="empStatus" id="empYes"
                         [checked]="form.get('EmploymentStatusText')?.value === '在職'"
                         (change)="form.get('EmploymentStatusText')?.setValue('在職')">
-                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="empYes">在職</label>
+                      <label class="btn btn-sm btn-outline-primary me-3 rounded" for="empYes">在職</label>
 
                       <input type="radio" class="btn-check" name="empStatus" id="empNo"
                         [checked]="form.get('EmploymentStatusText')?.value === '離職'"
@@ -173,15 +194,13 @@
                 <div class="edit-row">
                   <div class="edit-label">職位名稱</div>
                   <div class="edit-field">
-                    <select class="form-select form-select-sm" formControlName="JobTitleId"
-                      [disabled]="jobsLoading || !jobs.length">
+                    <!-- 刪除 [disabled]="jobsLoading || !jobs.length"；交由 TS 控制 -->
+                    <select class="form-select form-select-sm" formControlName="JobTitleId">
                       <option [ngValue]="null" disabled>請先選擇部門</option>
                       <option *ngFor="let j of jobs" [ngValue]="j.id">{{ j.name }}</option>
                     </select>
-                    <div class="form-text" *ngIf="!form.value.JobTitleId && form.value.JobTitleName">
-                      目前資料：{{ form.value.JobTitleName }}
-                    </div>
                     <div class="form-text" *ngIf="jobsLoading">載入職稱中…</div>
+
                   </div>
                 </div>
 
@@ -191,15 +210,15 @@
                       formControlName="HireDate"></div>
                 </div>
 
-                <!-- 是否具有良民證 -->
+                <!-- 良民證 -->
                 <div class="edit-row">
                   <div class="edit-label">是否具有良民證</div>
                   <div class="edit-field">
-                    <div class="btn-group" role="group" aria-label="Police clearance">
+                    <div class="btn-group" role="group">
                       <input type="radio" class="btn-check" name="pc" id="pcY"
                         [checked]="form.get('PoliceClearanceCertified')?.value === true"
                         (change)="setBool('PoliceClearanceCertified', true)">
-                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="pcY">是</label>
+                      <label class="btn btn-sm btn-outline-primary me-3 rounded" for="pcY">是</label>
 
                       <input type="radio" class="btn-check" name="pc" id="pcN"
                         [checked]="form.get('PoliceClearanceCertified')?.value === false"
@@ -209,15 +228,14 @@
                   </div>
                 </div>
 
-
-                <!-- 是否為主管職 -->
+                <!-- 主管職 -->
                 <div class="edit-row">
                   <div class="edit-label">是否為主管職</div>
                   <div class="edit-field">
-                    <div class="btn-group" role="group" aria-label="Supervisor">
+                    <div class="btn-group" role="group">
                       <input type="radio" class="btn-check" name="sup" id="supY"
                         [checked]="form.get('IsSupervisor')?.value === true" (change)="setBool('IsSupervisor', true)">
-                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="supY">是</label>
+                      <label class="btn btn-sm btn-outline-primary me-3 rounded" for="supY">是</label>
 
                       <input type="radio" class="btn-check" name="sup" id="supN"
                         [checked]="form.get('IsSupervisor')?.value === false" (change)="setBool('IsSupervisor', false)">
@@ -226,14 +244,14 @@
                   </div>
                 </div>
 
-                <!-- 是否為系統管理員 -->
+                <!-- 系統管理員 -->
                 <div class="edit-row">
                   <div class="edit-label">是否為系統管理員</div>
                   <div class="edit-field">
-                    <div class="btn-group" role="group" aria-label="Admin">
+                    <div class="btn-group" role="group">
                       <input type="radio" class="btn-check" name="adm" id="admY"
                         [checked]="form.get('IsAdmin')?.value === true" (change)="setBool('IsAdmin', true)">
-                      <label class="btn btn-sm btn-outline-success me-3 rounded" for="admY">是</label>
+                      <label class="btn btn-sm btn-outline-primary me-3 rounded" for="admY">是</label>
 
                       <input type="radio" class="btn-check" name="adm" id="admN"
                         [checked]="form.get('IsAdmin')?.value === false" (change)="setBool('IsAdmin', false)">

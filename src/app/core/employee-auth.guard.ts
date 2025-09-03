@@ -3,9 +3,9 @@ import { CanActivateChildFn, Router, UrlTree } from '@angular/router';
 import { EmployeeAuthService } from '../services/employee/employee-auth.service';
 
 /**
- * 後台路由守衛：驗證 JWT token
- * - 公開頁（登入/註冊/重設密碼）直接放行
- * - 其他頁面需 token 有效
+ * 後台路由守衛（Cookie / JWT 皆相容）
+ * - 公開頁放行
+ * - 其他頁需已登入（Cookie）或 token 有效（JWT）
  */
 export const employeeAuthGuard: CanActivateChildFn = (_childRoute, state): boolean | UrlTree => {
   const router = inject(Router);
@@ -13,16 +13,12 @@ export const employeeAuthGuard: CanActivateChildFn = (_childRoute, state): boole
 
   // 公開頁白名單
   const publicPaths = ['/erp/login', '/erp/employeeregister', '/erp/employeepasswordreset'];
-  if (publicPaths.some(p => state.url.startsWith(p))) {
-    return true;
-  }
+  if (publicPaths.some(p => state.url.startsWith(p))) return true;
 
-  // token 有效 → 放行
-  if (auth.isTokenValid()) {
-    return true;
-  }
+  // Cookie 或 JWT 任一種通過即可
+  if (auth.isLoggedIn() || auth.isTokenValid()) return true;
 
-  // token 無效 → 導回登入頁，並帶回 returnUrl
+  // 未登入 → 帶回目的地
   return router.createUrlTree(['/erp/login'], {
     queryParams: { returnUrl: state.url },
   });
