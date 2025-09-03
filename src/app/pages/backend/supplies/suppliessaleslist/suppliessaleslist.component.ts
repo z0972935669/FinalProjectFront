@@ -33,12 +33,13 @@ export class SuppliessaleslistComponent {
   filteredDate: Isuppliesdate[] = []; // 新增單中用物品過濾有效期限用
   searchKeyword: string = ''; // 查詢關鍵字用
 
-  // 分頁用屬性
-  currentPage: number = 1;
-  pageSize: number = 10;
-  totalPages: number = 0;
-  totalCount: number = 0;
-
+  // 分頁用（不同 tab 各自獨立）
+  pagination: any = {
+    all: { currentPage: 1, pageSize: 10, totalPages: 0, totalCount: 0, data: [] },
+    received: { currentPage: 1, pageSize: 10, totalPages: 0, totalCount: 0, data: [] },
+    undelivered: { currentPage: 1, pageSize: 10, totalPages: 0, totalCount: 0, data: [] },
+    cancelled: { currentPage: 1, pageSize: 10, totalPages: 0, totalCount: 0, data: [] },
+  };
 
   constructor(private http: HttpClient,
     private suppliesSalesService: SuppliesSalesService,
@@ -66,43 +67,58 @@ export class SuppliessaleslistComponent {
     this.suppliesDateService.getSuppliesDateData().subscribe((data: Isuppliesdate[]) => {
       this.suppliesDate = data;
     })
-    this.loadSalesOrders();
+    this.loadSalesOrders('all');
+    this.loadSalesOrders('received');
+    this.loadSalesOrders('undelivered');
+    this.loadSalesOrders('cancelled');
   }
 
   // 抓後端資料（支援分頁）
-  loadSalesOrders() {
-    this.suppliesSalesService.getSuppliesSalesList(this.searchKeyword, this.currentPage, this.pageSize)
+  loadSalesOrders(status: string = 'all') {
+    const p = this.pagination[status];
+    this.suppliesSalesService.getSuppliesSalesList(this.searchKeyword, p.currentPage, p.pageSize, status === 'all' ? '' : this.mapStatus(status))
       .subscribe(res => {
-        this.suppliesSales = res.data;
-        this.totalCount = res.totalCount;
-        this.totalPages = res.totalPages;
+        p.data = res.data;
+        p.totalCount = res.totalCount;
+        p.totalPages = res.totalPages;
       });
   }
 
+  // 將 tab 名稱對應到訂單狀態
+  mapStatus(tab: string): string {
+    switch (tab) {
+      case 'received': return '已到貨';
+      case 'undelivered': return '未到貨';
+      case 'cancelled': return '已取消';
+      default: return '';
+    }
+  }
+
   // 查詢關鍵字
-  searchSalesOrders() {
-    this.currentPage = 1; // 查詢時回到第一頁
-    this.loadSalesOrders();
+  searchSalesOrders(tab: string = 'all') {
+    this.pagination[tab].currentPage = 1; // 查詢時回到該 tab 的第一頁
+    this.loadSalesOrders(tab);
   }
 
-  // 換頁
-  changePage(page: number) {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-    this.loadSalesOrders();
+  // 換頁（指定 tab）
+  changePage(tab: string, page: number) {
+    const p = this.pagination[tab];
+    if (page < 1 || page > p.totalPages) return;
+    p.currentPage = page;
+    this.loadSalesOrders(tab);
   }
-
   // 動態頁碼（最多顯示 5 頁）
-  getPageNumbers(): number[] {
+  getPageNumbers(tab: string): number[] {
+    const p = this.pagination[tab];
     const pages: number[] = [];
-    let start = Math.max(1, this.currentPage - 2);
-    let end = Math.min(this.totalPages, this.currentPage + 2);
+    let start = Math.max(1, p.currentPage - 2);
+    let end = Math.min(p.totalPages, p.currentPage + 2);
 
     if (end - start < 4) {
       if (start === 1) {
-        end = Math.min(5, this.totalPages);
-      } else if (end === this.totalPages) {
-        start = Math.max(1, this.totalPages - 4);
+        end = Math.min(5, p.totalPages);
+      } else if (end === p.totalPages) {
+        start = Math.max(1, p.totalPages - 4);
       }
     }
 
@@ -269,19 +285,35 @@ export class SuppliessaleslistComponent {
 
   selectedSalesOrder: Isuppliessales[] = [];
   showSalesDetail(order: Isuppliessales) {
-    this.selectedSalesOrder = this.suppliesSales.filter(detail =>
-      detail.suppliesSalesOrderId === order.suppliesSalesOrderId);
+    // 把四個 tab 的資料合併
+    let allOrders: Isuppliessales[] = [];
+    Object.keys(this.pagination).forEach(tab => {
+      allOrders = allOrders.concat(this.pagination[tab].data);
+    });
+
+    // 過濾出同一張訂單的所有明細
+    let details = allOrders.filter(detail =>
+      detail.suppliesSalesOrderId === order.suppliesSalesOrderId
+    );
+
+    // 🔹 去掉重複的項目（依照 suppliesSalesOrderDetailId 唯一化）
+    const uniqueDetailsMap = new Map<number, Isuppliessales>();
+    details.forEach(d => {
+      uniqueDetailsMap.set(d.suppliesSalesOrderDetailId, d);
+    });
+
+    this.selectedSalesOrder = Array.from(uniqueDetailsMap.values());
   }
 
-  get uniqueSalesOrders() {
-    const map = new Map();
-    this.suppliesSales.forEach(order => {
-      if (!map.has(order.suppliesSalesOrderId)) {
-        map.set(order.suppliesSalesOrderId, order);
-      }
-    });
-    return Array.from(map.values());
-  }
+  // getUniqueSalesOrders(tab: string) {
+  //   const map = new Map();
+  //   this.pagination[tab].data.forEach(order => {
+  //     if (!map.has(order.suppliesSalesOrderId)) {
+  //       map.set(order.suppliesSalesOrderId, order);
+  //     }
+  //   });
+  //   return Array.from(map.values());
+  // }
 
   // 確認銷貨單在改變狀態後就不能變動
   canUpdateStatus(): boolean {
@@ -302,13 +334,22 @@ export class SuppliessaleslistComponent {
     if (confirm(message)) {
       this.suppliesSalesService.updateOrderStatus(orderId, status).subscribe({
         next: () => {
-          // 更新前端資料
-          const order = this.uniqueSalesOrders.find(o => o.suppliesSalesOrderId === orderId);
-          if (order) {
-            order.orderStatus = status;
-          }
+          // 更新四個 tab 的分頁資料
+          Object.keys(this.pagination).forEach(tab => {
+            const orders = this.pagination[tab].data;
+            const order = orders.find((o: any) => o.suppliesSalesOrderId === orderId);
+            if (order) {
+              order.orderStatus = status;
+            }
+          });
+
           alert('更新成功！');
-          this.loadSalesOrders();
+
+          // 重新載入確保資料正確
+          this.loadSalesOrders('all');
+          this.loadSalesOrders('received');
+          this.loadSalesOrders('undelivered');
+          this.loadSalesOrders('cancelled');
         },
         error: err => {
           console.error(err);
