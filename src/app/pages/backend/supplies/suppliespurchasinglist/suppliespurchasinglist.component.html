@@ -39,8 +39,156 @@
 
 
       <div>
-        <button class="app-btn-primary mb-4">新增進貨單</button>
+        <button class="app-btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addPurchasingModal"
+          (click)="resetNewPurchasing()">新增進貨單</button>
       </div>
+
+      <!-- 利用Modal新增進貨單 -->
+      <div class="modal fade" id="addPurchasingModal" data-bs-backdrop="static" tabindex="-1"
+        aria-labelledby="addPurchasingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg custom-modal-width">
+          <div class="modal-content">
+            <form (ngSubmit)="submitAddPurchasing()" #addPurchasingModal="ngForm">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addPurchasingModalLabel">新增進貨單</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="ms-3 mt-3">
+                <button type="button" class="btn-primary" (click)="addPurchasingItem()">新增物品</button>
+              </div>
+              <div class="modal-body">
+                <div class="row mb-3">
+                  <!-- 類別 -->
+                  <div class="col-md-6">
+                    <label for="orderCategory" class="form-label">類別名稱</label>
+                    <select id="orderCategory" class="form-select" [(ngModel)]="selectedCategoryId" name="orderCategory"
+                      (change)="onCategoryChangeForOrder()" required>
+                      <option [ngValue]="null" disabled selected>請選擇類別</option>
+                      @for(category of categories; track $index)
+                      {
+                      <option [ngValue]="category.suppliesCategoryId">{{ category.suppliesCategoryName}}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <!-- 供應商 -->
+                  <div class="col-md-6">
+                    <label for="orderSupplier" class="form-label">供應商名稱</label>
+                    <select id="orderSupplier" class="form-select" [(ngModel)]="selectedSupplierId" name="orderSupplier"
+                      [disabled]="!selectedCategoryId" (change)="onSupplierChangeForOrder()" required>
+                      <option [ngValue]="null" disabled selected>請選擇供應商</option>
+                      @for(supplier of filteredSuppliers;track $index)
+                      {
+                      <option [ngValue]="supplier.suppliesSupplierId">{{ supplier.suppliesSupplierName }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <table class="table table-bordered text-center align-middle">
+                <thead>
+                  <tr>
+                    <th style="width: 30%;">物品名稱</th>
+                    <th style="width: 20%;">有效期限</th>
+                    <th style="width: 15%;">進貨數量</th>
+                    <th style="width: 5%;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for(item of purchasingItems;track $index){
+                  <tr>
+                    <!-- 物品 -->
+                    <td>
+                      <select class="form-select" [(ngModel)]="item.suppliesProductId"
+                        name="suppliesProductId{{$index}}" required [disabled]="!selectedSupplierId"
+                        (change)="onProductChangeForItem($index)">
+                        <option [ngValue]="null" disabled selected>請選擇物品</option>
+                        @for (product of item.filteredProducts; track $index)
+                        {
+                        <option [ngValue]="product.suppliesProductID"> {{ product.suppliesProductName }} </option>
+                        }
+                      </select>
+                    </td>
+                    <!-- 有效期限 -->
+                    <td>
+                      <input type="date" class="form-control" [(ngModel)]="item.expiryDate" name="expiryDate{{$index}}"
+                        [disabled]="!item.suppliesProductId" min="{{ today }}" max="2100-12-31" required />
+                    </td>
+                    <!-- 數量 -->
+                    <td>
+                      <input type="number" class="form-control" placeholder="0" [(ngModel)]="item.quantityOfPurchasing"
+                        name="quantityOfPurchasing{{$index}}" required />
+                    </td>
+                    <td>
+                      <button type="button" class="btn-close" (click)="removePurchasingItem($index)"></button>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                  (click)="clearPurchasingItems()">
+                  取消
+                </button>
+                <button type="submit" class="btn btn-success" [disabled]="!addPurchasingModal.form.valid">
+                  儲存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- 新增用Modal -->
+
+      <!-- 利用Modal查看詳細 -->
+      <div class="modal fade" id="purchasingDetailModal" tabindex="-1" aria-labelledby="purchasingDetailModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg custom-modal-width">
+          <div class="modal-content">
+            <form #purchasingDetailModal="ngForm">
+              <div class="modal-header">
+                <h5 class="modal-title" id="purchasingDetailModalLabel">銷貨單詳細</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <table class="table table-bordered text-center align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width: 5%;">編號</th>
+                      <th style="width: 20%;">類別名稱</th>
+                      <th style="width: 25%;">供應商名稱</th>
+                      <th style="width: 30%;">物品名稱</th>
+                      <th style="width: 13%;">有效期限</th>
+                      <th style="width: 7%;">購買數量</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for(detail of selectedPurchasingOrder; track $index) {
+                    <tr>
+                      <td>
+                        @if($index === 0) { {{detail.suppliesPurchasingOrderId}} }
+                      </td>
+                      <td>{{detail.suppliesCategoryName}}</td>
+                      <td>{{detail.suppliesSupplierName}}</td>
+                      <td>{{detail.suppliesProductName}}</td>
+                      <td>{{detail.expiryDate}}</td>
+                      <td>{{detail.quantityIn}}</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  返回
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- 詳細用Modal -->
 
       <div class="tab-content" id="suppliesorders-table-tab-content">
         <div class="tab-pane fade show active" id="suppliesorders-all" role="tabpanel"
@@ -58,12 +206,17 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @for(purchasingOrders of uniquePurchasingOrders;track $index){
                     <tr>
-                      <td class="cell">SuppliesPurchasingOrderID</td>
-                      <td class="cell"><span class="truncate">SuppliesSupplier(Name)</span></td>
-                      <td class="cell"><span>ArrivalDate(月日)</span><span class="note">ArrivalDate(年)</span></td>
-                      <td class="cell"><a class="btn-sm app-btn-secondary" href="#">進貨單詳細</a></td>
+                      <td class="cell">{{purchasingOrders.suppliesPurchasingOrderId}}</td>
+                      <td class="cell"><span class="truncate">{{purchasingOrders.suppliesSupplierName}}</span></td>
+                      <td class="cell"><span>{{purchasingOrders.arrivalDate}}</span><span class="note"></span></td>
+                      <td class="cell"><button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
+                          data-bs-target="#purchasingDetailModal"
+                          (click)="showPurchasingDetail(purchasingOrders)">進貨單詳細</button>
+                      </td>
                     </tr>
+                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->

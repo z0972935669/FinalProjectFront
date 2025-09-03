@@ -1,9 +1,23 @@
 export interface Isuppliespurchasing {
-  SuppliesPurchasingOrderID: number,
-  SuppliesSupplierID?: number,
-  ArrivalDate?: Date,
-  SuppliesPurchasingOrderDetailID: number,
-  SuppliesProductID?: number,
-  QuantityIn?: number,
-  ExpiryDate?: Date
+  suppliesPurchasingOrderId: number,
+
+  suppliesSupplierId?: number,
+
+  arrivalDate?: string,
+
+  suppliesPurchasingOrderDetailId: number,
+
+  suppliesProductId?: number,
+
+  quantityIn?: number,
+
+  expiryDate?: string,
+
+  suppliesProductName?: string,
+
+  suppliesCategoryId?: number,
+
+  suppliesCategoryName?: string,
+
+  suppliesSupplierName?: string
 }
