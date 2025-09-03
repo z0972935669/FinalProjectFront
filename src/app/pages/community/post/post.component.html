@@ -34,12 +34,19 @@
     <div class="post-header mb-3">
       <h1 class="post-title">{{ post.title || "" }}</h1>
       <div class="post-meta text-muted">
-        <span>作者：{{ post.author }}</span> |
-        <span>{{ post.createdAt | date : "yyyy-MM-dd HH:mm" }}</span>
+        <span>作者：
+          <a
+            [routerLink]="getProfileLinkFromPost(post)"
+            class="author-link"
+            >{{ post.author }}</a
+          >
+        </span> |
+        <span class="post-date">{{ post.createdAt | date:'yyyy/MM/dd HH:mm' }}</span>
       </div>
     </div>
 
-    <div class="post-content mb-4">{{ post.content || "" }}</div>
+    <!-- 顯示文章內容 -->
+    <div class="post-content mb-4" [innerHTML]="sanitizedContent"></div>
 
     <!-- 附件圖片 -->
     <div *ngIf="post.attachments?.length" class="post-attachments mb-4">
@@ -71,9 +78,7 @@
     </div>
 
     <!-- 互動按鈕 -->
-    <div
-      class="post-actions d-flex flex-wrap align-items-center mt-3 pt-3 border-top"
-    >
+    <div class="post-actions d-flex flex-wrap align-items-center mt-3 pt-3 border-top">
       <button
         type="button"
         class="btn-action like-btn"
@@ -95,7 +100,24 @@
       <button type="button" class="btn-action share-btn" (click)="sharePost()">
         🔗 分享
       </button>
+
+      <!-- 修改：編輯和刪除按鈕（只有作者能看到） -->
+      <div *ngIf="isAuthor(post.memberId)">
+        <button class="btn btn-warning me-2" (click)="startEditPost()">編輯文章</button>
+        <button class="btn btn-danger" (click)="deletePost()">刪除文章</button>
+      </div>
     </div>
+
+    <!-- 新增：文章檢舉按鈕（右下角） -->
+    <button
+      *ngIf="isLoggedIn"
+      type="button"
+      class="btn-report"
+      (click)="reportContent('Post', post.postId)"
+      title="檢舉此文章"
+    >
+      ⚠️
+    </button>
   </div>
 
   <!-- 留言區 -->
@@ -115,16 +137,24 @@
           height="40"
         /> -->
         <div class="ms-3">
-          <strong>{{ comment.name || "訪客" }}</strong>
-          <div class="text-muted small">
-            {{ comment.createdAt | date : "yyyy-MM-dd HH:mm" }}
-          </div>
-        </div>
+          <strong>
+            <a
+              [routerLink]="getProfileLinkForComment(comment)"
+              class="commenter-link"
+              >{{ comment.name || "訪客" }}</a
+            >
+          </strong>
+           <div class="text-muted small">
+             {{ comment.createdAt | date : "yyyy-MM-dd HH:mm" }}
+           </div>
+         </div>
       </div>
 
-      <div class="comment-content mb-3">{{ comment.content || "" }}</div>
+      <!-- 顯示回覆內容 -->
+      <div class="comment-content mb-3" [ngClass]="{'text-muted': comment.replieStatus === 'Deleted'}">{{ comment.content || "" }}</div>
+
       <!-- 留言喜歡按鈕 -->
-      <div class="comment-actions mb-2">
+      <div class="comment-actions mb-2" *ngIf="comment.replieStatus !== 'Deleted'">
         <button
           type="button"
           class="btn-action like-btn"
@@ -133,7 +163,24 @@
         >
           ❤️ 喜歡 <span>{{ comment.likes || 0 }}</span>
         </button>
+
+        <!-- 新增：編輯和刪除按鈕（只有作者能看到） -->
+        <div *ngIf="isAuthor(comment.memberID)">
+          <button class="btn btn-warning me-2" (click)="startEditComment(comment)">編輯</button>
+          <button class="btn btn-danger" (click)="deleteComment(comment)">刪除</button>
+        </div>
       </div>
+
+      <!-- 新增：留言檢舉按鈕（刪除的回覆隱藏檢舉按鈕） -->
+      <button
+        *ngIf="isLoggedIn && comment.replieStatus !== 'Deleted'"
+        type="button"
+        class="btn-report"
+        (click)="reportContent('Reply', (comment.id || comment.replyID)!)"
+        title="檢舉此留言"
+      >
+        ⚠️
+      </button>
 
       <!-- 回覆 -->
       <div
@@ -154,15 +201,22 @@
                 height="30"
               /> -->
               <div class="ms-2">
-                <strong>{{ reply.name || "訪客" }}</strong>
-                <div class="text-muted small">
-                  {{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}
-                </div>
-              </div>
+                <strong>
+                  <a
+                    [routerLink]="getProfileLinkForReply(reply)"
+                    class="reply-link"
+                    >{{ reply.name || "訪客" }}</a
+                  >
+                </strong>
+                 <div class="text-muted small">
+                   {{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}
+                 </div>
+               </div>
             </div>
-            <div class="reply-content">{{ reply.content || "" }}</div>
-            <!-- 子回覆喜歡按鈕 -->
-            <div class="reply-actions mt-1">
+            <div class="reply-content" [ngClass]="{'text-muted': reply.replieStatus === 'Deleted'}">{{ reply.content || "" }}</div>
+
+            <!-- 子回覆喜歡按鈕（刪除的回覆隱藏喜歡按鈕） -->
+            <div class="reply-actions mt-1" *ngIf="reply.replieStatus !== 'Deleted'">
               <button
                 type="button"
                 class="btn-action like-btn"
@@ -171,7 +225,24 @@
               >
                 ❤️ 喜歡 <span>{{ reply.likes || 0 }}</span>
               </button>
+
+              <!-- 新增：編輯和刪除按鈕（只有作者能看到） -->
+              <div *ngIf="isAuthor(reply.memberID) && reply.replyID">
+                <button class="btn btn-warning me-2" (click)="startEditReply(reply)" *ngIf="editingReply?.replyID !== reply.replyID">編輯</button>
+                <button class="btn btn-danger" (click)="deleteReply(reply)">刪除</button>
+              </div>
             </div>
+
+            <!-- 新增：回覆檢舉按鈕（刪除的回覆隱藏檢舉按鈕） -->
+            <button
+              *ngIf="isLoggedIn && reply.replieStatus !== 'Deleted'"
+              type="button"
+              class="btn-report"
+              (click)="reportContent('Reply', reply.replyID!)"
+              title="檢舉此回覆"
+            >
+              ⚠️
+            </button>
           </div>
         </div>
 
@@ -184,8 +255,8 @@
         </button>
       </div>
 
-      <!-- 回覆輸入框 -->
-      <div class="mt-3" *ngIf="isLoggedIn; else loginToReply">
+      <!-- 回覆輸入框（刪除的回覆隱藏輸入框） -->
+      <div class="mt-3" *ngIf="isLoggedIn && comment.replieStatus !== 'Deleted'; else loginToReply">
         <textarea
           class="form-control mb-2"
           rows="2"
@@ -216,4 +287,138 @@
   <ng-template #loginToComment>
     <div class="text-muted small">請先登入才能留言</div>
   </ng-template>
+
+  <!-- 新增：檢舉模態框 -->
+  <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content report-modal">
+        <div class="modal-body">
+          <div class="report-header">
+            <h5 class="modal-title" id="reportModalLabel">你為什麼要檢舉此貼文？</h5>
+            <p class="report-description">
+              你的檢舉將會匿名。如果有人有立即的人身安全疑慮，請馬上與當地緊急救護服務聯絡，把握救援時間。
+            </p>
+          </div>
+          <div class="report-options">
+            <button type="button" class="btn report-option" (click)="selectReportReason('我就是不喜歡')">
+              我就是不喜歡 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('霸凌或擾人的聯繫')">
+              霸凌或擾人的聯繫 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('自殺、自殘或飲食失調')">
+              自殺、自殘或飲食失調 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('暴力、仇恨或剝削')">
+              暴力、仇恨或剝削 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('販售或推廣管制商品')">
+              販售或推廣管制商品 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('裸露或性行為')">
+              裸露或性行為 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('詐騙、詐欺或垃圾訊息')">
+              詐騙、詐欺或垃圾訊息 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('不實資訊')">
+              不實資訊 <span class="option-icon">›</span>
+            </button>
+            <button type="button" class="btn report-option" (click)="selectReportReason('智慧財產權')">
+              智慧財產權 <span class="option-icon">›</span>
+            </button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeReportModal()">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 修改：編輯子回覆模態框 -->
+  <div class="modal fade" id="editReplyModal" tabindex="-1" aria-labelledby="editReplyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editReplyModalLabel">編輯回覆</h5>
+          <button type="button" class="btn-close" (click)="closeEditReplyModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control" rows="5" *ngIf="editingReply" [(ngModel)]="editingReply.content"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelEditReply()">取消</button>
+          <button type="button" class="btn btn-success" (click)="saveEditReply()">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 修改：編輯文章模態框 -->
+  <div class="modal fade" id="editPostModal" tabindex="-1" aria-labelledby="editPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPostModalLabel">編輯文章</h5>
+          <button type="button" class="btn-close" (click)="closeEditPostModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="editPostTitle" class="form-label">標題</label>
+            <input type="text" class="form-control" id="editPostTitle" *ngIf="editingPost" [(ngModel)]="editingPost.title">
+          </div>
+          <div class="mb-3">
+            <label for="editPostContent" class="form-label">內容</label>
+            <textarea class="form-control" rows="10" *ngIf="editingPost" [(ngModel)]="editingPost.content"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">現有附件</label>
+            <div class="preview-container" *ngIf="editingPost?.attachments?.length">
+              <div *ngFor="let attachment of editingPost!.attachments" class="preview-item">
+                <img *ngIf="isImage(attachment.AttachmentUrl)" [src]="attachment.AttachmentUrl" alt="附件" class="preview-image">
+                <div class="file-name">{{ attachment.AttachmentUrl.split('/').pop() }}</div>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-remove" (click)="removeExistingAttachment(attachment)" title="移除附件">×</button>
+              </div>
+            </div>
+            <div *ngIf="!editingPost?.attachments?.length" class="text-muted">無現有附件</div>
+          </div>
+          <div class="mb-3">
+            <label for="editPostAttachments" class="form-label">新增附件</label>
+            <input type="file" class="form-control" id="editPostAttachments" multiple (change)="onFileSelected($event)">
+            <div class="preview-container mt-2" *ngIf="selectedFiles.length > 0">
+              <div *ngFor="let file of selectedFiles; let i = index" class="preview-item">
+                <img *ngIf="isImage(file)" [src]="getFileUrl(file)" alt="新附件" class="preview-image">
+                <div class="file-name">{{ file.name }}</div>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-remove" (click)="removeFile(i)" title="移除檔案">×</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelEditPost()">取消</button>
+          <button type="button" class="btn btn-success" (click)="saveEditPost()">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 修改：編輯回覆模態框 -->
+  <div class="modal fade" id="editCommentModal" tabindex="-1" aria-labelledby="editCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCommentModalLabel">編輯回覆</h5>
+          <button type="button" class="btn-close" (click)="closeEditCommentModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control" rows="5" *ngIf="editingComment" [(ngModel)]="editingComment.content"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelEditComment()">取消</button>
+          <button type="button" class="btn btn-success" (click)="saveEditComment()">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,0 +1,223 @@
+<div class="app-wrapper">
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+      <!-- 標題與搜尋 -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="app-page-title mb-0">文章管理</h1>
+        <div class="d-flex align-items-center">
+          <!-- 看板下拉選單 -->
+          <div class="me-3">
+            <select class="form-select" [(ngModel)]="selectedBoardId" (change)="onFilterChange()">
+              <option value="">全部看板</option>
+              <option *ngFor="let board of boards" [value]="board.boardId">{{ board.boardName }}</option>
+            </select>
+          </div>
+          <!-- 狀態下拉選單 -->
+          <div class="me-3">
+            <select class="form-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+              <option value="">全部狀態</option>
+              <option value="Active">發布中</option>
+              <option value="Inactive">已刪除</option>
+            </select>
+          </div>
+          <!-- 搜尋框 -->
+          <div class="search-box">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="搜尋標題或內容..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表 -->
+      <!-- 修改文章列表結構，使用網格佈局 -->
+      <div class="post-list">
+        <div class="post-item d-flex align-items-center p-3 mb-2 shadow-sm rounded" *ngFor="let post of filteredPosts">
+          <!-- 看板欄位 -->
+          <div class="post-board-column me-3">
+            <span class="post-board badge bg-light text-dark">{{ post.boardName }}</span>
+          </div>
+
+          <!-- 標題和作者欄位 -->
+          <div class="post-title-column flex-grow-1 me-3">
+            <div class="post-title mb-1">{{ post.title }}</div>
+            <div class="post-author text-muted small">
+              <i class="bi bi-person me-1"></i>{{ post.authorName }}
+            </div>
+          </div>
+
+          <!-- 時間資訊 -->
+          <div class="post-times me-3 d-flex flex-column align-items-end">
+            <small class="text-muted mb-1">
+              <i class="bi bi-calendar-plus me-1"></i>
+              創建: {{ post.createdAt | date : "yyyy/MM/dd HH:mm" }}
+            </small>
+            <small class="text-muted" *ngIf="post.updatedAt && post.updatedAt.getTime() !== post.createdAt.getTime()">
+              <i class="bi bi-calendar-check me-1"></i>
+              更新: {{ post.updatedAt | date : "yyyy/MM/dd HH:mm" }}
+            </small>
+          </div>
+
+          <!-- 狀態 -->
+          <div class="post-status me-3">
+            <span class="badge" [ngClass]="post.postStatus === 'Active' ? 'bg-success' : 'bg-secondary'">
+              {{ post.postStatus === 'Active' ? '發布中' : '已刪除' }}
+            </span>
+          </div>
+
+          <!-- 操作按鈕 -->
+          <div class="post-actions">
+            <button class="btn btn-sm btn-outline-info me-2" (click)="viewPost(post)">
+              <i class="bi bi-eye me-1"></i>查看
+            </button>
+            <button *ngIf="post.postStatus === 'Active'"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="togglePostStatus(post)">
+              <i class="bi bi-trash me-1"></i>刪除
+            </button>
+            <button *ngIf="post.postStatus === 'Inactive'"
+                    class="btn btn-sm btn-outline-success"
+                    (click)="togglePostStatus(post)">
+              <i class="bi bi-arrow-clockwise me-1"></i>恢復
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="filteredPosts.length === 0" class="text-center text-muted py-5">
+          <i class="bi bi-info-circle fs-1 mb-3"></i>
+          <p>目前沒有任何文章資料</p>
+        </div>
+      </div>
+
+      <!-- 分頁 -->
+      <div class="pagination-container d-flex justify-content-center mt-4" *ngIf="totalPages > 1">
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" href="#" (click)="prevPage(); $event.preventDefault()">上一頁</a>
+            </li>
+            <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage">
+              <a class="page-link" href="#" (click)="goToPage(page); $event.preventDefault()">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" href="#" (click)="nextPage(); $event.preventDefault()">下一頁</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增：內容模態框 -->
+<div class="modal fade" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="contentModalLabel">文章詳情</h5>
+        <button type="button" class="btn-close" (click)="hideContentModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="isLoadingContent" class="text-center py-5">
+          <p>載入中...</p>
+        </div>
+        <div *ngIf="!isLoadingContent && selectedPost">
+          <div class="card post-card shadow-sm p-4 mb-4">
+            <div class="post-header mb-3">
+              <h1 class="post-title">{{ selectedPost.title }}</h1>
+              <div class="post-meta text-muted">
+                <span>作者：{{ selectedPost.author }}</span> |
+                <span>{{ selectedPost.createdAt | date : "yyyy-MM-dd HH:mm" }}</span>
+              </div>
+            </div>
+            <!-- 修改：正確處理換行符 -->
+            <div class="post-content mb-4" [innerHTML]="formatContent(selectedPost.content)"></div>
+
+            <div *ngIf="selectedPost.attachments?.length" class="post-attachments mb-4">
+              <div class="attachments-container d-flex flex-wrap gap-2">
+                <div *ngFor="let file of selectedPost.attachments" class="attachment-item">
+                  <img
+                    [src]="file"
+                    alt="附件圖片"
+                    class="attachment-img cursor-pointer"
+                    (click)="openAttachmentPreview(file)"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="comments-section mb-4" *ngIf="selectedReplies.length > 0">
+            <h4 class="mb-3">回覆</h4>
+            <ng-container *ngFor="let reply of selectedReplies">
+              <div class="card comment-item mb-4 p-3">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="floor-tag badge bg-primary me-3">{{ reply.floorTag || "" }}</div>
+                  <div class="ms-3">
+                    <strong>{{ reply.name || "訪客" }}</strong>
+                    <div class="text-muted small">{{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}</div>
+                  </div>
+                </div>
+                <!-- 修改：正確處理回覆內容的換行 -->
+                <div class="comment-content mb-3" [innerHTML]="formatContent(reply.content)"></div>
+                <div class="comment-actions mb-2">
+                  <button class="btn" [ngClass]="reply.replieStatus === 'Active' ? 'btn-danger' : 'btn-success'"
+                    (click)="reply.replieStatus === 'Active' ? deleteReply(reply.replyID) : restoreReply(reply.replyID)">
+                    {{ reply.replieStatus === 'Active' ? '刪除回覆' : '恢復回覆' }}
+                  </button>
+                </div>
+                <!-- 子回覆遞迴顯示 -->
+                <div *ngIf="reply.replies?.length > 0" class="replies ms-4 mt-3">
+                  <ng-container *ngFor="let subReply of reply.replies">
+                    <div class="card sub-comment-item mb-3 p-3">
+                      <div class="d-flex align-items-center mb-2">
+                        <div class="floor-tag badge bg-secondary me-3">{{ subReply.floorTag || "" }}</div>
+                        <div class="ms-3">
+                          <strong>{{ subReply.name || "訪客" }}</strong>
+                          <div class="text-muted small">{{ subReply.createdAt | date : "yyyy-MM-dd HH:mm" }}</div>
+                        </div>
+                      </div>
+                      <!-- 修改：正確處理子回覆內容的換行 -->
+                      <div class="comment-content mb-3" [innerHTML]="formatContent(subReply.content)"></div>
+                      <div class="comment-actions mb-2">
+                        <button class="btn" [ngClass]="subReply.replieStatus === 'Active' ? 'btn-danger' : 'btn-success'"
+                          (click)="subReply.replieStatus === 'Active' ? deleteReply(subReply.replyID) : restoreReply(subReply.replyID)">
+                          {{ subReply.replieStatus === 'Active' ? '刪除回覆' : '恢復回覆' }}
+                        </button>
+                      </div>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div *ngIf="!isLoadingContent && !selectedPost" class="text-center py-5">
+          <p>無法載入內容。</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="hideContentModal()">關閉</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增：附件預覽模態框 -->
+<div class="modal fade" id="attachmentPreviewModal" tabindex="-1" aria-labelledby="attachmentPreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attachmentPreviewModalLabel">附件預覽</h5>
+        <button type="button" class="btn-close" (click)="closeAttachmentPreview()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img *ngIf="previewAttachmentUrl" [src]="previewAttachmentUrl" alt="附件預覽" style="max-width: 100%; max-height: 500px;" />
+      </div>
+    </div>
+  </div>
+</div>

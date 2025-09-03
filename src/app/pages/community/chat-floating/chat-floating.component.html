@@ -1,39 +1,88 @@
 <div class="chat-floating">
   <div class="chat-header">
-    <h5>{{ selectedRoom?.roomName || "聊天室" }}</h5>
+    <!-- 顯示好友名稱而不是「聊天室」 -->
+    <h5>{{ selectedRoom?.roomName || selectedRoom?.friendName || "聊天室" }}</h5>
     <button class="close-btn" (click)="closeChat()">✖</button>
   </div>
+
   <div class="chat-body">
-    <div class="chat-rooms">
+    <!-- 聊天室列表 -->
+    <div class="chat-rooms" *ngIf="!selectedRoom">
+      <h6>選擇聊天對象</h6>
       <div
         class="chat-room-item"
         *ngFor="let room of rooms"
         (click)="selectRoom(room)"
-        [class.selected]="room === selectedRoom"
       >
-        {{ room.roomName || "私人聊天室" }}
-        <span class="unread-badge" *ngIf="room.unread">{{ room.unread }}</span>
+        <div class="room-info">
+          <!-- 顯示好友名稱 -->
+          <span class="room-name">{{ room.roomName || room.friendName || '未知用戶' }}</span>
+          <small class="text-muted">私人聊天</small>
+        </div>
+        <span class="unread-badge" *ngIf="hasUnread(room)">{{ getUnreadCount(room) }}</span>
+      </div>
+
+      <!-- 空狀態 -->
+      <div *ngIf="rooms.length === 0" class="empty-state">
+        <div>尚無聊天記錄</div>
+        <small>點擊好友開始聊天</small>
       </div>
     </div>
-    <div class="chat-messages" #messagesContainer>
+
+    <!-- 訊息區域 -->
+    <div class="chat-messages" #messagesContainer *ngIf="selectedRoom">
+      <!-- 訊息列表 -->
       <div
         class="message-item"
-        *ngFor="let msg of messages"
+        *ngFor="let msg of messages; trackBy: trackByMessageId; let i = index"
         [class.self]="msg.senderId === userId"
       >
-        <div class="message-content">{{ msg.message }}</div>
-        <div class="message-time">{{ msg.sentAt | date : "shortTime" }}</div>
+        <div class="message-content">
+          <div class="message-text">{{ msg.content || '' }}</div>
+          <small class="message-time" *ngIf="msg.timestamp">
+            {{ formatMessageTime(msg.timestamp) }}
+          </small>
+          <!-- 顯示發送者名稱，如果是對方就顯示好友名稱 -->
+          <small class="message-sender" *ngIf="msg.senderId !== userId">
+            {{ selectedRoom?.friendName || selectedRoom?.roomName || '對方' }}
+          </small>
+        </div>
       </div>
-      <div class="empty-msg" *ngIf="messages.length === 0">尚無訊息</div>
+
+      <!-- 空狀態 -->
+      <div class="empty-msg" *ngIf="!isLoadingMessages && messages.length === 0">
+        與 {{ selectedRoom?.roomName || selectedRoom?.friendName || '好友' }} 開始聊天吧！
+      </div>
     </div>
   </div>
+
+  <!-- 訊息輸入區域 -->
   <div class="chat-input" *ngIf="selectedRoom">
-    <input
-      type="text"
-      [(ngModel)]="newMessage"
-      (keyup.enter)="sendMessage()"
-      placeholder="輸入訊息..."
-    />
-    <button (click)="sendMessage()">傳送</button>
+    <div class="input-group">
+      <input
+        type="text"
+        [(ngModel)]="newMessage"
+        (keyup.enter)="sendMessage()"
+        placeholder="與 {{ selectedRoom?.roomName || selectedRoom?.friendName || '好友' }} 聊天..."
+        class="form-control"
+        [disabled]="!isConnected"
+      />
+      <button
+        class="btn btn-primary"
+        (click)="sendMessage()"
+        [disabled]="!newMessage.trim() || !isConnected"
+      >
+        傳送
+      </button>
+    </div>
+
+    <!-- 連線狀態提示 -->
+    <div *ngIf="!isConnected" class="connection-warning">
+      <small class="text-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        連線中斷，
+        <a href="#" (click)="reconnect(); $event.preventDefault()">點擊重新連線</a>
+      </small>
+    </div>
   </div>
 </div>

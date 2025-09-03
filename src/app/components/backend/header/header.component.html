@@ -139,7 +139,7 @@
           aria-controls="submenu-5">
           <span class="d-flex align-items-center gap-2">
             <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-            <i class="bi bi-columns-gap fs-4"></i>
+            <i class="bi bi-layout-text-sidebar-reverse fs-4"></i>
             <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
               class="bi bi-chat-left-text" viewBox="0 0 16 16">
               <path
@@ -151,15 +151,22 @@
           </span>
           <span class="submenu-arrow"><i class="bi bi-chevron-down"></i></span><!--//submenu-arrow-->
         </button><!--//nav-link-->
-        <div id="submenu-5" class="collapse submenu submenu-4 ms-4" data-bs-parent="#menu-accordion">
+        <div id="submenu-5" class="collapse submenu submenu-3" data-bs-parent="#app-nav-main">
           <ul class="submenu-list list-unstyled">
             <li class="submenu-item"><a class="submenu-link" routerLink="/erp/board-management">看板管理</a></li>
-            <li class="submenu-item"><a class="submenu-link" routerLink="/erp/">文章管理</a></li>
-            <li class="submenu-item"><a class="submenu-link" routerLink="/erp/">檢舉管理</a></li>
+            <li class="submenu-item"><a class="submenu-link" routerLink="/erp/post-management">文章管理</a></li>
+            <li class="submenu-item"><a class="submenu-link" routerLink="/erp/report-management">檢舉管理</a></li>
           </ul>
         </div>
       </li><!--//nav-item-->
-      <!-- 文章管理 -->
+      <!-- 客服管理 -->
+       <li class="nav-item">
+        <a class="nav-link w-100 text-start d-flex align-items-center gap-2" routerLink="/erp/customer-service-management"
+           routerLinkActive="active">
+          <i class="bi bi-headset fs-4"></i>
+          <span class="nav-link-text fs-5 fw-bold">客服管理</span>
+        </a>
+      </li><!--//nav-item-->
     </ul>
 
     <!-- 側欄底部：登出 -->

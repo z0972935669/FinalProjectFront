@@ -179,3 +179,75 @@ button.btn {
     }
   }
 }
+
+/* 連結卡片樣式 */
+.link-card {
+  display: flex;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  margin: 0.5rem 0;
+  max-width: 500px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;  /* 新增：游標變手型 */
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);  /* 新增：懸停陰影 */
+  }
+
+  .card-thumbnail {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .card-content {
+    padding: 0.75rem;
+    flex: 1;
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .card-url {
+      font-size: 0.8rem;
+      color: #666;
+      margin: 0;
+      text-decoration: none;
+    }
+  }
+
+  iframe {
+    width: 100%;
+    height: 315px;
+    border: none;
+  }
+}
+
+/* 調整預覽內容 */
+.preview-content {
+  border: 1px solid #d1b07f;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #fff8e1;
+  min-height: 100px;
+  word-wrap: break-word;
+  max-height: 300px;  /* 限制高度，避免過長 */
+  overflow-y: auto;    /* 添加滾動條 */
+
+  iframe {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .link-card {
+    margin: 0.5rem 0;
+  }
+}

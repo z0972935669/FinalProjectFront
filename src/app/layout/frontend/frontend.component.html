@@ -6,4 +6,7 @@
 <app-footer></app-footer>
 
 <!-- 浮動聊天室，會員登入後才能顯示 -->
-<app-chat-floating *ngIf="chatVisible"></app-chat-floating>
+<app-chat-floating 
+  *ngIf="chatVisible" 
+  (chatClosed)="onChatClosed()">
+</app-chat-floating>

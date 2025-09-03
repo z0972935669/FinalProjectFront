@@ -1,93 +1,210 @@
-/* 大卡片容器 - 米白色底，柔和陰影 */
+/* 大卡片容器 - 清單風格 */
 .post-list-card {
-  border-radius: 1rem;
-  border: 1px solid #d8cfc4; /* 淺棕色邊框 */
-  background-color: #f9f6f1; /* 米白色 */
-  box-shadow: 0 2px 8px rgb(152 135 109 / 0.15); /* 柔和棕色陰影 */
-  padding: 1rem 1.5rem;
+  border: 1px solid #e9ecef; /* 簡單灰色邊框 */
+  background-color: #ffffff; /* 純白背景 */
+  box-shadow: none; /* 移除陰影 */
+  border-radius: 0; /* 移除圓角 */
+  padding: 0; /* 移除padding */
 }
 
-/* 文章列表項目 */
-.list-group-item {
-  background-color: #fffdfa; /* 很淺的米白 */
-  border: 1px solid #e3dcca; /* 淺米棕 */
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgb(152 135 109 / 0.1); /* 柔和陰影 */
-  padding: 1rem 1.25rem;
-  cursor: pointer;
-  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+/* 主要容器 */
+.post-list-container {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
 
+/* 文章項目 - 清單項目 */
+.post-item {
+  background-color: transparent; /* 透明背景 */
+  border: none; /* 移除邊框 */
+  border-bottom: 1px solid #e9ecef; /* 底部分隔線 */
+  border-radius: 0; /* 移除圓角 */
+  box-shadow: none; /* 移除陰影 */
+  padding: 0.75rem 1rem; /* 適中padding */
+  cursor: pointer;
+  transition: background-color 0.15s ease;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem; /* 適中間距 */
+  min-height: 50px; /* 更小的高度 */
 
   &:hover,
   &:focus {
-    background-color: #f0ede7; /* 淡淡灰綠色 */
-    box-shadow: 0 4px 12px rgb(152 135 109 / 0.25);
+    background-color: #f8f9fa; /* 淺灰hover */
     outline: none;
+  }
+
+  &:last-child {
+    border-bottom: none; /* 最後一項移除分隔線 */
   }
 
   @media (min-width: 768px) {
     flex-direction: row;
-    align-items: start;
-  }
-}
-
-/* 文章標題 */
-.post-title {
-  font-weight: 600;
-  font-size: 1.125rem;
-  color: #6b584c; /* 深棕色 */
-  margin-bottom: 0.25rem;
-}
-
-/* 文章摘要 */
-.post-excerpt {
-  color: #7a6d60; /* 柔和棕灰 */
-  font-size: 0.95rem;
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
-}
-
-/* 日期 */
-.post-date {
-  font-size: 0.8rem;
-  color: #a89987; /* 淡棕灰 */
-}
-
-/* 功能按鈕區塊 */
-.post-actions {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  margin-top: 0.5rem;
-
-  .action-btn {
-    background: transparent;
-    border: none;
-    color: #8c7a65; /* 柔和棕色 */
-    display: flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    padding: 0;
-    transition: color 0.2s ease;
+  }
 
-    i {
-      font-size: 1.2rem;
-    }
-
-    &:hover,
-    &:focus {
-      color: #536854; /* 柔和森林綠 */
-      outline: none;
-    }
+  @media (max-width: 768px) {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
 }
 
-/* 上一頁按鈕 */
+/* 左側內容區域 */
+.post-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 文章標題 - 清單風格 */
+.post-title {
+  font-weight: 500; /* 正常粗細 */
+  font-size: 0.95rem; /* 適中大小 */
+  color: #212529; /* 深灰 */
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .post-item:hover & {
+    color: #3498db;
+  }
+}
+
+/* 文章摘要 - 清單風格 */
+.post-excerpt {
+  color: #6c757d; /* 中灰 */
+  font-size: 0.8rem; /* 適中大小 */
+  line-height: 1.4;
+  margin-bottom: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 日期 - 清單風格 */
+.post-date {
+  font-size: 0.75rem;
+  color: #868e96; /* 淺灰 */
+  font-weight: 500;
+}
+
+/* 右側統計區域 - 清單風格 */
+.post-stats {
+  display: flex;
+  flex-direction: row; /* 橫向排列 */
+  align-items: center;
+  gap: 0.75rem; /* 橫向間距 */
+  min-width: 160px; /* 增加寬度以容納四個按鈕 */
+  padding: 0.25rem 0.5rem;
+  background-color: transparent; /* 透明背景 */
+  border-radius: 0; /* 移除圓角 */
+  border: none; /* 移除邊框 */
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    justify-content: space-around;
+    min-width: unset;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+  }
+}
+
+/* 統計網格 - 清單風格 */
+.stats-grid {
+  display: flex;
+  flex-direction: row; /* 橫向排列 */
+  gap: 0.75rem; /* 橫向間距 */
+  width: 100%;
+  justify-content: space-between; /* 平均分佈 */
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+  }
+}
+
+/* 統計按鈕 - 清單風格 */
+.stat-btn {
+  background: transparent;
+  border: none;
+  color: #6c757d; /* 中灰 */
+  display: flex;
+  flex-direction: column; /* 保持垂直排列圖示和數字 */
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 0;
+  transition: color 0.15s ease;
+  width: auto; /* 自適應寬度 */
+  min-width: 35px; /* 最小寬度 */
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  span {
+    font-weight: 500;
+    font-size: 0.65rem;
+  }
+
+  &:hover,
+  &:focus {
+    color: #495057; /* 深灰 */
+    background-color: transparent;
+    outline: none;
+  }
+}
+
+/* 統計項目 - 靜態顯示 */
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  color: #7f8c8d;
+  font-size: 0.8rem;
+  min-width: 35px;
+
+  i {
+    font-size: 1rem;
+    color: #bdc3c7;
+  }
+
+  span {
+    font-weight: 500;
+    font-size: 0.75rem;
+  }
+
+  /* 不同統計項目的顏色 */
+  &:nth-child(1) i {
+    color: #e74c3c;
+  } /* 喜歡 - 紅色 */
+  &:nth-child(2) i {
+    color: #27ae60;
+  } /* 回覆 - 綠色 */
+  &:nth-child(3) i {
+    color: #f39c12;
+  } /* 收藏 - 橙色 */
+  &:nth-child(4) i {
+    color: #3498db;
+  } /* 瀏覽 - 藍色 */
+}
+
+/* 上一頁按鈕 - 匹配 post 樣式 */
 .btn-back {
   font-weight: 600;
   border-radius: 12px;
@@ -105,7 +222,7 @@
   }
 }
 
-/* 麵包屑 */
+/* 麵包屑 - 匹配 post 樣式 */
 .breadcrumb-container {
   padding: 0;
 }
@@ -137,5 +254,151 @@
   .breadcrumb-item.active {
     color: #a3b66f;
     font-weight: 600;
+  }
+}
+
+/* 搜尋框 */
+.search-container {
+  max-width: 300px;
+  width: 100%;
+
+  .form-control {
+    border: 2px solid #dee2e6;
+    border-radius: 6px 0 0 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+
+    &:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    &::placeholder {
+      color: #adb5bd;
+    }
+  }
+
+  .btn {
+    border: 2px solid #dee2e6;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    background: #f8f9fa;
+    color: #6c757d;
+
+    &:hover {
+      background: #e9ecef;
+      border-color: #adb5bd;
+    }
+  }
+}
+
+/* 新增文章按鈕 */
+.btn-success {
+  background: #28a745;
+  border: 2px solid #28a745;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: #218838;
+    border-color: #1e7e34;
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+/* 載入狀態 */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* 空狀態 */
+.alert-info {
+  background: linear-gradient(135deg, #e3f2fd 0%, #ffcc02 100%);
+  border: 1px solid #bbdefb;
+  color: #1976d2;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+  border: 1px solid #f57c00;
+  color: #f57c00;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* 清除搜尋按鈕 */
+.btn-outline-secondary .bi-x {
+  font-size: 1.2rem;
+}
+
+/* 搜尋容器響應式 */
+@media (max-width: 768px) {
+  .search-container {
+    .btn {
+      padding: 0.375rem 0.5rem;
+    }
+  }
+
+  .post-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    min-height: 45px;
+  }
+
+  .post-stats {
+    flex-direction: row;
+    justify-content: space-around;
+    min-width: unset;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  .stats-grid {
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+  }
+
+  .stat-btn {
+    flex-direction: column;
+    gap: 0.05rem;
+    font-size: 0.65rem;
+    padding: 0.15rem;
+
+    i {
+      font-size: 0.8rem;
+    }
+
+    span {
+      font-size: 0.6rem;
+    }
+  }
+
+  .post-title {
+    font-size: 0.9rem;
+  }
+
+  .post-excerpt {
+    font-size: 0.75rem;
+  }
+
+  .search-container {
+    max-width: 100%;
   }
 }

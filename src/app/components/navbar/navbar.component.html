@@ -32,7 +32,63 @@
             style="border: none; background: none; outline: none; box-shadow: none;">
             <i class="fas fa-comment-dots fa-2x"></i>
           </button>
-          }
+          <div class="notification-container position-relative me-4 my-auto">
+            <button class="btn btn-link p-0" title="通知" (click)="toggleNotifications()"
+              style="border: none; background: none; outline: none; box-shadow: none;">
+              <i class="fas fa-bell fa-2x"></i>
+              <!-- 通知 -->
+              @if (pendingRequestsCount > 0) {
+                <span class="notification-badge position-absolute bg-danger rounded-circle d-flex align-items-center justify-content-center text-white"
+                  style="top: -5px; right: -5px; height: 20px; min-width: 20px; font-size: 12px;"
+                  [title]="'有 ' + pendingRequestsCount + ' 個好友邀請'">
+                  {{ pendingRequestsCount }}
+                </span>
+              }
+            </button>
+
+            <!-- 通知下拉選單 -->
+            @if (showNotifications) {
+              <div class="notification-dropdown position-absolute bg-white border rounded shadow"
+                style="top: 100%; right: 0; width: 320px; max-height: 400px; overflow-y: auto; z-index: 1050;">
+
+                <div class="p-3 border-bottom">
+                  <h6 class="mb-0">好友邀請 ({{ pendingRequestsCount }})</h6>
+                </div>
+
+                <div class="notification-list">
+                  @if (pendingRequests.length > 0) {
+                    @for (request of pendingRequests; track request.id) {
+                      <div class="notification-item d-flex align-items-center p-3 border-bottom">
+                        <img [src]="request.fromUserPhoto || 'assets/img/component/default-avatar.png'"
+                          [alt]="request.fromUserName"
+                          class="rounded-circle me-3"
+                          style="width: 40px; height: 40px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                          <div class="fw-bold">{{ request.fromUserName }}</div>
+                          <small class="text-muted">{{ getTimeAgo(request.sentAt) }}</small>
+                          <small class="d-block text-info">ID: {{ request.id }}</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                          <button class="btn btn-success btn-sm" (click)="acceptRequest(request)">
+                            <i class="fas fa-check"></i>
+                          </button>
+                          <button class="btn btn-danger btn-sm" (click)="rejectRequest(request)">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <div class="text-center py-4 text-muted">
+                      <i class="fas fa-inbox fa-2x mb-2"></i>
+                      <div>沒有新的好友邀請</div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+}
 
           <div class="nav-item">
             <a routerLink="/show/cart" class="position-relative me-4 my-auto">

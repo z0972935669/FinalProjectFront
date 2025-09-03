@@ -29,7 +29,10 @@ export class FriendRequestsComponent implements OnInit {
   }
 
   respond(requestId: number, action: 'Accepted' | 'Rejected'): void {
-    const dto: FriendRequestRespondDto = { requestID: requestId, action };
+    const dto: FriendRequestRespondDto = {
+      RequestID: requestId,
+      Action: action
+    };
     this.friendService.respondFriendRequest(dto).subscribe({
       next: () => {
         alert(`好友邀請已${action}`);

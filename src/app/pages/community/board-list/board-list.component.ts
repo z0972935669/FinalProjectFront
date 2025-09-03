@@ -33,7 +33,11 @@ export class BoardListComponent implements OnInit {
     this.loading = true;
     this.boardService.getBoards().subscribe({
       next: (boardsFromApi: any[]) => {
-        this.boards = boardsFromApi.map((b: any) => ({
+        // 過濾只顯示 boardStatus 為 'active' 的看板
+        const activeBoards = boardsFromApi.filter(
+          (b: any) => b.boardStatus === 'active'
+        );
+        this.boards = activeBoards.map((b: any) => ({
           id: b.boardId.toString(),
           name: b.boardName ?? '未知看板',
           description: b.boardDescription ?? '',

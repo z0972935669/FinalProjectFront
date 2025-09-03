@@ -59,4 +59,9 @@ export class FrontendComponent implements OnInit, OnDestroy {
   toggleChat() {
     this.chatVisible = !this.chatVisible;
   }
+
+  // 處理聊天視窗關閉事件
+  onChatClosed(): void {
+    this.chatVisible = false;
+  }
 }
