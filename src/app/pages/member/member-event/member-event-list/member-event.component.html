@@ -74,11 +74,12 @@
             </td>
             <td class="text-center">
               <!-- 先用 registrationId；有需要再做詳情頁 -->
-              <a
+              <button
                 class="btn btn-sm btn-outline-secondary"
-                [routerLink]="['/show/event', r.eventBatchId]"
-                >檢視</a
+                (click)="viewDetail(r)"
               >
+                檢視
+              </button>
             </td>
           </tr>
 

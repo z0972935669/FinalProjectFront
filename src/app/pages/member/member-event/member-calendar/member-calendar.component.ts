@@ -1,105 +1,148 @@
-import {
-  AfterViewInit,
-  Component,
-  ViewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-
 import {
   FullCalendarModule,
   FullCalendarComponent,
 } from '@fullcalendar/angular';
+import { CalendarOptions, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import zhTw from '@fullcalendar/core/locales/zh-tw';
-import { CalendarOptions, DatesSetArg, EventInput } from '@fullcalendar/core';
+import { firstValueFrom } from 'rxjs';
 
 import { EventService } from '../../../../services/event/event.service';
-import {
-  EventBatchDto,
-  EventTemplateDto,
-} from '../../../../interfaces/event/event-list';
-
-// 讓 API 結構更寬鬆一點的相容型別
-type TemplateCompat = EventTemplateDto & { eventBatches?: EventBatchDto[] };
-type BatchCompat = EventBatchDto & { batchId?: number | string };
+import { MemberService } from '../../../../services/member/member.service';
+import { MyRegistrationDto } from '../../../../interfaces/event/event-list'; // ★補上
 
 @Component({
   standalone: true,
   selector: 'app-member-calendar',
-  imports: [CommonModule, FullCalendarModule],
   templateUrl: './member-calendar.component.html',
   styleUrls: ['./member-calendar.component.scss'],
-  encapsulation: ViewEncapsulation.None, // 讓 .fc 樣式生效
+  imports: [CommonModule, FullCalendarModule],
 })
-export class MemberCalendarComponent implements AfterViewInit {
-  @ViewChild('fc') fc!: FullCalendarComponent;
+export class MemberCalendarComponent implements OnInit {
+  private eventSvc = inject(EventService);
+  private memberSvc = inject(MemberService);
 
+  @ViewChild('fc') fc?: FullCalendarComponent;
+
+  loading = false;
+  errorMsg = '';
   monthLabel = '';
-
-  constructor(private eventSvc: EventService, private router: Router) {
-    this.loadEvents();
-  }
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
-    headerToolbar: false as any,
-    locales: [zhTw],
     locale: 'zh-tw',
-    datesSet: (arg) => this.onDatesSet(arg),
+    height: 'auto',
+    headerToolbar: false,
     events: [],
-    eventClick: (info) => {
-      const batchId = info.event.extendedProps['batchId'] ?? info.event.id;
-      if (batchId) this.router.navigate(['/show/event', String(batchId)]);
+    datesSet: (arg) => this.updateMonthLabel(arg.view.calendar),
+    // ★ 兩行顯示（時間 / 標題）
+    eventContent: (arg) => {
+      const start = arg.event.start as Date | null;
+      if (!start) return { domNodes: [] };
+
+      const hh = start.getHours();
+      const mm = String(start.getMinutes()).padStart(2, '0');
+      const ampm = hh < 12 ? '上午' : '下午';
+      const hh12 = ((hh + 11) % 12) + 1;
+      const timeText = `${ampm}${hh12}:${mm}`;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'fc-my-event';
+
+      const lineTime = document.createElement('div');
+      lineTime.className = 'fc-my-event-time';
+      lineTime.textContent = timeText;
+
+      const lineTitle = document.createElement('div');
+      lineTitle.className = 'fc-my-event-title';
+      lineTitle.textContent = arg.event.title;
+
+      wrap.appendChild(lineTime);
+      wrap.appendChild(lineTitle);
+      return { domNodes: [wrap] };
     },
+    eventDisplay: 'block',
   };
 
-  ngAfterViewInit(): void {
-    const api = this.fc.getApi();
-    this.updateHeroByCalendar(api);
+  async ngOnInit() {
+    this.loading = true;
+    try {
+      // 1) 取得登入會員
+      const me = await firstValueFrom(this.memberSvc.getMemberInfo());
+      const memberId = me?.memberId;
+      if (!memberId) {
+        this.errorMsg = '找不到會員資訊';
+        return;
+      }
+
+      // 2) 取得該會員的「已報名清單」(一次就好)
+      const rows = await firstValueFrom(
+        this.eventSvc.getMyRegistrations(memberId)
+      );
+
+      // 3) 轉 EventInput[]：排除取消、同活動取最新一筆
+      const events = this.toEvents(rows);
+
+      // 4) 套進日曆
+      this.calendarOptions = { ...this.calendarOptions, events };
+
+      // 5) 初始化月份抬頭
+      const api = this.fc?.getApi();
+      if (api) this.updateMonthLabel(api);
+    } catch (err) {
+      console.error(err);
+      this.errorMsg = '載入我的報名行事曆失敗';
+    } finally {
+      this.loading = false;
+    }
   }
 
-  nav(dir: 'prev' | 'next' | 'today') {
-    const api = this.fc.getApi();
-    api[dir]();
-  }
+  // 將清單轉為 FullCalendar 事件：排除取消、同活動只保留最新註冊
+  private toEvents(list: MyRegistrationDto[]): EventInput[] {
+    if (!Array.isArray(list)) return [];
 
-  private loadEvents() {
-    this.eventSvc.getEventTemplates().subscribe({
-      next: (list: EventTemplateDto[]) => {
-        const events: EventInput[] = (list as TemplateCompat[]).flatMap((t) => {
-          const batches: BatchCompat[] = t.eventBatches ?? [];
-          return batches.map((b) => {
-            const batchId = b.batchId ?? (b as any).batchID ?? null;
-            const ev: EventInput = {
-              id: batchId != null ? String(batchId) : undefined,
-              title: t.eventName ?? '(未命名活動)',
-              start: b.eventDateTimeStart, // ISO 字串
-              allDay: true,
-              extendedProps: { batchId }, // ← 統一用 batchId
-            };
-            return ev;
-          });
-        });
+    const valid = list.filter((x) => x.currentStatus !== 0); // ★排除已取消
 
-        // 重新指派（讓變更偵測觸發）
-        this.calendarOptions = { ...this.calendarOptions, events };
+    // 以「活動名稱」當 key 去重（若你有 eventId，建議改用 eventId 更穩）
+    const latestByEvent = new Map<string, MyRegistrationDto>();
+    for (const r of valid) {
+      const key = (r.eventName ?? '').trim();
+      if (!key) continue;
+      const prev = latestByEvent.get(key);
+      const curAt = new Date(r.registrationDateTime).getTime();
+      const prevAt = prev ? new Date(prev.registrationDateTime).getTime() : -1;
+      if (!prev || curAt > prevAt) latestByEvent.set(key, r);
+    }
+
+    return Array.from(latestByEvent.values()).map((r) => ({
+      title: r.eventName,
+      start: r.eventDateTimeStart,
+      end: r.eventDateTimeEnd ?? null,
+      allDay: false,
+      extendedProps: {
+        eventLocation: r.eventLocation,
+        registrationId: r.registrationId,
+        eventBatchId: r.eventBatchId,
       },
-      error: (err) => console.error('[Calendar] 讀取錯誤', err),
-    });
+    }));
   }
 
-  private onDatesSet(arg: DatesSetArg) {
-    this.updateHeroByCalendar(arg.view.calendar);
+  // 供 HTML 按鈕 (prev/today/next) 呼叫
+  nav(cmd: 'prev' | 'today' | 'next') {
+    const api = this.fc?.getApi();
+    if (!api) return;
+    if (cmd === 'prev') api.prev();
+    if (cmd === 'today') api.today();
+    if (cmd === 'next') api.next();
+    this.updateMonthLabel(api);
   }
 
-  private updateHeroByCalendar(cal: any) {
+  // 更新上方月份標題（例：2025 年 9 月）
+  private updateMonthLabel(cal: any) {
     const d = cal.getDate();
-    const y = d.getFullYear();
-    const m = d.getMonth() + 1;
-    this.monthLabel = `${y} 年 ${m} 月`;
+    this.monthLabel = `${d.getFullYear()} 年 ${d.getMonth() + 1} 月`;
   }
 }

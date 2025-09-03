@@ -60,16 +60,48 @@
           <h6 class="fw-bold mb-2">繳費資訊</h6>
           <div class="row g-3">
             <div class="col-md-4">
-              <label class="form-label">應繳金額</label>
-              <input
-                class="form-control"
-                formControlName="amountDue"
-                readonly
-              />
+              <label class="form-label">金額:</label>
+              <span class="event-info-value">${{ event?.amountDue }}</span>
             </div>
             <div class="col-md-8">
-              <label class="form-label">內部備註（選填）</label>
-              <input class="form-control" formControlName="internalRemarks" />
+              <label class="form-label">折價卷使用</label>
+              <div class="d-flex gap-2">
+                <input
+                  class="form-control"
+                  formControlName="internalRemarks"
+                  placeholder="（可留空，按下方按鈕選擇折價券）"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-success"
+                  (click)="openCouponPicker()"
+                >
+                  選擇折價券
+                </button>
+                <button
+                  *ngIf="selectedCoupon"
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="clearCoupon()"
+                >
+                  取消使用
+                </button>
+              </div>
+
+              <!-- 顯示已選券與折抵後金額 -->
+              <div *ngIf="selectedCoupon" class="small text-success mt-2">
+                已選：{{ selectedCoupon.ruleName }}（折抵 ${{
+                  selectedCoupon.amount
+                }}）
+              </div>
+              <div class="mt-2">
+                <span class="finalAmount">應繳金額：</span>
+                <span class="finalAmount">$ {{ finalAmount }}</span>
+              </div>
+
+              <!-- 若你有隱藏欄位（提交用）可放在這 -->
+              <input type="hidden" formControlName="couponRuleId" />
+              <input type="hidden" formControlName="discountAmount" />
             </div>
           </div>
         </div>
@@ -207,3 +239,94 @@
     </form>
   </div>
 </div>
+
+<!-- ============= 彈窗（Bootstrap 簡易樣板，不需外掛） ============= -->
+<div
+  *ngIf="couponModalOpen"
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">選擇可使用的折價券</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeCouponPicker()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="availableCoupons.length === 0" class="text-muted">
+          目前沒有可使用的折價券
+        </div>
+
+        <div class="table-responsive" *ngIf="availableCoupons.length > 0">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>票券名稱</th>
+                <th style="width: 12%">金額</th>
+                <th style="width: 22%">開始日期</th>
+                <th style="width: 22%">結束日期</th>
+                <th style="width: 12%" class="text-center">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let c of availableCoupons"
+                (click)="pickCoupon(c)"
+                [class.table-active]="selectedCoupon?.ruleId === c.ruleId"
+                style="cursor: pointer"
+              >
+                <td>{{ c.ruleName }}</td>
+                <td class="fw-bold">$ {{ c.amount }}</td>
+                <td>{{ c.validFrom | date : "yyyy/MM/dd HH:mm" }}</td>
+                <td>{{ c.validTo | date : "yyyy/MM/dd HH:mm" }}</td>
+                <td class="text-center">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="pickCoupon(c)"
+                  >
+                    選取
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 已選擇提示 -->
+        <div *ngIf="selectedCoupon" class="alert alert-success py-2">
+          已選擇：<strong>{{ selectedCoupon.ruleName }}</strong
+          >（折抵 ${{ selectedCoupon.amount }}）
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="closeCouponPicker()"
+        >
+          關閉
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          [disabled]="!selectedCoupon"
+          (click)="applyCoupon()"
+        >
+          套用折價券
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 背景遮罩 -->
+<div *ngIf="couponModalOpen" class="modal-backdrop fade show"></div>

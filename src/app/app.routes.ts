@@ -131,14 +131,14 @@ export const routes: Routes = [
               {
                 path: 'member_event_calendar',
                 component: MemberCalendarComponent,
-              }, // 活動行事曆
+              }, // 行事曆（沿用你的底線）
+              // 折價卷先做個頁面或 lazy component
               {
                 path: 'member_event_coupon',
                 component: MemberEventCouponComponent,
-              }, //活動折價卷
+              },
             ],
           },
-          { path: 'event_calendar', component: MemberCalendarComponent },
           { path: 'room', component: MemberRoomComponent },
           { path: 'community', component: PersonalCommunityComponent },
           { path: 'login-logs', component: LoginLogsComponent },
@@ -153,9 +153,11 @@ export const routes: Routes = [
       { path: 'chat', component: ChatPageComponent },
 
       { path: 'event', component: EventListComponent },
-      { path: 'event/calendar', component: EventCalendarComponent }, // 修正拼字
-      { path: 'event/:slug', component: EventDetailComponent },
+      { path: 'event/calendar', component: EventCalendarComponent },
+
       { path: 'event/:slug/register', component: EventRegistrationComponent },
+      { path: 'event/:slug/:batchId', component: EventDetailComponent },
+      // { path: 'event/:slug', component: EventDetailComponent },
 
       { path: 'room-list', component: RoomListComponent },
       { path: 'room-detail/:id', component: RoomDetailComponent },

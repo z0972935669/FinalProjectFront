@@ -11,7 +11,12 @@ import {
   FullCalendarModule,
   FullCalendarComponent,
 } from '@fullcalendar/angular';
-import { CalendarOptions, DatesSetArg, EventInput } from '@fullcalendar/core';
+import {
+  CalendarOptions,
+  DatesSetArg,
+  EventClickArg,
+  EventInput,
+} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import zhTw from '@fullcalendar/core/locales/zh-tw';
@@ -57,10 +62,20 @@ export class EventCalendarComponent implements AfterViewInit {
     locale: 'zh-tw',
     datesSet: (arg) => this.onDatesSet(arg),
     events: [],
-    // 點選月曆→ 直接導到 /show/event/:batchId
-    eventClick: (info) => {
-      const batchId = info.event.extendedProps['batchId'] ?? info.event.id;
-      if (batchId) this.router.navigate(['/show/event', String(batchId)]);
+    // 點選月曆
+    eventClick: (arg: EventClickArg) => {
+      const slug = (arg.event.extendedProps as any).eventSlug;
+      const raw = (arg.event.extendedProps as any).batchID;
+      const batchID = Number(raw);
+
+      if (!slug) {
+        console.warn('⚠️ 缺 slug 無法導向', { slug });
+        return;
+      } else if (!batchID) {
+        console.warn('⚠️ 缺batchID，無法導向', { batchID });
+        return;
+      }
+      this.router.navigate(['/show/event', slug, batchID]); // ← 絕對路徑
     },
   };
 
@@ -88,15 +103,15 @@ export class EventCalendarComponent implements AfterViewInit {
           // 先把批次陣列拿出來
           const batches: BatchCompat[] =
             (t.eventBatches as BatchCompat[] | undefined) ?? [];
-
+          const eventSlug = t.eventSlug ?? '';
           return batches.map((b) => {
             const batchID = b.batchId ?? null;
-
+            console.log('eventSlug=' + eventSlug + 'batchID' + batchID);
             const ev: EventInput = {
               title: t.eventName ?? '(未命名活動)',
               start: b.eventDateTimeStart, // 建議用 ISO 字串
               allDay: true,
-              extendedProps: { batchID },
+              extendedProps: { eventSlug, batchID },
             };
             if (batchID != null) {
               ev.id = String(batchID);

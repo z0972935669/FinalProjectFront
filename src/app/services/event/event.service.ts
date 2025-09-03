@@ -8,6 +8,8 @@ import {
   RegistrationResDto,
   RegistrationListDto,
   MyRegistrationDto,
+  CancelRegistrationReq,
+  CancelRegistrationRes,
 } from '../../interfaces/event/event-list';
 
 @Injectable({ providedIn: 'root' })
@@ -47,6 +49,17 @@ export class EventService {
       //https://localhost:7124/api/EventTemplate/list
     );
   }
+  //取消報名
+  cancelRegistration(memberId: number, batchId: number, reason?: string) {
+    const url = `${this.apiRoot}/EventRegistration/cancel`; // 路由前綴見後端控制器
+    const body: CancelRegistrationReq = {
+      memberId,
+      eventBatchId: batchId,
+      reason,
+    };
+    return this.httpClient.put<CancelRegistrationRes>(url, body);
+  }
+
   //抓取報名資料 (可搜尋狀態 活動批次 使用者id)
   /** ✅ 1) 單批次是否已報名（只看 status=1） */
   getHasRegistered(memberId: number, batchId: number): Observable<boolean> {
@@ -69,6 +82,14 @@ export class EventService {
   getMyRegistrations(memberId: number): Observable<MyRegistrationDto[]> {
     return this.httpClient.get<MyRegistrationDto[]>(
       `${this.apiRoot}/EventRegistration/memberId/${memberId}`
+    );
+  }
+
+  //抓取折價卷資料
+  getEventCoupon(memberId: number) {
+    return this.httpClient.get<any[]>(
+      `${this.apiRoot}/EventCoupon/list/${memberId}`
+      //https://localhost:7124/api/EventCoupon/list/1018
     );
   }
 }

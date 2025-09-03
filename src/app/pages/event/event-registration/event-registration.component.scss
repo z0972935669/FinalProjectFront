@@ -16,7 +16,12 @@
 @media (min-width: 992px){
   .event-info-value{ font-size:1.35rem; } /* 桌機再大一點 */
 }
-
+//應繳金額
+span.finalAmount {
+  color:red !important;
+  font-weight: 700;
+  font-size: 1.4rem;
+}
 
 //確定報名
 .btn-cta {
@@ -99,6 +104,7 @@
       color: #374151;
     }
   }
+
 }
 
 

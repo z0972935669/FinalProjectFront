@@ -206,9 +206,10 @@
 
                     <a
                       class="stretched-link"
-                      *ngIf="e.batchID"
-                      [routerLink]="['/show/event', e.batchID]"
-                    ></a>
+                      *ngIf="e.eventSlug && e.batchID"
+                      [routerLink]="buildDetailLink(e)"
+                    >
+                    </a>
                   </div>
                 </div>
 

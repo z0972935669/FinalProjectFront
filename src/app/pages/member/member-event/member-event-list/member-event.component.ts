@@ -1,14 +1,14 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { EventService } from '../../../../services/event/event.service';
 import { MyRegistrationDto } from '../../../../interfaces/event/event-list';
 import {
   MemberInfo,
   MemberService,
 } from '../../../../services/member/member.service';
-import { catchError, finalize, of, switchMap, tap } from 'rxjs';
+import { catchError, finalize, firstValueFrom, of, switchMap, tap } from 'rxjs';
 
 type TabKey = 'upcoming' | 'completed' | 'all';
 
@@ -33,6 +33,7 @@ interface ViewRow {
 export class MemberEventComponent implements OnInit {
   private eventSvc = inject(EventService);
   private memberSvc = inject(MemberService);
+  private router = inject(Router);
 
   // UI 狀態
   loading = signal(true);
@@ -52,6 +53,7 @@ export class MemberEventComponent implements OnInit {
     const src = this.dedupLatestByBatch(this.rows()); // 去除重複的
 
     return src
+      .filter((r) => r.currentStatus !== 0) // 以取消的活動不顯示
       .filter((r) => {
         if (key === 'upcoming') return r.startAt >= now;
         if (key === 'completed') return r.startAt < now;
@@ -74,7 +76,6 @@ export class MemberEventComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // 這裡請改成你登入後的來源；暫用 localStorage 兜一下
     this.memberSvc
       .getMemberInfo()
       .pipe(
@@ -123,13 +124,13 @@ export class MemberEventComponent implements OnInit {
 
   statusLabel(r: ViewRow): string {
     // 我主觀建議：依時間過去與否切「已報名 / 已參加」，取消則獨立顯示
-    if (r.currentStatus === 2) return '已取消';
+    if (r.currentStatus === 0) return '已取消';
     return r.startAt >= new Date() ? '已報名' : '已參加';
   }
 
   badgeClass(r: ViewRow): string {
     const common = 'badge rounded-pill badge-pill text-white';
-    if (r.currentStatus === 2) return `${common} bg-secondary badge-secondary`;
+    if (r.currentStatus === 0) return `${common} bg-secondary badge-secondary`;
     const isUpcoming = r.startAt >= new Date();
     return isUpcoming
       ? `${common} bg-primary badge-primary`
@@ -143,5 +144,30 @@ export class MemberEventComponent implements OnInit {
       if (!prev || r.regAt > prev.regAt) latest.set(r.eventBatchId, r);
     }
     return Array.from(latest.values());
+  }
+  async viewDetail(r: any) {
+    const batchID = Number(r?.eventBatchId ?? 0);
+    if (!Number.isFinite(batchID) || batchID <= 0) {
+      console.warn('⚠️ eventBatchId 無效', r);
+      return;
+    }
+
+    try {
+      // 你已經有 by-batch API：/api/EventTemplate/by-batch/{batchId}
+      const dto = await firstValueFrom(this.eventSvc.getEventByBatch(batchID));
+      const slug =
+        dto?.eventSlug ??
+        dto?.canonicalPath?.split('/')?.[0] ?? // 若有 canonicalPath 可備援
+        '';
+
+      if (!slug) {
+        console.warn('⚠️ 取得 slug 失敗', { batchID, dto });
+        return;
+      }
+
+      this.router.navigate(['/show/event', slug, batchID]);
+    } catch (err) {
+      console.error('讀取活動 slug 失敗', err);
+    }
   }
 }

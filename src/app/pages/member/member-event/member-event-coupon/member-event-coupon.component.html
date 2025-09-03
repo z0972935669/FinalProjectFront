@@ -1,1 +1,99 @@
-<p>member-event-coupon works!</p>
+<!-- member-event-coupon.component.html -->
+<div class="container py-4">
+  <h3 class="fw-bold mb-3">我的折價券</h3>
+
+  <!-- 查詢 + 分類 -->
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <input
+      class="form-control"
+      style="max-width: 360px"
+      placeholder="輸入規則編號或名稱搜尋"
+      [(ngModel)]="q"
+    />
+    <div class="ms-auto"></div>
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="tab() === 'available'"
+          (click)="tab.set('available')"
+        >
+          可使用
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="tab() === 'upcoming'"
+          (click)="tab.set('upcoming')"
+        >
+          未開始
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="tab() === 'used'"
+          (click)="tab.set('used')"
+        >
+          已使用
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="tab() === 'expired'"
+          (click)="tab.set('expired')"
+        >
+          已失效
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="tab() === 'all'"
+          (click)="tab.set('all')"
+        >
+          全部
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 載入 / 錯誤 -->
+  <div *ngIf="loading()" class="text-muted">載入中…</div>
+  <div *ngIf="error()" class="text-danger">{{ error() }}</div>
+
+  <!-- 列表 -->
+  <div class="card shadow-sm" *ngIf="!loading() && !error()">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>票卷名稱</th>
+            <th style="width: 10%">金額</th>
+            <th style="width: 20%">開始日期</th>
+            <th style="width: 20%">結束日期</th>
+            <th style="width: 12%" class="text-center">狀態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of viewRows()">
+            <td>{{ r.ruleName }}</td>
+            <td class="fw-bold">$ {{ r.amount }}</td>
+            <td>{{ r.validFrom | date : "yyyy/MM/dd HH:mm" }}</td>
+            <td>{{ r.validTo | date : "yyyy/MM/dd HH:mm" }}</td>
+            <td class="text-center">
+              <span [class]="r.badgeClass">{{ r.statusText }}</span>
+            </td>
+          </tr>
+          <tr *ngIf="viewRows().length === 0">
+            <td colspan="6" class="text-center text-muted py-4">
+              沒有符合條件的折價券
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
