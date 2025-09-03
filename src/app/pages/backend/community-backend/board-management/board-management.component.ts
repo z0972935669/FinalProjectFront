@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { BoardService, Board } from '../../../services/community/board.service';
+import { BoardService, Board } from '../../../../services/community/board.service';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -72,7 +73,15 @@ export class BoardManagementComponent implements OnInit {
             : 'https://localhost:7124/images/community/board/default.png',
         }));
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error('載入看板失敗:', err);
+        Swal.fire({
+          icon: 'error',
+          title: '載入失敗',
+          text: '無法載入看板列表，請稍後再試',
+          confirmButtonText: '確定',
+        });
+      },
     });
   }
 
@@ -109,7 +118,7 @@ export class BoardManagementComponent implements OnInit {
 
   // 上傳圖片選擇
   onBoardImageSelected(event: any): void {
-    const file = event.target.files[0];
+    const file = event?.target?.files?.[0];
     if (file) {
       this.selectedFile = file;
 
@@ -151,12 +160,30 @@ export class BoardManagementComponent implements OnInit {
           next: () => {
             this.loadBoards(); // 重新載入看板列表
             this.closeModal(); // 關閉 Modal
+            Swal.fire({
+              icon: 'success',
+              title: '更新成功',
+              text: '看板已成功更新',
+              timer: 2000,
+              showConfirmButton: false,
+            });
           },
           error: (err) => {
-            if (err.status === 409 && err.error?.message) {
-              alert(err.error.message); // 顯示名稱衝突訊息
+            console.error('更新失敗', err);
+            if (err?.status === 409 && err?.error?.message) {
+              Swal.fire({
+                icon: 'warning',
+                title: '名稱重複',
+                text: err.error.message,
+                confirmButtonText: '確定',
+              });
             } else {
-              console.error('更新失敗', err);
+              Swal.fire({
+                icon: 'error',
+                title: '更新失敗',
+                text: '看板更新失敗，請稍後再試',
+                confirmButtonText: '確定',
+              });
             }
           },
         });
@@ -166,12 +193,30 @@ export class BoardManagementComponent implements OnInit {
         next: () => {
           this.loadBoards();
           this.closeModal();
+          Swal.fire({
+            icon: 'success',
+            title: '新增成功',
+            text: '看板已成功新增',
+            timer: 2000,
+            showConfirmButton: false,
+          });
         },
         error: (err) => {
-          if (err.status === 409 && err.error?.message) {
-            alert(err.error.message);
+          console.error('新增失敗', err);
+          if (err?.status === 409 && err?.error?.message) {
+            Swal.fire({
+              icon: 'warning',
+              title: '名稱重複',
+              text: err.error.message,
+              confirmButtonText: '確定',
+            });
           } else {
-            console.error('新增失敗', err);
+            Swal.fire({
+              icon: 'error',
+              title: '新增失敗',
+              text: '看板新增失敗，請稍後再試',
+              confirmButtonText: '確定',
+            });
           }
         },
       });
@@ -180,29 +225,83 @@ export class BoardManagementComponent implements OnInit {
 
   // 切換看板狀態
   toggleBoardStatus(board: Board): void {
+    if (!board) return;
+
     const newStatus = board.boardStatus === 'active' ? 'inactive' : 'active';
+    const actionText = newStatus === 'active' ? '啟用' : '停用';
 
-    if (
-      !confirm(`確定要${newStatus === 'active' ? '啟用' : '停用'}這個看板嗎？`)
-    )
-      return;
-
-    this.boardService.toggleBoardStatus(board.boardId, newStatus).subscribe({
-      next: () => (board.boardStatus = newStatus),
-      error: (err) => console.error(err),
+    Swal.fire({
+      icon: 'question',
+      title: '確認操作',
+      text: `確定要${actionText}這個看板嗎？`,
+      showCancelButton: true,
+      confirmButtonText: '確定',
+      cancelButtonText: '取消',
+      confirmButtonColor: newStatus === 'active' ? '#28a745' : '#dc3545',
+      cancelButtonColor: '#6c757d',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.boardService.toggleBoardStatus(board.boardId, newStatus).subscribe({
+          next: () => {
+            board.boardStatus = newStatus;
+            Swal.fire({
+              icon: 'success',
+              title: '操作成功',
+              text: `看板已${actionText}`,
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          },
+          error: (err) => {
+            console.error('狀態切換失敗', err);
+            Swal.fire({
+              icon: 'error',
+              title: '操作失敗',
+              text: `看板${actionText}失敗，請稍後再試`,
+              confirmButtonText: '確定',
+            });
+          },
+        });
+      }
     });
   }
 
   // 停用看板
   deactivateBoard(boardId: number): void {
-    if (!confirm('確定要停用這個看板嗎？')) return;
-
-    this.boardService.deactivateBoard(boardId).subscribe({
-      next: () => {
-        const board = this.boards.find((b) => b.boardId === boardId);
-        if (board) board.boardStatus = 'inactive';
-      },
-      error: (err) => console.error(err),
+    Swal.fire({
+      icon: 'warning',
+      title: '確認停用',
+      text: '確定要停用這個看板嗎？',
+      showCancelButton: true,
+      confirmButtonText: '確定',
+      cancelButtonText: '取消',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.boardService.deactivateBoard(boardId).subscribe({
+          next: () => {
+            const board = this.boards.find((b) => b.boardId === boardId);
+            if (board) board.boardStatus = 'inactive';
+            Swal.fire({
+              icon: 'success',
+              title: '停用成功',
+              text: '看板已停用',
+              timer: 1500,
+              showConfirmButton: false,
+            });
+          },
+          error: (err) => {
+            console.error('停用失敗', err);
+            Swal.fire({
+              icon: 'error',
+              title: '停用失敗',
+              text: '看板停用失敗，請稍後再試',
+              confirmButtonText: '確定',
+            });
+          },
+        });
+      }
     });
   }
 }

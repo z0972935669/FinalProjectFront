@@ -25,10 +25,25 @@
         class="form-control"
         rows="8"
         [(ngModel)]="content"
+        (ngModelChange)="updatePreview()"
         name="content"
-        placeholder="請輸入文章內容"
+        placeholder="請輸入文章內容，可貼上YouTube網址或其他連結"
         required
       ></textarea>
+
+      <!-- 即時預覽區塊 -->
+      <div class="preview-content mt-3" *ngIf="content" [innerHTML]="sanitizedContent"></div>
+
+      <!-- 新增：全域腳本 -->
+      <script>
+        window.playVideo = function(element) {
+          const videoId = element.getAttribute('data-videoid');
+          if (videoId) {
+            console.log('Playing video:', videoId);
+            element.innerHTML = '<iframe width="100%" height="315" src="https://www.youtube.com/embed/' + videoId + '?autoplay=1" frameborder="0" allowfullscreen></iframe>';
+          }
+        };
+      </script>
     </div>
 
     <!-- 附件上傳 -->

@@ -18,6 +18,8 @@ import { PersonalCommunityComponent } from './pages/community/personal-community
 import { CreatePostComponent } from './pages/community/create-post/create-post.component';
 import { ChatPageComponent } from './pages/community/chat-page/chat-page.component';
 import { CustomerServiceComponent } from './pages/community/customer-service/customer-service.component';
+import { FriendListComponent } from './pages/community/friend-list/friend-list.component';
+import { FriendRequestsComponent } from './pages/community/friend-requests/friend-requests.component';
 
 import { LoginComponent } from './pages/account/login/login.component';
 import { RegisterComponent } from './pages/account/register/register.component';
@@ -75,7 +77,10 @@ import { EmployeeLoginComponent } from './pages/backend/employeelogin/employeelo
 import { employeeAuthGuard } from './core/employee-auth.guard';
 
 // 社群管理
-import { BoardManagementComponent } from './pages/community/board-management/board-management.component';
+import { BoardManagementComponent } from './pages/backend/community-backend/board-management/board-management.component';
+import { PostManagementComponent } from './pages/backend/community-backend/post-management/post-management.component';
+import { ReportManagementComponent } from './pages/backend/community-backend/report-management/report-management.component';
+import { CustomerServiceManagementComponent } from './pages/backend/community-backend/customer-service-management/customer-service-management.component';
 // 房間管理
 import { RoomTableErpComponent } from './pages/backend/room-table-erp/room-table-erp.component';
 import { EmployeeforgotpasswordComponent } from './pages/backend/employeeforgotpassword/employeeforgotpassword.component';
@@ -130,12 +135,15 @@ export const routes: Routes = [
         ],
       },
 
-      { path: 'community', component: BoardListComponent },
-      { path: 'community/:boardID/posts', component: PostListComponent },
-      { path: 'community/:boardID/create', component: CreatePostComponent },
-      { path: 'community/:boardID/posts/:postId', component: PostComponent },
-      { path: 'customer-service', component: CustomerServiceComponent },
-      { path: 'chat', component: ChatPageComponent },
+      { path: 'community/personal/:id', component: PersonalCommunityComponent }, // 個人社群頁面
+      { path: 'community', component: BoardListComponent }, // 看板列表
+      { path: 'community/:boardID/posts', component: PostListComponent }, // 文章列表
+      { path: 'community/:boardID/create', component: CreatePostComponent }, // 編輯文章
+      { path: 'community/:boardID/posts/:postId', component: PostComponent }, // 文章
+      { path: 'friends', component: FriendListComponent }, // 好友清單
+      { path: 'friend-requests', component: FriendRequestsComponent }, // 好友邀請
+      { path: 'customer-service', component: CustomerServiceComponent }, // 客服
+      { path: 'chat', component: ChatPageComponent }, // 聊天
 
       { path: 'event', component: EventListComponent },
       { path: 'event/calendar', component: EventCalendarComponent }, // 修正拼字
@@ -209,8 +217,13 @@ export const routes: Routes = [
 
           // 社群/房間管理
           { path: 'board-management', component: BoardManagementComponent, title: '看板管理' },
+          { path: 'post-management', component: PostManagementComponent, title: '文章管理' },
+          { path: 'report-management', component: ReportManagementComponent, title: '檢舉管理' },
           { path: 'memberlist', component: MemberlistComponent, title: '會員列表' },
           { path: 'room-table-erp', component: RoomTableErpComponent, title: '房間管理' },
+
+          //客服管理
+          { path: 'customer-service-management', component: CustomerServiceManagementComponent, title: '客服管理' },
         ],
       },
     ],

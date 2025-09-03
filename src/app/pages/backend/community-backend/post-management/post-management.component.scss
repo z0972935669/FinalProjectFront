@@ -1,0 +1,612 @@
+.app-wrapper {
+  .app-content {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+
+    .app-page-title {
+      font-weight: 700;
+      font-size: 2rem;
+    }
+
+    .btn-success,
+    .btn-warning,
+    .btn-danger {
+      transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+      background-color: #28a745cc;
+    }
+    .btn-warning:hover {
+      background-color: #ffc107cc;
+    }
+    .btn-danger:hover {
+      background-color: #dc3545cc;
+    }
+
+    /* 搜尋框 */
+    .search-box {
+      width: 300px;
+
+      .form-control {
+        border-radius: 0.25rem;
+        box-shadow: none;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+        &:focus {
+          border-color: #80bdff;
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+      }
+    }
+
+    /* 列表樣式 */
+    .post-list {
+      .post-item {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        overflow: hidden;
+        min-height: 80px; /* 確保最小高度 */
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        }
+
+        /* 看板欄位 - 固定寬度 */
+        .post-board-column {
+          flex-shrink: 0;
+          width: 120px; /* 固定寬度 */
+          min-width: 120px;
+          max-width: 120px;
+
+          .post-board {
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            text-align: center;
+          }
+        }
+
+        /* 標題和作者欄位 - 彈性寬度 */
+        .post-title-column {
+          min-width: 0; /* 允許縮小 */
+          flex: 1;
+
+          .post-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 0.25rem;
+          }
+
+          .post-author {
+            font-size: 0.75rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+
+            i {
+              font-size: 0.7rem;
+            }
+          }
+        }
+
+        /* 時間欄位 */
+        .post-times {
+          flex-shrink: 0;
+          width: 160px; /* 固定寬度 */
+          min-width: 160px;
+          margin-right: 1rem;
+
+          small {
+            font-size: 0.75rem;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+
+            i {
+              font-size: 0.7rem;
+              opacity: 0.7;
+              margin-right: 0.25rem;
+            }
+          }
+        }
+
+        /* 狀態欄位 */
+        .post-status {
+          flex-shrink: 0;
+          width: 80px; /* 固定寬度 */
+          min-width: 80px;
+          margin-right: 1rem;
+
+          .badge {
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            display: block;
+            text-align: center;
+          }
+        }
+
+        /* 操作按鈕 */
+        .post-actions {
+          flex-shrink: 0;
+          width: 140px; /* 固定寬度 */
+          min-width: 140px;
+          display: flex;
+          gap: 0.25rem;
+
+          .btn {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            white-space: nowrap;
+            border-radius: 0.25rem;
+            flex: 1;
+            min-width: 0;
+
+            i {
+              font-size: 0.7rem;
+              margin-right: 0.25rem;
+            }
+          }
+        }
+      }
+    }
+
+    /* 分頁樣式 */
+    .pagination-container {
+      .pagination {
+        margin-bottom: 0;
+
+        .page-link {
+          color: #007bff;
+          border-color: #dee2e6;
+          font-size: 1rem; // 增加字體大小
+          font-weight: 500; // 增加字體粗細
+
+          &:hover {
+            color: #0056b3;
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+          }
+        }
+
+        .page-item.active .page-link {
+          background-color: #007bff;
+          border-color: #007bff;
+          color: #fff; // 確保活躍按鈕文字清晰
+        }
+
+        .page-item.disabled .page-link {
+          color: #6c757d;
+          pointer-events: none;
+          cursor: auto;
+          background-color: #fff;
+          border-color: #dee2e6;
+        }
+      }
+    }
+
+    /* Modal 美化 */
+    .modal-content {
+      border-radius: 0.5rem;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+      .modal-header {
+        font-weight: 600;
+      }
+
+      input.form-control,
+      textarea.form-control,
+      select.form-select {
+        border-radius: 0.25rem;
+        box-shadow: none;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+        &:focus {
+          border-color: #80bdff;
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+      }
+
+      img.img-fluid {
+        border-radius: 0.25rem;
+      }
+    }
+
+    /* 文章卡片樣式（參考 post.component） */
+    .post-card {
+      background-color: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .post-header {
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 1rem;
+    }
+
+    .post-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    .post-meta {
+      font-size: 0.875rem;
+      color: #6c757d;
+    }
+
+    .post-content {
+      white-space: pre-wrap; /* 保留換行和空格 */
+      word-wrap: break-word; /* 長單詞自動換行 */
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #212529;
+      margin-bottom: 1rem;
+
+      // 如果使用 formatContent 方法的 <pre> 版本，則不需要這些樣式
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        color: inherit;
+        background: transparent;
+        border: none;
+        padding: 0;
+      }
+
+      // 處理 HTML 內容中的換行
+      br {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    /* 附件樣式 */
+    .post-attachments {
+      .attachments-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .attachment-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100px;
+      }
+
+      .attachment-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    }
+
+    /* 互動按鈕 */
+    .post-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* 留言區域 */
+    .comments-section {
+      .comment-item {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+        .floor-tag {
+          font-weight: 700;
+          color: #495057;
+          background-color: #e9ecef;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.875rem;
+        }
+
+        .comment-content {
+          white-space: pre-wrap; /* 保留換行和空格 */
+          word-wrap: break-word; /* 長單詞自動換行 */
+          font-size: 0.95rem;
+          line-height: 1.5;
+          color: #212529;
+          margin-bottom: 1rem;
+
+          // 如果使用 formatContent 方法的 <pre> 版本，則不需要這些樣式
+          pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            color: inherit;
+            background: transparent;
+            border: none;
+            padding: 0;
+          }
+
+          // 處理 HTML 內容中的換行
+          br {
+            display: block;
+            margin-bottom: 0.5rem;
+          }
+        }
+
+        .comment-actions {
+          display: flex;
+          gap: 0.5rem;
+        }
+      }
+    }
+
+    /* 模態框調整 */
+    .modal-xl {
+      max-width: 90%;
+    }
+  }
+}
+
+/* 修改列表樣式，使用固定寬度欄位 */
+.post-list {
+  .post-item {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    min-height: 80px; /* 確保最小高度 */
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    }
+
+    /* 看板欄位 - 固定寬度 */
+    .post-board-column {
+      flex-shrink: 0;
+      width: 120px; /* 固定寬度 */
+      min-width: 120px;
+      max-width: 120px;
+
+      .post-board {
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        text-align: center;
+      }
+    }
+
+    /* 標題和作者欄位 - 彈性寬度 */
+    .post-title-column {
+      min-width: 0; /* 允許縮小 */
+      flex: 1;
+
+      .post-title {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-bottom: 0.25rem;
+      }
+
+      .post-author {
+        font-size: 0.75rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+
+        i {
+          font-size: 0.7rem;
+        }
+      }
+    }
+
+    /* 時間欄位 */
+    .post-times {
+      flex-shrink: 0;
+      width: 160px; /* 固定寬度 */
+      min-width: 160px;
+      margin-right: 1rem;
+
+      small {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+
+        i {
+          font-size: 0.7rem;
+          opacity: 0.7;
+          margin-right: 0.25rem;
+        }
+      }
+    }
+
+    /* 狀態欄位 */
+    .post-status {
+      flex-shrink: 0;
+      width: 80px; /* 固定寬度 */
+      min-width: 80px;
+      margin-right: 1rem;
+
+      .badge {
+        font-size: 0.8rem;
+        font-weight: 500;
+        white-space: nowrap;
+        display: block;
+        text-align: center;
+      }
+    }
+
+    /* 操作按鈕 */
+    .post-actions {
+      flex-shrink: 0;
+      width: 140px; /* 固定寬度 */
+      min-width: 140px;
+      display: flex;
+      gap: 0.25rem;
+
+      .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        white-space: nowrap;
+        border-radius: 0.25rem;
+        flex: 1;
+        min-width: 0;
+
+        i {
+          font-size: 0.7rem;
+          margin-right: 0.25rem;
+        }
+      }
+    }
+  }
+}
+
+/* 響應式設計 */
+@media (max-width: 1200px) {
+  .post-list .post-item {
+    .post-board-column {
+      width: 100px;
+      min-width: 100px;
+      max-width: 100px;
+    }
+
+    .post-times {
+      width: 140px;
+      min-width: 140px;
+    }
+
+    .post-status {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .post-actions {
+      width: 120px;
+      min-width: 120px;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .post-list .post-item {
+    flex-wrap: wrap;
+    padding: 1rem;
+    min-height: auto;
+
+    .post-board-column {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      margin-right: 0;
+
+      .post-board {
+        text-align: left;
+      }
+    }
+
+    .post-title-column {
+      width: 100%;
+      margin-bottom: 0.75rem;
+      margin-right: 0;
+
+      .post-title {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: visible;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .post-times,
+    .post-status,
+    .post-actions {
+      margin-right: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .post-times {
+      order: 2;
+      width: 100%;
+      min-width: auto;
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+
+      small {
+        margin-bottom: 0;
+      }
+    }
+
+    .post-status {
+      order: 3;
+      width: auto;
+      min-width: auto;
+    }
+
+    .post-actions {
+      order: 4;
+      width: 100%;
+      justify-content: center;
+      margin-top: 0.5rem;
+
+      .btn {
+        flex: 1;
+        max-width: 120px;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .post-list .post-item {
+    .post-times {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .post-actions {
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .btn {
+        width: 100%;
+        max-width: none;
+      }
+    }
+  }
+}

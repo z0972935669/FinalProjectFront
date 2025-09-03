@@ -6,15 +6,32 @@
         <h1>{{ userProfile.name }}</h1>
         <p class="bio" *ngIf="userProfile.bio">{{ userProfile.bio }}</p>
         <div class="followers-info">
-          <span class="followers-count">{{ userProfile.followers }} 位追蹤者</span>
+          <span>{{ userProfile.followers }} 位追蹤者</span>
         </div>
       </div>
       <div class="profile-right">
-        <img
-          class="avatar"
-          [src]="userProfile.photoUrl || '/assets/img/component/default-avatar.png'"
-          [alt]="userProfile.name + ' 的頭像'"
-          (error)="onImageError($event)"
+        <!-- 如果是本人，可以點擊編輯照片 -->
+        <div class="avatar-container" [class.editable]="isOwnPage">
+          <img
+            [src]="userProfile.photoUrl"
+            [alt]="userProfile.name + '的頭像'"
+            (error)="onImageError($event)"
+            (click)="isOwnPage ? openPhotoEditor() : null"
+          />
+          <!-- 只有本人才顯示編輯圖示 -->
+          <div *ngIf="isOwnPage" class="edit-overlay" (click)="openPhotoEditor()">
+            <span class="edit-icon">📷</span>
+            <span class="edit-text">編輯照片</span>
+          </div>
+        </div>
+
+        <!-- 隱藏的檔案選擇器 -->
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          style="display: none;"
+          (change)="onFileSelected($event)"
         />
       </div>
     </div>
@@ -27,11 +44,20 @@
       >
         {{ userProfile.isFollowing ? "正在追蹤" : "追蹤" }}
       </button>
-      <button class="message-btn">訊息</button>
+      <!-- 加好友按鈕 -->
+      <button
+        class="friend-btn"
+        [class.friend]="userProfile.isFriend"
+        [disabled]="userProfile.isFriend"
+        (click)="sendFriendRequest()"
+      >
+        <i class="fas fa-user-plus"></i>
+        {{ userProfile.isFriend ? "已是好友" : "加好友" }}
+      </button>
     </div>
   </div>
 
-  <!-- Tabs -->
+  <!-- Tabs - 只有本人才能看到收藏頁籤 -->
   <div class="tabs">
     <button
       class="tab-btn"
@@ -40,7 +66,9 @@
     >
       貼文
     </button>
+    <!-- 只有本人才顯示收藏頁籤 -->
     <button
+      *ngIf="isOwnPage"
       class="tab-btn"
       [class.active]="isShowingFavorites"
       (click)="isShowingFavorites = true"
@@ -53,44 +81,34 @@
   <div class="posts-section" *ngIf="!isShowingFavorites">
     <div class="posts-grid">
       <article
-        class="post-card"
         *ngFor="let post of userPosts"
+        class="post-item"
         (click)="goToPost(post)"
       >
-        <div class="post-content">
-          <h3 class="post-title">{{ post.title }}</h3>
-          <p class="post-text">{{ post.content }}</p>
-        </div>
-        <div class="post-meta">
-          <time class="post-date">{{ post.createdAt | date : "MM/dd" }}</time>
-        </div>
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.content }}</p>
+        <small>{{ post.createdAt | date:'yyyy-MM-dd HH:mm' }}</small>
       </article>
       <div *ngIf="userPosts.length === 0" class="empty-state">
-        <div class="empty-icon">📝</div>
-        <p>還沒有貼文</p>
+        <p>尚無貼文</p>
       </div>
     </div>
   </div>
 
-  <!-- Favorites Section -->
-  <div class="posts-section" *ngIf="isShowingFavorites">
+  <!-- Favorites Section - 只有本人才能看到 -->
+  <div class="posts-section" *ngIf="isShowingFavorites && isOwnPage">
     <div class="posts-grid">
       <article
-        class="post-card"
         *ngFor="let post of favoritePosts"
+        class="post-item"
         (click)="goToPost(post)"
       >
-        <div class="post-content">
-          <h3 class="post-title">{{ post.title }}</h3>
-          <p class="post-text">{{ post.content }}</p>
-        </div>
-        <div class="post-meta">
-          <time class="post-date">{{ post.createdAt | date : "MM/dd" }}</time>
-        </div>
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.content }}</p>
+        <small>{{ post.createdAt | date:'yyyy-MM-dd HH:mm' }}</small>
       </article>
       <div *ngIf="favoritePosts.length === 0" class="empty-state">
-        <div class="empty-icon">🔖</div>
-        <p>還沒有收藏</p>
+        <p>尚無收藏貼文</p>
       </div>
     </div>
   </div>
@@ -106,5 +124,11 @@
   <div *ngIf="loading && !error" class="loading-state">
     <div class="loading-spinner"></div>
     <p>載入中...</p>
+  </div>
+
+  <!-- 照片上傳中的遮罩 -->
+  <div *ngIf="isUploadingPhoto" class="upload-overlay">
+    <div class="upload-spinner"></div>
+    <p>正在上傳照片...</p>
   </div>
 </div>

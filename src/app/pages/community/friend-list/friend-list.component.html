@@ -3,7 +3,22 @@
   <ul>
     <li *ngFor="let friend of friends">
       <span>{{ friend.name }}</span>
-      <button (click)="openChat.emit(friend.id)">聊天</button>
+      <button (click)="onFriendClick(friend.id)">聊天</button>
     </li>
   </ul>
 </div>
+
+<!-- 搜尋和加好友區塊 -->
+<div class="add-friend">
+  <input [(ngModel)]="searchQuery" placeholder="搜尋使用者" />
+  <button (click)="searchUsers()">搜尋</button>
+  <ul *ngIf="searchResults.length > 0">
+    <li *ngFor="let user of searchResults">
+      <span>{{ user.name }}</span>
+      <button (click)="sendFriendRequest(user.id)">加好友</button>
+    </li>
+  </ul>
+</div>
+
+<!-- 嵌入浮動聊天 -->
+<app-chat-floating #chatFloating></app-chat-floating>

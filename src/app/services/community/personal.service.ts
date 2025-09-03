@@ -6,11 +6,12 @@ import { tap, catchError } from 'rxjs/operators';
 
 export interface CommunityProfileDto {
   memberId: number;
-  name: string;
-  photoUrl: string;
-  bio: string;
+  name: string | null;
+  photoUrl: string | null;
+  bio: string | null;
   followers: number;
   isFollowing: boolean;
+  isFriend?: boolean; // 好友狀態
 }
 
 export interface UserPost {
@@ -46,11 +47,12 @@ export class PersonalService {
 
   /** 切換追蹤 */
   toggleFollow(memberId: number): Observable<any> {
-    const url = `${this.profileUrl}/${memberId}/toggle-follow`;
-    return this.http.post<any>(url, {}, { headers: this.getAuthHeaders() }).pipe(
-      tap((result) => console.log('追蹤結果:', result)),
+    const headers = this.getAuthHeaders(); // 修正方法名稱
+
+    // 修正為正確的後端路徑
+    return this.http.post(`${this.profileUrl}/${memberId}/toggle-follow`, {}, { headers }).pipe(
       catchError((error) => {
-        console.error('切換追蹤失敗:', error);
+        console.error('追蹤操作失敗:', error);
         return throwError(() => error);
       })
     );
@@ -92,5 +94,29 @@ export class PersonalService {
     return this.http.post<UserPost[]>(`${this.postsUrl}/postsByIds`, postIds, {
       headers: this.getAuthHeaders(),
     });
+  }
+
+  /** 上傳使用者照片 */
+  uploadUserPhoto(memberId: number, file: File): Observable<{ photoUrl: string }> {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    // 只設定 Authorization 標頭，不要設定 Content-Type
+    const token = localStorage.getItem('jwtToken') || '';
+    const headers = new HttpHeaders({
+      Authorization: token ? `Bearer ${token}` : '',
+      // 不要設定 Content-Type，讓瀏覽器自動處理
+    });
+
+    return this.http.post<{ photoUrl: string }>(
+      `${this.profileUrl}/${memberId}/upload-photo`,
+      formData,
+      { headers }
+    ).pipe(
+      catchError((error) => {
+        console.error('照片上傳失敗:', error);
+        return throwError(() => error);
+      })
+    );
   }
 }

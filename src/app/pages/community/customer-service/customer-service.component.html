@@ -29,6 +29,14 @@
       >
         送出
       </button>
+      <!-- 新增轉人工按鈕 -->
+      <button
+        class="transfer-btn"
+        (click)="transferToHuman()"
+        [disabled]="isAIResponding"
+      >
+        轉人工客服
+      </button>
     </div>
   </div>
 </div>

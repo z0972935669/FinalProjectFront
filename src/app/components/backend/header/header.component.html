@@ -149,25 +149,34 @@
           aria-controls="submenu-5">
           <span class="d-flex align-items-center gap-2">
             <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-            <i class="bi bi-journal-text fs-4"></i>
+            <i class="bi bi-layout-text-sidebar-reverse fs-4"></i>
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-chat-left-text" viewBox="0 0 16 16">
+              <path
+                d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+              <path
+                d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6m0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
+            </svg> -->
             <span class="nav-link-text fs-5 fw-bold">文章管理</span>
           </span>
           <span class="submenu-arrow"><i class="bi bi-chevron-down"></i></span><!--//submenu-arrow-->
         </button><!--//nav-link-->
         <div id="submenu-5" class="collapse submenu submenu-5" data-bs-parent="#app-nav-main">
           <ul class="submenu-list list-unstyled ms-4">
-            <li class="submenu-item"><a class="submenu-link fs-6" routerLink="/erp/board-management"
-                routerLinkActive="active">看板管理</a></li>
-            <li class="submenu-item"><a class="submenu-link fs-6" routerLink="/erp/article-management"
-                routerLinkActive="active">文章管理</a>
-            </li>
-            <li class="submenu-item"><a class="submenu-link fs-6" routerLink="/erp/report-management"
-                routerLinkActive="active">檢舉管理</a>
-            </li>
+            <li class="submenu-item"><a class="submenu-link" routerLink="/erp/board-management">看板管理</a></li>
+            <li class="submenu-item"><a class="submenu-link" routerLink="/erp/post-management">文章管理</a></li>
+            <li class="submenu-item"><a class="submenu-link" routerLink="/erp/report-management">檢舉管理</a></li>
           </ul>
         </div>
       </li><!--//nav-item-->
-      <!-- 文章管理 -->
+      <!-- 客服管理 -->
+       <li class="nav-item">
+        <a class="nav-link w-100 text-start d-flex align-items-center gap-2" routerLink="/erp/customer-service-management"
+           routerLinkActive="active">
+          <i class="bi bi-headset fs-4"></i>
+          <span class="nav-link-text fs-5 fw-bold">客服管理</span>
+        </a>
+      </li><!--//nav-item-->
     </ul>
 
     <!-- 側欄底部：登出 -->

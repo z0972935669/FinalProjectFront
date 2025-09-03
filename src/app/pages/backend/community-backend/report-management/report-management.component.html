@@ -1,0 +1,412 @@
+<div class="app-wrapper">
+  <div class="app-content pt-3 p-md-3 p-lg-4">
+    <div class="container-xl">
+      <!-- 標題 -->
+      <div class="mb-4">
+        <h1 class="app-page-title mb-3">檢舉管理</h1>
+        <!-- 篩選器 -->
+        <div class="d-flex align-items-center flex-wrap">
+          <!-- 狀態篩選 -->
+          <div class="me-3 mb-2">
+            <select
+              class="form-select"
+              [(ngModel)]="status"
+              (change)="onFilterChange()"
+            >
+              <option value="">全部狀態</option>
+              <option value="待處理">待處理</option>
+              <option value="通過">通過</option>
+              <option value="駁回">駁回</option>
+            </select>
+          </div>
+          <!-- 內容類型篩選 -->
+          <div class="me-3 mb-2">
+            <select
+              class="form-select"
+              [(ngModel)]="contentType"
+              (change)="onFilterChange()"
+            >
+              <option value="">全部類型</option>
+              <option value="Post">文章</option>
+              <option value="Reply">回覆</option>
+            </select>
+          </div>
+          <!-- 原因類型篩選 -->
+          <div class="me-3 mb-2">
+            <select
+              class="form-select"
+              [(ngModel)]="reasonType"
+              (change)="onFilterChange()"
+            >
+              <option value="">全部原因</option>
+              <option value="我就是不喜歡">我就是不喜歡</option>
+              <option value="霸凌或擾人的聯繫">霸凌或擾人的聯繫</option>
+              <option value="自殺、自殘或飲食失調">自殺、自殘或飲食失調</option>
+              <option value="暴力、仇恨或剝削">暴力、仇恨或剝削</option>
+              <option value="販售或推廣管制商品">販售或推廣管制商品</option>
+              <option value="裸露或性行為">裸露或性行為</option>
+              <option value="詐騙、詐欺或垃圾訊息">詐騙、詐欺或垃圾訊息</option>
+              <option value="不實資訊">不實資訊</option>
+              <option value="智慧財產權">智慧財產權</option>
+            </select>
+          </div>
+          <!-- 日期篩選 -->
+          <div class="me-3 mb-2">
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="fromDate"
+              (change)="onFilterChange()"
+              placeholder="開始日期"
+            />
+          </div>
+          <div class="me-3 mb-2">
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="toDate"
+              (change)="onFilterChange()"
+              placeholder="結束日期"
+            />
+          </div>
+          <!-- 搜尋框 -->
+          <div class="search-box">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="搜尋檢舉 ID 或內容..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表 -->
+      <div class="report-list">
+        <div
+          class="report-item d-flex align-items-center p-3 mb-2 shadow-sm rounded"
+          *ngFor="let report of reports"
+        >
+          <div class="report-info flex-grow-1 d-flex align-items-center">
+            <span class="report-type me-3"
+              >類型: {{ report.reportedContentType }}</span
+            >
+            <span class="report-reason me-3"
+              >原因: {{ report.reasonType }}</span
+            >
+            <span class="report-time me-3"
+              >檢舉時間:
+              {{ report.reportedAt | date : "yyyy-MM-dd HH:mm" }}</span
+            >
+            <span class="report-status ms-auto">
+              <span
+                class="badge"
+                [ngClass]="
+                  report.reportStatus === '待處理'
+                    ? 'bg-warning'
+                    : report.reportStatus === '通過'
+                    ? 'bg-success'
+                    : 'bg-secondary'
+                "
+              >
+                {{ report.reportStatus }}
+              </span>
+            </span>
+          </div>
+          <div class="report-actions">
+            <button
+              class="btn btn-sm btn-primary me-2"
+              (click)="viewReport(report.reportId)"
+            >
+              查看詳情
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="reports.length === 0" class="text-center text-muted py-5">
+          目前沒有任何檢舉資料
+        </div>
+      </div>
+
+      <!-- 分頁 -->
+      <div
+        class="pagination-container d-flex justify-content-center mt-4"
+        *ngIf="totalPages > 1"
+      >
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a
+                class="page-link"
+                href="#"
+                (click)="prevPage(); $event.preventDefault()"
+                >上一頁</a
+              >
+            </li>
+            <li
+              class="page-item"
+              *ngFor="let page of getPageNumbers()"
+              [class.active]="page === currentPage"
+            >
+              <a
+                class="page-link"
+                href="#"
+                (click)="goToPage(page); $event.preventDefault()"
+                >{{ page }}</a
+              >
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a
+                class="page-link"
+                href="#"
+                (click)="nextPage(); $event.preventDefault()"
+                >下一頁</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 檢舉詳情模態框 -->
+<div
+  class="modal fade"
+  id="reportDetailModal"
+  tabindex="-1"
+  aria-labelledby="reportDetailModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" *ngIf="selectedReport">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportDetailModalLabel">檢舉詳情</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="hideReportDetailModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <!-- 只讀欄位 -->
+        <div class="mb-3">
+          <label class="form-label"><strong>檢舉編號:</strong></label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="selectedReport.reportId"
+            readonly
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label"><strong>被檢舉會員:</strong></label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="
+              selectedReport?.targetMemberName || '未知'
+            "
+            readonly
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label"><strong>檢舉日期:</strong></label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="selectedReport.reportedAt | date : 'yyyy-MM-dd HH:mm'"
+            readonly
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label"><strong>被檢舉類型:</strong></label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="selectedReport.reportedContentType"
+            readonly
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label"><strong>被檢舉原因:</strong></label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="selectedReport.reasonType"
+            readonly
+          />
+        </div>
+        <!-- 被檢舉內容 -->
+        <div class="mb-3">
+          <label class="form-label"><strong>被檢舉內容:</strong></label>
+          <div class="form-control"
+               style="height: auto; min-height: 100px; padding: 0.75rem; background-color: #f8f9fa;"
+               readonly
+               [innerHTML]="formatContent(selectedReport?.reportedContent)">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label"><strong>狀態:</strong></label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="selectedReport.reportStatus"
+            readonly
+          />
+        </div>
+        <!-- 下拉選單 -->
+        <div class="mb-3">
+          <label class="form-label"><strong>採取行動:</strong></label>
+          <select class="form-select" [(ngModel)]="selectedAction">
+            <option value="待處理">待處理</option>
+            <option value="已結案">已結案</option>
+            <option value="已駁回">已駁回</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="hideReportDetailModal()"
+        >
+          取消
+        </button>
+        <button type="button" class="btn btn-info me-2" (click)="viewContent()">
+          查看文章
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="submitAction()"
+          [disabled]="isSubmitting"
+        >
+          {{ isSubmitting ? "提交中..." : "提交" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增：內容模態框 -->
+<div class="modal fade" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">  <!-- 調整為 modal-xl 以容納更多內容 -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="contentModalLabel">檢舉內容詳情</h5>
+        <button type="button" class="btn-close" (click)="hideContentModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="isLoadingContent" class="text-center py-5">
+          <p>載入中...</p>
+        </div>
+        <div *ngIf="!isLoadingContent && selectedPost">
+          <!-- 類似 post.component 的文章卡片 -->
+          <div class="card post-card shadow-sm p-4 mb-4">
+            <div class="post-header mb-3">
+              <h1 class="post-title">{{ selectedPost.title }}</h1>
+              <div class="post-meta text-muted">
+                <span>作者：{{ selectedPost.author }}</span> |
+                <span>{{ selectedPost.createdAt | date : "yyyy-MM-dd HH:mm" }}</span>
+              </div>
+            </div>
+            <div class="post-content mb-4"
+                 [ngClass]="{'highlighted': selectedReport?.reportedContentType === 'Post'}"
+                 [innerHTML]="formatContent(selectedPost.content)">
+            </div>  <!-- 使用 innerHTML 顯示內容 -->
+
+            <!-- 附件圖片 -->
+            <div *ngIf="selectedPost.attachments?.length" class="post-attachments mb-4">
+              <div class="attachments-container d-flex flex-wrap gap-2">
+                <div *ngFor="let file of selectedPost.attachments" class="attachment-item">
+                  <img
+                    [src]="file"
+                    alt="附件圖片"
+                    class="attachment-img cursor-pointer"
+                    (click)="openAttachmentPreview(file)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 互動按鈕（可選，參考 post.component） -->
+            <div class="post-actions d-flex flex-wrap align-items-center mt-3 pt-3 border-top">
+              <button class="btn" [ngClass]="selectedPost?.postStatus === 'Active' ? 'btn-danger' : 'btn-success'" (click)="selectedPost?.postStatus === 'Active' ? deletePost() : restorePost()">
+                {{ selectedPost?.postStatus === 'Active' ? '刪除文章' : '恢復文章' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 回覆區域 -->
+          <div class="comments-section mb-4" *ngIf="selectedReplies.length > 0">
+            <h4 class="mb-3">回覆</h4>
+            <div *ngFor="let reply of selectedReplies" class="card comment-item mb-4 p-3">
+              <div class="d-flex align-items-center mb-2">
+                <div class="floor-tag badge bg-primary me-3">{{ reply.floorTag || "" }}</div>
+                <div class="ms-3">
+                  <strong>{{ reply.name || "訪客" }}</strong>
+                  <div class="text-muted small">{{ reply.createdAt | date : "yyyy-MM-dd HH:mm" }}</div>
+                </div>
+              </div>
+              <div class="comment-content mb-3"
+                   [ngClass]="{'highlighted': reply.replyID === selectedReport?.replyId}"
+                   [innerHTML]="formatContent(reply.content)">
+              </div>
+              <div class="comment-actions mb-2">
+                <button class="btn" [ngClass]="reply.replieStatus === 'Active' ? 'btn-danger' : 'btn-success'" (click)="reply.replieStatus === 'Active' ? deleteReply(reply.replyID) : restoreReply(reply.replyID)">
+                  {{ reply.replieStatus === 'Active' ? '刪除回覆' : '恢復回覆' }}
+                </button>
+              </div>
+              <!-- 新增：遞歸顯示子回覆 -->
+              <div *ngIf="reply.replies?.length > 0" class="replies ms-4 mt-3">
+                <div *ngFor="let subReply of reply.replies" class="card sub-comment-item mb-3 p-3">
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="floor-tag badge bg-secondary me-3">{{ subReply.floorTag || "" }}</div>
+                    <div class="ms-3">
+                      <strong>{{ subReply.name || "訪客" }}</strong>
+                      <div class="text-muted small">{{ subReply.createdAt | date : "yyyy-MM-dd HH:mm" }}</div>
+                    </div>
+                  </div>
+                  <div class="comment-content mb-3"
+                       [ngClass]="{'highlighted': subReply.replyID === selectedReport?.replyId}"
+                       [innerHTML]="formatContent(subReply.content)">
+                  </div>
+                  <div class="comment-actions mb-2">
+                    <button class="btn" [ngClass]="subReply.replieStatus === 'Active' ? 'btn-danger' : 'btn-success'" (click)="subReply.replieStatus === 'Active' ? deleteReply(subReply.replyID) : restoreReply(subReply.replyID)">
+                      {{ subReply.replieStatus === 'Active' ? '刪除回覆' : '恢復回覆' }}
+                    </button>
+                  </div>
+                  <!-- 如果子回覆還有子回覆，可以繼續遞歸 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!isLoadingContent && !selectedPost" class="text-center py-5">
+          <p>無法載入內容。</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="hideContentModal()">關閉</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 可選：新增附件預覽模態框 -->
+<div class="modal fade" id="attachmentPreviewModal" tabindex="-1" aria-labelledby="attachmentPreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attachmentPreviewModalLabel">附件預覽</h5>
+        <button type="button" class="btn-close" (click)="closeAttachmentPreview()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img *ngIf="previewAttachmentUrl" [src]="previewAttachmentUrl" alt="附件預覽" style="max-width: 100%; max-height: 500px;" />
+      </div>
+    </div>
+  </div>
+</div>
