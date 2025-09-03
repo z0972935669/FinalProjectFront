@@ -12,6 +12,7 @@ import {
   EventTemplateDto,
   EventRegistrationVM,
   RegistrationCreateDto,
+  EventCouponDto,
 } from '../../../interfaces/event/event-list';
 import {
   MemberInfo,
@@ -20,12 +21,14 @@ import {
 import {
   catchError,
   finalize,
+  firstValueFrom,
   of,
   Subject,
   switchMap,
   takeUntil,
   tap,
 } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   standalone: true,
@@ -49,12 +52,23 @@ export class EventRegistrationComponent {
   loading = true;
   error = '';
   event?: EventRegistrationVM;
-  submitting = false;
+  submitting = false; //這兩個差在哪裡????????????????????
+  submitted = false; //這兩個差在哪裡????????????????????
   private destroy$ = new Subject<void>();
+  //使用票卷會用到的欄位
+  couponModalOpen = false;
+  allCoupons: EventCouponDto[] = [];
+  availableCoupons: EventCouponDto[] = [];
+  selectedCoupon: EventCouponDto | null = null;
+  private baseAmountDue = 0;
+  memberId = 0;
+  //導回上一頁紀錄
+  private returnTo = '/show/home'; // 預設
 
   form = this.fb.group({
     //有需填寫的欄位才需要的欄位對應設定
     batchID: [''], //告訴表單：這個欄位的初始值是多少。
+    eventSlug: [''],
     title: [''],
     date: [''], //顯示活動時間
     registrationID: [0],
@@ -67,10 +81,13 @@ export class EventRegistrationComponent {
     currentStatus: [0], //0=未繳、1=已繳、9=失敗
     internalRemarks: [''],
 
+    couponRuleId: this.fb.control<number | null>(null),
+    discountAmount: this.fb.control<number>(0),
+
     agree: [false, Validators.requiredTrue],
     payment: this.fb.group({
-      paymentMethod: ['CASH', Validators.required],
-      invoiceType: ['二聯式', Validators.required],
+      paymentMethod: ['CASH'],
+      invoiceType: ['紙本'],
       invoiceTitle: [''],
       taxId: ['', Validators.pattern(/^\d{8}$/)],
       eInvoiceCarrier: [''],
@@ -107,7 +124,7 @@ export class EventRegistrationComponent {
     // 1) 取 batchId（從 slug 抓開頭數字）
     const raw = this.route.snapshot.paramMap.get('slug') ?? ''; //snapshot 抓取參數  paramMap.get('slug') 看路由那邊的設定
     const batchId = Number(raw.match(/^\d+/)?.[0]);
-
+    const state = window.history.state as { returnTo?: string };
     if (!Number.isFinite(batchId)) {
       this.error = '缺少活動編號';
       this.loading = false;
@@ -120,6 +137,7 @@ export class EventRegistrationComponent {
       .pipe(
         tap((me) => {
           this.me = me;
+          this.memberId = Number(me?.memberId ?? 0);
           console.log('✅ 登入者資料', me);
         }), // tap記錄到 this.me、回填表單
         switchMap(
@@ -132,6 +150,7 @@ export class EventRegistrationComponent {
                 this.event = vm;
                 this.form.patchValue({
                   batchID: vm.batchID,
+                  eventSlug: vm.eventSlug,
                   title: vm.title,
                   date: vm.date,
                   registrationID: vm.registrationID,
@@ -144,6 +163,9 @@ export class EventRegistrationComponent {
                   currentStatus: vm.currentStatus,
                   internalRemarks: vm.internalRemarks ?? '',
                 });
+                this.baseAmountDue = Number(
+                  this.form.get('amountDue')?.value ?? 0
+                );
               })
             )
         ),
@@ -164,6 +186,12 @@ export class EventRegistrationComponent {
         takeUntil(this.destroy$)
       )
       .subscribe();
+    // 優先使用從前頁帶來的 returnTo，否則用當前路由參數組回去
+    if (state?.returnTo) {
+      this.returnTo = state.returnTo;
+    } else if (raw && batchId) {
+      this.returnTo = `/show/event/${raw}/${batchId}`;
+    }
   }
   // 卸載監聽
   ngOnDestroy(): void {
@@ -193,6 +221,7 @@ export class EventRegistrationComponent {
     // console.log('所有資料', t);
     return {
       batchID: String(batchID),
+      eventSlug: t.eventSlug ?? '',
       title: t.eventName ?? '',
       registrationID: 0,
       registrationNum: '',
@@ -208,6 +237,12 @@ export class EventRegistrationComponent {
   }
 
   submit() {
+    this.submitted = true;
+    const payGroup = this.form.get('payment') as FormGroup;
+    const invoiceType = payGroup.get('invoiceType')?.value;
+    const carrier = payGroup.get('eInvoiceCarrier')?.value?.trim();
+    const method = this.form.get('payment.paymentMethod')?.value;
+    const amount = Number(this.form.get('amountDue')?.value ?? 0);
     // 先把 memberId 轉成 number
     const memberIdNum = Number(
       this.me?.memberId ?? this.me?.memberId ?? this.form.get('memberId')?.value
@@ -223,21 +258,21 @@ export class EventRegistrationComponent {
       alert('會員資料異常，請重新登入後再試。');
       return;
     }
+    if (method === 'LINEPAY' && invoiceType === '電子發票' && !carrier) {
+      alert('付款為 LINE Pay 且選擇電子發票時，必須填寫載具！');
+      return;
+    }
 
     //免費時，不檢查表單整體 invalid；非免費才檢查
     if (!this.isFree && this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    // 電子發票載具（付費且選電子發票才檢查）
-    const invType = this.form.get('payment.invoiceType')?.value;
-    if (
-      invType === '電子發票' &&
-      !this.form.get('payment.eInvoiceCarrier')?.value
-    ) {
-      this.form.get('payment.eInvoiceCarrier')?.setErrors({ required: true });
+    // 電子發票載具（檢查載具欄位是否填寫）0828
+    this.submitting = false;
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
-      return;
+      return; // 阻止送出，讓錯誤訊息顯示
     }
 
     this.submitting = true;
@@ -249,7 +284,7 @@ export class EventRegistrationComponent {
       amountDue: this.isFree ? 0 : Number(v.amountDue ?? 0),
       registrationDateTime: new Date().toISOString(),
       currentStatus: 1,
-      internalRemarks: (v.internalRemarks || '').trim() || null,
+      internalRemarks: v.couponRuleId != null ? String(v.couponRuleId) : null,
     };
 
     const payload: RegistrationCreateDto = this.isFree
@@ -269,8 +304,8 @@ export class EventRegistrationComponent {
         };
 
     // 若要走 LINEPAY，先開小視窗與鎖畫面（同一使用者點擊事件）
-    const method = this.form.get('payment.paymentMethod')?.value;
-    const amount = Number(this.form.get('amountDue')?.value ?? 0);
+    // const method = this.form.get('payment.paymentMethod')?.value;
+    // const amount = Number(this.form.get('amountDue')?.value ?? 0);
     if (method === 'LINEPAY' && amount > 0) {
       this.payWin = this.openPopupSkeleton();
     }
@@ -295,12 +330,19 @@ export class EventRegistrationComponent {
         this.uiBlocked = false;
         this.form.enable({ emitEvent: false });
         console.log('編號：' + res.registrationNum);
-        alert('報名成功！');
-
-        this.router.navigate(['../'], {
-          relativeTo: this.route,
-          queryParams: { reg: res.registrationNum }, // 可選：帶編號回去顯示提示
+        // alert('報名成功！');
+        Swal.fire({
+          icon: 'success',
+          title: '報名成功！',
+          text: '我們已經收到您的報名資訊',
+          confirmButtonText: '確定',
+          confirmButtonColor: '#6b4e3d', // 咖啡色按鈕（依你網站配色）
         });
+        // this.router.navigate(['../'], {
+        //   relativeTo: this.route,
+        //   queryParams: { reg: res.registrationNum }, // 可選：帶編號回去顯示提示
+        // });
+        this.router.navigateByUrl(this.returnTo, { replaceUrl: true });
       },
       error: (err) => {
         //若有開小視窗，關掉；解除鎖定
@@ -408,5 +450,83 @@ export class EventRegistrationComponent {
     const hh = String(d.getHours()).padStart(2, '0');
     const mm = String(d.getMinutes()).padStart(2, '0');
     return `${y}/${m}/${day} ${hh}:${mm}`;
+  }
+  //票卷調整
+  get amountDue(): number {
+    return Number(this.form.get('amountDue')?.value ?? 0);
+  }
+  get finalAmount(): number {
+    const base = this.baseAmountDue; // 原始金額
+    const discount = Number(this.form.get('discountAmount')?.value ?? 0);
+    return Math.max(0, base - discount);
+  }
+  // 取得折價券清單（用你的 service：getEventCoupon）
+  async loadCoupons() {
+    try {
+      const list = await firstValueFrom(
+        this.eventSvc.getEventCoupon(this.memberId)
+      );
+      const now = Date.now();
+
+      // 篩出「可使用」：啟用、未使用、在有效期內
+      this.allCoupons = (list ?? []) as EventCouponDto[];
+      this.availableCoupons = this.allCoupons.filter((c) => {
+        const status = +c.status,
+          used = +c.isUsed;
+        const s = new Date(c.validFrom).getTime();
+        const e = new Date(c.validTo).getTime();
+        return status === 1 && used === 0 && now >= s && now <= e;
+      });
+    } catch (e) {
+      console.error('loadCoupons error', e);
+    }
+  }
+
+  // 開窗 / 關窗
+  openCouponPicker() {
+    this.couponModalOpen = true;
+    // 第一次開窗時載入
+    if (this.allCoupons.length === 0) this.loadCoupons();
+  }
+  closeCouponPicker() {
+    this.couponModalOpen = false;
+  }
+
+  // 在彈窗中選定某張券（只暫存，不關窗）
+  pickCoupon(c: EventCouponDto) {
+    this.selectedCoupon = c;
+  }
+
+  // 套用至表單（關窗、並把資訊寫到表單可用欄位）
+  applyCoupon() {
+    if (this.selectedCoupon) {
+      const discount = this.selectedCoupon.amount ?? 0;
+      const ruleId = this.selectedCoupon.ruleId;
+      const newAmount = Math.max(0, (this.amountDue ?? 0) - discount);
+
+      this.form.get('amountDue')!.setValue(newAmount);
+
+      this.form
+        .get('internalRemarks')
+        ?.setValue(
+          `使用折價券 #${ruleId}：${this.selectedCoupon.ruleName}（-$${discount}）`
+        );
+      this.form.get('couponRuleId')?.setValue(ruleId);
+      this.form.get('discountAmount')?.setValue(discount);
+    } else {
+      this.form.get('internalRemarks')?.setValue('');
+      this.form.get('couponRuleId')?.setValue(null);
+      this.form.get('discountAmount')?.setValue(0);
+    }
+
+    this.couponModalOpen = false;
+  }
+
+  // 清除已選券
+  clearCoupon() {
+    this.selectedCoupon = null;
+    this.form.get('internalRemarks')?.setValue('');
+    this.form.get('couponRuleId')?.setValue(null);
+    this.form.get('discountAmount')?.setValue(0);
   }
 }

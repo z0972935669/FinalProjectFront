@@ -7,6 +7,7 @@
       class="form-control"
       style="max-width: 360px"
       placeholder="輸入活動名稱或報名編號搜尋"
+      [(ngModel)]="q"
     />
     <div class="ms-auto"></div>
     <ul class="nav nav-pills">
@@ -25,7 +26,7 @@
           [class.active]="tab() === 'completed'"
           (click)="tab.set('completed')"
         >
-          已參加完
+          已參加
         </button>
       </li>
       <li class="nav-item">
@@ -40,8 +41,12 @@
     </ul>
   </div>
 
+  <!-- 載入 / 錯誤 -->
+  <div *ngIf="loading()" class="text-muted">載入中…</div>
+  <div *ngIf="error()" class="text-danger">{{ error() }}</div>
+
   <!-- 列表 -->
-  <div class="card shadow-sm">
+  <div class="card shadow-sm" *ngIf="!loading() && !error()">
     <div class="table-responsive">
       <table class="table align-middle mb-0">
         <thead class="table-light">
@@ -55,21 +60,26 @@
         </thead>
         <tbody>
           <tr *ngFor="let r of viewRows()">
-            <td class="text-muted">{{ r.registrationNum }}</td>
-            <td>{{ r.eventName }}</td>
+            <td class="text-muted">
+              <div class="fw-semibold">{{ r.registrationNum }}</div>
+            </td>
             <td>
-              {{ r.startAt | date : "yyyy/MM/dd HH:mm" }} -
-              {{ r.endAt | date : "HH:mm" }}
+              {{ r.eventName }}
+            </td>
+            <td>
+              {{ r.startAt | date : "yyyy/MM/dd HH:mm" }}
             </td>
             <td class="text-center">
               <span [class]="badgeClass(r)">{{ statusLabel(r) }}</span>
             </td>
             <td class="text-center">
-              <a
+              <!-- 先用 registrationId；有需要再做詳情頁 -->
+              <button
                 class="btn btn-sm btn-outline-secondary"
-                [routerLink]="['/show/event', r.eventId]"
-                >檢視</a
+                (click)="viewDetail(r)"
               >
+                檢視
+              </button>
             </td>
           </tr>
 

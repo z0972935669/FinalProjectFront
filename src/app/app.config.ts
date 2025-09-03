@@ -2,7 +2,11 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import { AuthInterceptor } from './core/auth.interceptor';
 import { MemberService } from './services/member/member.service';
 
@@ -11,7 +15,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       // 可選：需要就打開
-      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'top',
+        anchorScrolling: 'enabled',
+      })
     ),
 
     // 讓 HttpClient 從 DI 讀取 class 攔截器

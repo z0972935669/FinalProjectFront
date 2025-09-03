@@ -27,7 +27,7 @@ import { MembermanagementComponent } from './pages/member/membermanagement/membe
 import { MemberInfoComponent } from './pages/member/member-info/member-info.component';
 import { MemberPasswordComponent } from './pages/member/member-password/member-password.component';
 import { MemberOrdersComponent } from './pages/member/member-orders/member-orders.component';
-import { MemberEventComponent } from './pages/member/member-event/member-event.component';
+import { MemberEventComponent } from './pages/member/member-event/member-event-list/member-event.component';
 import { LoginLogsComponent } from './pages/member/login-logs/login-logs.component';
 
 import { EventDetailComponent } from './pages/event/event-detail/event-detail.component';
@@ -85,6 +85,9 @@ import { CustomerServiceManagementComponent } from './pages/backend/community-ba
 import { RoomTableErpComponent } from './pages/backend/room-table-erp/room-table-erp.component';
 import { EmployeeforgotpasswordComponent } from './pages/backend/employeeforgotpassword/employeeforgotpassword.component';
 import { EmployeesetnewpasswordComponent } from './pages/backend/employeesetnewpassword/employeesetnewpassword.component';
+import { MemberCalendarComponent } from './pages/member/member-event/member-calendar/member-calendar.component';
+import { MemberActivityShellComponent } from './pages/member/member-event/member-activity-shell.component';
+import { MemberEventCouponComponent } from './pages/member/member-event/member-event-coupon/member-event-coupon.component';
 
 export const routes: Routes = [
   // 根目錄導向前台
@@ -108,16 +111,16 @@ export const routes: Routes = [
       {
         path: 'forgot-password',
         loadComponent: () =>
-          import('./pages/account/forgot-password/forgot-password.component').then(
-            (m) => m.ForgotPasswordComponent
-          ),
+          import(
+            './pages/account/forgot-password/forgot-password.component'
+          ).then((m) => m.ForgotPasswordComponent),
       },
       {
         path: 'reset-password',
         loadComponent: () =>
-          import('./pages/account/reset-password/reset-password.component').then(
-            (m) => m.ResetPasswordComponent
-          ),
+          import(
+            './pages/account/reset-password/reset-password.component'
+          ).then((m) => m.ResetPasswordComponent),
       },
 
       {
@@ -128,7 +131,22 @@ export const routes: Routes = [
           { path: 'info', component: MemberInfoComponent },
           { path: 'password', component: MemberPasswordComponent },
           { path: 'orders', component: MemberOrdersComponent },
-          { path: 'event', component: MemberEventComponent },
+          {
+            path: '',
+            component: MemberActivityShellComponent,
+            children: [
+              { path: 'event', component: MemberEventComponent }, // 我的活動
+              {
+                path: 'member_event_calendar',
+                component: MemberCalendarComponent,
+              }, // 行事曆（沿用你的底線）
+              // 折價卷先做個頁面或 lazy component
+              {
+                path: 'member_event_coupon',
+                component: MemberEventCouponComponent,
+              },
+            ],
+          },
           { path: 'room', component: MemberRoomComponent },
           { path: 'community', component: PersonalCommunityComponent },
           { path: 'login-logs', component: LoginLogsComponent },
@@ -146,9 +164,11 @@ export const routes: Routes = [
       { path: 'chat', component: ChatPageComponent }, // 聊天
 
       { path: 'event', component: EventListComponent },
-      { path: 'event/calendar', component: EventCalendarComponent }, // 修正拼字
-      { path: 'event/:slug', component: EventDetailComponent },
+      { path: 'event/calendar', component: EventCalendarComponent },
+
       { path: 'event/:slug/register', component: EventRegistrationComponent },
+      { path: 'event/:slug/:batchId', component: EventDetailComponent },
+      // { path: 'event/:slug', component: EventDetailComponent },
 
       { path: 'room-list', component: RoomListComponent },
       { path: 'room-detail/:id', component: RoomDetailComponent },
@@ -182,21 +202,65 @@ export const routes: Routes = [
         canActivateChild: [employeeAuthGuard],
         children: [
           { path: '', redirectTo: 'employeehome', pathMatch: 'full' },
-          { path: 'employeehome', component: EmployeehomeComponent, title: '員工首頁' },
+          {
+            path: 'employeehome',
+            component: EmployeehomeComponent,
+            title: '員工首頁',
+          },
 
           // 物料管理
-          { path: 'supplieslist', component: SupplieslistComponent, title: '物品列表' },
-          { path: 'suppliespurchasinglist', component: SuppliespurchasinglistComponent, title: '進貨單' },
-          { path: 'suppliessaleslist', component: SuppliessaleslistComponent, title: '銷貨單' },
-          { path: 'transferlist', component: TransferlistComponent, title: '轉倉單' },
-          { path: 'suppliessupplierlist', component: SuppliessupplierlistComponent, title: '供應商列表' },
+          {
+            path: 'supplieslist',
+            component: SupplieslistComponent,
+            title: '物品列表',
+          },
+          {
+            path: 'suppliespurchasinglist',
+            component: SuppliespurchasinglistComponent,
+            title: '進貨單',
+          },
+          {
+            path: 'suppliessaleslist',
+            component: SuppliessaleslistComponent,
+            title: '銷貨單',
+          },
+          {
+            path: 'transferlist',
+            component: TransferlistComponent,
+            title: '轉倉單',
+          },
+          {
+            path: 'suppliessupplierlist',
+            component: SuppliessupplierlistComponent,
+            title: '供應商列表',
+          },
 
           // 設備
-          { path: 'equipmentlist', component: EquipmentlistComponent, title: '設備列表' },
-          { path: 'equipmentpurchasinglist', component: EquipmentpurchasinglistComponent, title: '購置單' },
-          { path: 'equipmentrentlist', component: EquipmentrentlistComponent, title: '借出單' },
-          { path: 'equipmentmaintenancelist', component: EquipmentmaintenancelistComponent, title: '檢修單' },
-          { path: 'equipmentsupplierlist', component: EquipmentsupplierlistComponent, title: '供應商列表' },
+          {
+            path: 'equipmentlist',
+            component: EquipmentlistComponent,
+            title: '設備列表',
+          },
+          {
+            path: 'equipmentpurchasinglist',
+            component: EquipmentpurchasinglistComponent,
+            title: '購置單',
+          },
+          {
+            path: 'equipmentrentlist',
+            component: EquipmentrentlistComponent,
+            title: '借出單',
+          },
+          {
+            path: 'equipmentmaintenancelist',
+            component: EquipmentmaintenancelistComponent,
+            title: '檢修單',
+          },
+          {
+            path: 'equipmentsupplierlist',
+            component: EquipmentsupplierlistComponent,
+            title: '供應商列表',
+          },
 
           // 員工管理
           { path: 'employeelist', component: EmployeelistComponent, title: '員工列表' },

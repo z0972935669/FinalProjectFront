@@ -108,13 +108,8 @@ export class EventListComponent implements OnInit {
         ? new Date(upcoming.eventDateTimeEnd)
         : null;
 
-      // ✅ 從最近梯次抓 batchId（大小寫容錯）
-      const batchIdValue =
-        (upcoming as any)?.batchId ??
-        (upcoming as any)?.BatchId ??
-        (upcoming as any)?.batchID ??
-        (upcoming as any)?.eventBatchID ??
-        (upcoming as any)?.eventBatchId ??
+      const batchID =
+        (upcoming as any)?.batchId ?? //和後端api對應
         null;
 
       const durationText =
@@ -126,7 +121,8 @@ export class EventListComponent implements OnInit {
 
       const item: EventList = {
         id: String(t.eventID ?? t.eventId ?? t.id ?? ''),
-        batchID: batchIdValue != null ? String(batchIdValue) : '', // ✅ 這裡塞好
+        eventSlug: t.eventSlug ?? '',
+        batchID,
         imageUrl: t.coverImageUrl ?? 'assets/img/event/placeholder.jpg',
         title: t.eventName ?? t.title ?? '',
         subtitle: t.subtitle ?? '',
@@ -142,7 +138,10 @@ export class EventListComponent implements OnInit {
       return item;
     });
   }
-
+  buildDetailLink(item: { eventSlug: string; batchID: number }) {
+    console.log('Slug有抓到:' + item.eventSlug + 'id有抓到:' + item.batchID);
+    return ['/show/event', item.eventSlug, item.batchID];
+  }
   private fmtDate(d: Date): string {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');

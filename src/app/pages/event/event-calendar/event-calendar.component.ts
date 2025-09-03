@@ -11,13 +11,28 @@ import {
   FullCalendarModule,
   FullCalendarComponent,
 } from '@fullcalendar/angular';
-import { CalendarOptions, DatesSetArg, EventInput } from '@fullcalendar/core';
+import {
+  CalendarOptions,
+  DatesSetArg,
+  EventClickArg,
+  EventInput,
+} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import zhTw from '@fullcalendar/core/locales/zh-tw';
 
 import { EventService } from '../../../services/event/event.service';
-import { EventTemplateDto } from '../../../interfaces/event/event-list';
+import {
+  EventTemplateDto,
+  EventBatchDto,
+} from '../../../interfaces/event/event-list';
+//月曆使用
+type TemplateCompat = EventTemplateDto & { eventBatches?: EventBatchDto[] };
+
+// 支援 batchId / BatchID 與可選 end
+type BatchCompat = EventBatchDto & {
+  batchId?: number | string; //api的
+};
 
 @Component({
   standalone: true,
@@ -25,81 +40,106 @@ import { EventTemplateDto } from '../../../interfaces/event/event-list';
   imports: [CommonModule, FullCalendarModule],
   templateUrl: './event-calendar.component.html',
   styleUrls: ['./event-calendar.component.scss'],
-  encapsulation: ViewEncapsulation.None, // ★ 讓 .fc 樣式生效
+  // 讓 .fc 樣式生效 讓angular預設的樣式可以被蓋過去
+  encapsulation: ViewEncapsulation.None,
 })
 export class EventCalendarComponent implements AfterViewInit {
-  @ViewChild('fc') fc!: FullCalendarComponent;
-  heroImgSrc = ''; // 目前橫幅圖
-  fallbackHero = '/assets/img/event/月份/8月.png'; // 沒圖時的備用
+  @ViewChild('fc') fc!: FullCalendarComponent; //和畫面細節|!: 表示「一定不會是 null」。
+  heroImgSrc = '';
+  fallbackHero = '/assets/img/event/月份/9月.png'; //如果主要橫幅圖失敗，就顯示這張後備圖片。
+  //  calendarTitle = '';//用來存放日曆標題（例如「2025 年 9 月」），可在頁面上顯示。
 
-  calendarTitle = '';
+  constructor(private eventSvc: EventService, private router: Router) {
+    //呼叫 API
+    this.loadEvents();
+  }
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
-    headerToolbar: false as any, // ★ 隱藏預設工具列，改用我們的橫幅按鈕
+    headerToolbar: false as any,
     locales: [zhTw],
     locale: 'zh-tw',
     datesSet: (arg) => this.onDatesSet(arg),
     events: [],
-    eventClick: (info) => {
-      const id = info.event.extendedProps['eventId'];
-      if (id) this.router.navigate(['/show/event', id]);
+    // 點選月曆
+    eventClick: (arg: EventClickArg) => {
+      const slug = (arg.event.extendedProps as any).eventSlug;
+      const raw = (arg.event.extendedProps as any).batchID;
+      const batchID = Number(raw);
+
+      if (!slug) {
+        console.warn('⚠️ 缺 slug 無法導向', { slug });
+        return;
+      } else if (!batchID) {
+        console.warn('⚠️ 缺batchID，無法導向', { batchID });
+        return;
+      }
+      this.router.navigate(['/show/event', slug, batchID]); // ← 絕對路徑
     },
   };
 
-  constructor(private eventSvc: EventService, private router: Router) {
-    this.loadEvents();
-  }
-
   ngAfterViewInit() {
-    this.updateTitle();
+    //月曆載入
     const api = this.fc.getApi();
-    this.updateHeroByCalendar(api);
-  }
-
-  private updateTitle() {
-    const api = this.fc?.getApi();
-    if (api) this.calendarTitle = api.view.title;
+    this.updateHeroByCalendar(api); //根據月份換圖片
   }
 
   nav(dir: 'prev' | 'next' | 'today') {
+    //FullCalendar 的 API 裡固定用法
+    //切換月份
     const api = this.fc.getApi();
     api[dir]();
-    this.updateTitle();
   }
 
   private loadEvents() {
     this.eventSvc.getEventTemplates().subscribe({
-      next: (data: EventTemplateDto[]) => {
-        const events: EventInput[] = data.flatMap((t) =>
-          (t.batches ?? t.eventBatches ?? []).map((b) => ({
-            id: `${t.eventID}-${b.batchID}`,
-            title: t.eventName,
-            start: b.eventDateTimeStart,
-            end: b.eventDateTimeEnd ?? undefined,
-            allDay: true,
-            extendedProps: { eventId: t.eventID },
-          }))
-        );
-        this.calendarOptions = { ...this.calendarOptions, events };
+      // next: (data) => { ... },      // ✅ 成功時
+      // error: (err) => { ... },      // ❌ 失敗時
+      // complete: () => { ... }       // ✔️ 結束時
+
+      next: (list: EventTemplateDto[]) => {
+        const events: EventInput[] = (list as TemplateCompat[]).flatMap((t) => {
+          // 先把批次陣列拿出來
+          const batches: BatchCompat[] =
+            (t.eventBatches as BatchCompat[] | undefined) ?? [];
+          const eventSlug = t.eventSlug ?? '';
+          return batches.map((b) => {
+            const batchID = b.batchId ?? null;
+            console.log('eventSlug=' + eventSlug + 'batchID' + batchID);
+            const ev: EventInput = {
+              title: t.eventName ?? '(未命名活動)',
+              start: b.eventDateTimeStart, // 建議用 ISO 字串
+              allDay: true,
+              extendedProps: { eventSlug, batchID },
+            };
+            if (batchID != null) {
+              ev.id = String(batchID);
+            }
+            return ev;
+          });
+        });
+
+        this.calendarOptions = { ...this.calendarOptions, events }; //將撈出的資料攤開後回傳
       },
-      error: (err) => console.error('[Calendar] load error', err),
+      error: (err) => console.error('[Calendar] 讀取錯誤', err),
     });
   }
+
+  //只要日曆顯示的「日期範圍」變動（例如切換到下個月 / 回今天），就會觸發。
+  //參數 arg: DatesSetArg 會包含目前視圖 (view)、日曆物件 (calendar)、日期範圍等資訊。
   private onDatesSet(arg: DatesSetArg) {
-    // 使用 FullCalendar 的 API 取得「目前視圖的焦點日期」
     this.updateHeroByCalendar(arg.view.calendar);
   }
 
   private updateHeroByCalendar(cal: any) {
-    const d = cal.getDate(); // 例如 2025-09-01T...
+    const d = cal.getDate(); //焦點日期 判斷你目前在的頁面在哪裡
     const m = d.getMonth() + 1; // 1..12
     this.heroImgSrc = this.monthImage(m);
   }
 
   private monthImage(m: number): string {
-    // 路徑對應你的 assets 目錄：/assets/img/event/月份/8月.png
     return `/assets/img/event/月份/${m}月.png`;
   }
+  //當天日期是套件自己抓取的 程式碼中無顯示
 }

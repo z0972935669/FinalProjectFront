@@ -15,17 +15,18 @@
   }
 
   .room-item {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     cursor: pointer;
     background: #f5f5f5;
     border-radius: 8px;
     width: 90%; // 略小於 slide 寬度，留間距
     height: 100%; // 保持高度一致
+    border: 2px solid transparent; // 預設透明邊框，避免 hover 時撐開
 
     &:hover {
       transform: translateY(-5px);
       box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
-      border: 2px solid #f7eea2;
+      border-color: #f7eea2; // 只變換顏色，不改變大小
     }
 
     .room-image {
@@ -65,6 +66,7 @@
       }
     }
   }
+
 
   .swiper-button-next,
   .swiper-button-prev {
