@@ -33,6 +33,13 @@ export class SuppliespurchasinglistComponent {
   selectedCategoryId: number | null = null;
   selectedSupplierId: number | null = null;
 
+  searchKeyword: string = '';
+  // 分頁
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 0;
+  totalCount: number = 0;
+
   constructor(private suppliesPurchasingService: SuppliesPurchasingService,
     private suppliesCategoryService: SuppliesCategoryService, private suppliesSupplierService: SuppliesSupplierService, private suppliesListService: SuppliesListService, private suppliesDateService: SuppliesDateService, private http: HttpClient) { }
 
@@ -61,6 +68,47 @@ export class SuppliespurchasinglistComponent {
     // 限制手動輸入的有效期限
     const now = new Date();
     this.today = now.toISOString().split('T')[0]; // 格式為 "YYYY-MM-DD"
+
+    this.loadPurchasingOrders();
+  }
+
+  // 從後端載入分頁資料
+  loadPurchasingOrders(page: number = 1) {
+    this.currentPage = page;
+    this.suppliesPurchasingService
+      .searchPurchasingOrders(this.searchKeyword, this.currentPage, this.pageSize)
+      .subscribe(res => {
+        this.suppliesPurchasing = res.data;
+        this.totalCount = res.totalCount;
+        this.totalPages = res.totalPages;
+      });
+  }
+
+
+  // 查詢
+  searchPurchasingOrders() {
+    this.loadPurchasingOrders(1);
+  }
+
+  // 換頁
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.loadPurchasingOrders(page);
+  }
+
+  // 動態頁碼
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    let start = Math.max(1, this.currentPage - 2);
+    let end = Math.min(this.totalPages, this.currentPage + 2);
+
+    if (end - start < 4) {
+      if (start === 1) end = Math.min(5, this.totalPages);
+      else if (end === this.totalPages) start = Math.max(1, this.totalPages - 4);
+    }
+
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
   }
 
   newPurchasing: Isuppliespurchasing = {
@@ -96,7 +144,9 @@ export class SuppliespurchasinglistComponent {
       suppliesProductId: null,
       quantityOfPurchasing: null,
       filteredSuppliers: [],
-      filteredProducts: []
+      filteredProducts: [],
+      expiryDate: null,
+      manualExpiryInput: false
     });
   }
 
@@ -111,61 +161,11 @@ export class SuppliespurchasinglistComponent {
   resetAddPurchasingModal() {
     // 初始化 Modal 相關狀態
     this.purchasingItems = [];
-    // 可加上其他欄位初始化
-    // 例如：this.addpurchasingModal?.resetForm();
-    // 或清空錯誤訊息、選單等
   }
 
-  // onCategoryChange(event: any) {
-  //   const selected = this.categories.find(c => c.suppliesCategoryId === this.newPurchasing.suppliesCategoryId);
-  //   this.newPurchasing.suppliesCategoryName = selected ? selected.suppliesCategoryName : '';
-
-  //   // 根據選到的類別過濾供應商
-  //   this.filteredSuppliers = this.suppliers.filter(supplier =>
-  //     supplier.supplierKeyword === this.newPurchasing.suppliesCategoryName
-  //   );
-  //   // 若沒有對應供應商則清空選擇
-  //   this.newPurchasing.suppliesSupplierId = 0;
-  //   this.newPurchasing.suppliesSupplierName = '';
-  //   // 清空物品選擇
-  //   this.filteredProducts = [];
-  //   this.newPurchasing.suppliesProductId = 0;
-  //   this.newPurchasing.suppliesProductName = '';
-  // }
-
-  // onSupplierChange(event: any) {
-  //   console.log("選到的供應商 ID:", this.newPurchasing.suppliesSupplierId);
-  //   const selected = this.suppliers.find(s => s.suppliesSupplierId === this.newPurchasing.suppliesSupplierId);
-  //   this.newPurchasing.suppliesSupplierName = selected ? selected.suppliesSupplierName : '';
-
-  //   // 根據選到的供應商過濾物品
-  //   this.filteredProducts = this.suppliesProducts.filter(supplies =>
-  //     supplies.supplierId === this.newPurchasing.suppliesSupplierId
-  //   );
-  //   // 若沒有對應物品則清空選擇
-  //   this.newPurchasing.suppliesProductId = 0;
-  //   this.newPurchasing.suppliesProductName = '';
-  // }
-
-  // onSuppliesChange(event: any) {
-  //   const selected = this.suppliesProducts.find(s => s.suppliesProductID === this.newPurchasing.suppliesProductId);
-  //   this.newPurchasing.suppliesProductName = selected ? selected.suppliesProductName : '';
-  // }
   submitAddPurchasing() {
     const today = new Date();
 
-    // 組合主單資料（符合 SuppliesPurchasingOrderDto）
-    // const order = {
-    //   suppliesSupplierId: this.purchasingItems[0].suppliesSupplierId,
-    //   arrivalDate: this.today, // 或今天日期
-    //   details: this.purchasingItems.map(item => ({
-    //     suppliesProductId: item.suppliesProductId,
-    //     quantityIn: item.quantityOfPurchasing,   // 改成 quantityIn
-    //     expiryDate: item.expiryDate
-    //       ? new Date(item.expiryDate).toISOString().split('T')[0] // 後端 DateOnly，送 yyyy-MM-dd
-    //       : null
-    //   }))
-    // };
     const order = {
       suppliesSupplierId: this.selectedSupplierId,
       arrivalDate: this.today,
@@ -178,16 +178,10 @@ export class SuppliespurchasinglistComponent {
       }))
     };
 
-    console.log("送出的 order 物件：", order);
-
-    this.http.post('https://localhost:7124/api/SuppliesPurchasing/CreatePurchasingOrder', order, {
-      headers: { 'Content-Type': 'application/json' }
-    }).subscribe({
+    this.suppliesPurchasingService.createPurchasingOrder(order).subscribe({
       next: res => {
-        this.suppliesPurchasingService.getSuppliesPurchasingList().subscribe((data: Isuppliespurchasing[]) => {
-          this.suppliesPurchasing = data;
-          alert('新增成功');
-        });
+        this.loadPurchasingOrders();
+        alert('新增成功');
       },
       error: err => {
         alert('新增失敗');
@@ -223,30 +217,6 @@ export class SuppliespurchasinglistComponent {
     }
   }
 
-  // onCategoryChangeForItem(index: number) {
-  //   const item = this.purchasingItems[index];
-  //   // 根據選到的類別過濾供應商
-  //   item.filteredSuppliers = this.suppliers.filter(supplier =>
-  //     supplier.supplierKeyword === this.categories.find(c => c.suppliesCategoryId === item.suppliesCategoryId)?.suppliesCategoryName
-  //   );
-  //   // 清空供應商與物品選擇
-  //   item.suppliesSupplierId = null;
-  //   item.suppliesProductId = null;
-  //   item.filteredProducts = [];
-  //   item.expiryDate = [];
-  // }
-
-  // onSupplierChangeForItem(index: number) {
-  //   console.log("選到的供應商 ID:", this.newPurchasing.suppliesSupplierId);
-  //   const item = this.purchasingItems[index];
-  //   // 根據選到的供應商過濾物品
-  //   item.filteredProducts = this.suppliesProducts.filter(product =>
-  //     product.supplierId === item.suppliesSupplierId
-  //   );
-  //   // 清空物品選擇
-  //   item.suppliesProductId = null;
-  //   item.expiryDate = [];
-  // }
   onCategoryChangeForOrder() {
     const selectedCategory = this.categories.find(c => c.suppliesCategoryId === this.selectedCategoryId);
     this.filteredSuppliers = this.suppliers.filter(supplier =>
@@ -271,6 +241,13 @@ export class SuppliespurchasinglistComponent {
     );
     // 清空有效期限選擇
     item.expiryDate = null;
+    item.manualExpiryInput = false; // 每次換物品時，回到下拉模式
+  }
+
+  toggleExpiryInput(index: number) {
+    const item = this.purchasingItems[index];
+    item.manualExpiryInput = !item.manualExpiryInput;
+    item.expiryDate = null; // 切換時清空輸入
   }
 
   clearPurchasingItems() {

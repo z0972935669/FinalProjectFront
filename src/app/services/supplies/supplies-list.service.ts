@@ -25,4 +25,12 @@ export class SuppliesListService {
     const url = `${this.apiUrlsup}/${product.suppliesProductID}`;
     return this.http.put<Isupplieslist>(url, product);
   }
+
+  searchProducts(keyword: string = '', page: number = 1, pageSize: number = 10) {
+    let url = `${this.apiUrlsup}/search?page=${page}&pageSize=${pageSize}`;
+    if (keyword) {
+      url += `&keyword=${encodeURIComponent(keyword)}`;
+    }
+    return this.http.get<any>(url); // 回傳 { totalCount, totalPages, page, pageSize, data }
+  }
 }
