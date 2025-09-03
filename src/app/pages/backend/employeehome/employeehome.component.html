@@ -248,36 +248,64 @@
           <h2 class="badge bg-primary mb-0" style="font-size:x-large;">房間管理</h2>
         </div>
       </div>
-
       <!-- 房間管理：卡片群 -->
       <div class="row g-3">
-
         <!-- 房間列表 -->
         <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
           <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
             <div class="mb-2">
-              <i class="bi bi-box-seam text-primary" style="font-size:2.5rem;"></i>
+              <i class="bi bi-list-task text-primary" style="font-size:2.5rem;"></i>
             </div>
             <div class="fw-bold">房間列表</div>
-            <a routerLink="/room-table-erp" class="stretched-link"></a>
+            <a routerLink="/erp/room-table-erp" class="stretched-link"></a>
           </div>
         </div>
+        <!-- 預約參訪 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-clipboard-check text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">預約參訪</div>
+            <a routerLink="/erp/room-table-erp" class="stretched-link"></a>
+          </div>
+        </div>
+        <!-- 入住辦理 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-house text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">入住辦理</div>
+            <a routerLink="/erp/room-table-erp" class="stretched-link"></a>
+          </div>
+        </div>
+        <!-- 繳費紀錄 -->
+        <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
+          <div class="app-card app-card-doc shadow-sm h-100 text-center p-3 position-relative">
+            <div class="mb-2">
+              <i class="bi bi-credit-card-fill text-primary" style="font-size:2.5rem;"></i>
+            </div>
+            <div class="fw-bold">繳款紀錄</div>
+            <a routerLink="/erp/room-table-erp" class="stretched-link"></a>
+          </div>
+        </div>
+      </div>
 
+      <nav class="app-pagination mt-5">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav><!--//app-pagination-->
 
-        <nav class="app-pagination mt-5">
-          <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-            </li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-              <a class="page-link" href="#">Next</a>
-            </li>
-          </ul>
-        </nav><!--//app-pagination-->
-
-      </div><!--//container-xl-->
-    </div><!--//app-content-->
-  </div><!--//app-wrapper-->
+    </div><!--//container-xl-->
+  </div><!--//app-content-->
+</div><!--//app-wrapper-->

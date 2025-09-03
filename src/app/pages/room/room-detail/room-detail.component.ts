@@ -20,7 +20,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   showModal: boolean = false;
   bookingForm: RoomOccupancy = {
     paymentMethod: 'paypal',
-    fBedId: 0,
+    fRoomId: 0,// 新增初始化
     fBillingAmount: 0,
     checkInDate: '', // 必填，初始化為空
     contact: '', // 必填，初始化為空
@@ -42,10 +42,10 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    console.log('路由參數 id:', id);
+    // console.log('路由參數 id:', id);
     this.roomService.getRoomById(id).pipe(timeout(5000)).subscribe({
       next: (response) => {
-        console.log('API 回傳資料:', response);
+        // console.log('API 回傳資料:', response);
         this.room = response.data;
         if (this.room?.images) {
           this.room.images = this.room.images.filter(img => img && img.trim() !== '');
@@ -111,7 +111,8 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   }
 
   isFormReady(): boolean {
-    console.log('檢查表單準備狀態 - contact:', this.bookingForm.contact, 'checkInDate:', this.bookingForm.checkInDate);
+    // console.log('檢查表單準備狀態 - contact:'
+    //   , this.bookingForm.contact, 'checkInDate:', this.bookingForm.checkInDate);
     return !!this.bookingForm.contact.trim() && !!this.bookingForm.checkInDate.trim();
   }
 
@@ -170,7 +171,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
       return;
     }
 
-    this.bookingForm.fBedId = this.room?.fBedCount ? 1 : 0;
+    this.bookingForm.fRoomId = this.room?.fRoomId ?? 0; // 新增: 傳 fRoomId (移除 fBedId)
     this.bookingForm.fBillingAmount = this.room?.fRoomPrice || 0;
     this.bookingForm.paymentMethod = 'paypal';
 
@@ -200,7 +201,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   }
 
   getImageUrl(imagePath: string): string {
-    const fileName = imagePath.startsWith('rooms/') ? imagePath.replace('rooms/', '') : imagePath;
+    const fileName = imagePath.split('/').pop() || imagePath; // 修正: 只取檔名，避免重複路徑
     return this.staticUrl + 'images/rooms/' + fileName;
   }
 }

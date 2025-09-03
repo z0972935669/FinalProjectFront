@@ -17,7 +17,7 @@ export class RoomDetailService {
     return this.http.get<{ message: string, data: RoomDetail }>(`${this.apiUrl}/${id}`).pipe(
       tap(response => {
         if (response.data && response.data.images) {
-          response.data.images.forEach(img => console.log('API回傳的圖片路徑:', img));
+          // response.data.images.forEach(img => console.log('API回傳的圖片路徑:', img));
         }
       }),
       catchError(err => {
@@ -38,11 +38,11 @@ export class RoomDetailService {
 
   submitBooking(booking: RoomOccupancy): Observable<{ message: string, occupancyId: number }> {
     const bookingDto = {
-      FBedId: booking.fBedId,
+      FRoomId: booking.fRoomId, // 新增: 傳 fRoomId
       FCheckInDate: new Date(booking.checkInDate).toISOString(),
       FBillingAmount: booking.fBillingAmount,
       FPaymentMethod: booking.paymentMethod,
-      FPaypalOrderId: booking.paypalOrderId || '' // 確保傳遞字符串
+      FPaypalOrderId: booking.paypalOrderId || ''
     };
     return this.http.post<{ message: string, occupancyId: number }>(`${this.apiUrl}/bookings`, bookingDto).pipe(
       catchError(err => {

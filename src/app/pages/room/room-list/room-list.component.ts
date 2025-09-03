@@ -21,9 +21,12 @@ export class RoomListComponent implements OnInit {
   staticUrl = 'https://localhost:7124/'; // 基於後端根路徑
   searchKeyword: string = ''; // 搜尋關鍵字
   priceFilter: string = ''; // 價格篩選
-  roomTypeFilter: string = ''; // 房間類型篩選
   showAvailableOnly: boolean = false; // 僅顯示可入住的空位房間
   sortFilter: string = ''; // 排序方式
+
+  // === 分頁設定 ===
+  pageSize = 9; // 每頁顯示 3 筆
+  currentPage = 1;
 
   constructor(private roomService: RoomListService) {
     const today = new Date();
@@ -42,17 +45,16 @@ export class RoomListComponent implements OnInit {
       timeout(5000)
     ).subscribe({
       next: (response) => {
-        console.log('API 回應完整資料:', response.data);
         this.rooms = response.data
           .filter(room => room.image && room.image.trim() !== '')
           .map(room => ({
-            fRoomId: room.fRoomId, // 映射後端的大寫到前端的小寫
+            fRoomId: room.fRoomId,
             fRoomAlias: room.fRoomAlias,
             image: room.image,
             fRoomDescription: room.fRoomDescription,
             fRoomPrice: room.fRoomPrice,
-            isAvailable: room.isAvailable, // 映射後端 IsAvailable 到前端 isAvailable
-            availableBeds: room.availableBeds // 映射後端 AvailableBeds 到前端 availableBeds
+            isAvailable: room.isAvailable,
+            availableBeds: room.availableBeds
           }) as Room);
         this.filteredRooms = [...this.rooms]; // 初始化 filteredRooms
         this.applyFilters(); // 應用初始篩選
@@ -66,30 +68,36 @@ export class RoomListComponent implements OnInit {
     });
   }
 
-  // 應用所有篩選條件
+  // 應用篩選
   applyFilters(): void {
-    let tempRooms = this.rooms.filter(room => {
-      const matchesKeyword = this.searchKeyword.trim() === '' ||
-        room.fRoomAlias.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
-        (room.fRoomPrice?.toString() || '').includes(this.searchKeyword);
+    let tempRooms = [...this.rooms];
 
-      const matchesPrice = this.priceFilter === '' ||
-        (this.priceFilter === '40000' && room.fRoomPrice! < 40000) ||
-        (this.priceFilter === '45000' && room.fRoomPrice! >= 40000 && room.fRoomPrice! <= 50000) ||
-        (this.priceFilter === '50000' && room.fRoomPrice! > 50000);
+    // 關鍵字搜尋
+    if (this.searchKeyword) {
+      const keyword = this.searchKeyword.toLowerCase();
+      tempRooms = tempRooms.filter(room =>
+        (room.fRoomAlias?.toLowerCase().includes(keyword) ?? false) ||
+        (room.fRoomDescription?.toLowerCase().includes(keyword) ?? false)
+      );
+    }
 
-      const matchesRoomType = this.roomTypeFilter === '' ||
-        (this.roomTypeFilter === 'single' && room.fRoomAlias.includes('單人')) ||
-        (this.roomTypeFilter === 'double' && room.fRoomAlias.includes('雙人')) ||
-        (this.roomTypeFilter === 'four' && room.fRoomAlias.includes('四人')) ||
-        (this.roomTypeFilter === 'six' && room.fRoomAlias.includes('六人'));
+    // 價格篩選
+    if (this.priceFilter) {
+      tempRooms = tempRooms.filter(room => {
+        const price = room.fRoomPrice ?? 0;
+        if (this.priceFilter === '40000') return price < 40000;
+        if (this.priceFilter === '45000') return price >= 40000 && price <= 50000;
+        if (this.priceFilter === '50000') return price > 50000;
+        return true; // 無篩選時不過濾
+      });
+    }
 
-      const matchesAvailability = !this.showAvailableOnly || room.availableBeds > 0;
+    // 僅顯示可用房間
+    if (this.showAvailableOnly) {
+      tempRooms = tempRooms.filter(room => room.isAvailable && (room.availableBeds ?? 0) > 0);
+    }
 
-      return matchesKeyword && matchesPrice && matchesRoomType && matchesAvailability;
-    });
-
-    // 應用排序
+    // 排序
     if (this.sortFilter === 'highToLow') {
       tempRooms.sort((a, b) => (b.fRoomPrice ?? 0) - (a.fRoomPrice ?? 0));
     } else if (this.sortFilter === 'lowToHigh') {
@@ -97,6 +105,7 @@ export class RoomListComponent implements OnInit {
     }
 
     this.filteredRooms = tempRooms;
+    this.currentPage = 1; // 篩選後重置到第一頁
   }
 
   // 處理搜尋關鍵字變化
@@ -108,12 +117,6 @@ export class RoomListComponent implements OnInit {
   // 處理價格篩選變化
   onPriceChange(event: Event): void {
     this.priceFilter = (event.target as HTMLSelectElement).value;
-    this.applyFilters();
-  }
-
-  // 處理房間類型篩選變化
-  onRoomTypeChange(event: Event): void {
-    this.roomTypeFilter = (event.target as HTMLSelectElement).value;
     this.applyFilters();
   }
 
@@ -167,7 +170,40 @@ export class RoomListComponent implements OnInit {
   }
 
   getImageUrl(imagePath: string): string {
-    const fileName = imagePath.startsWith('rooms/') ? imagePath.replace('rooms/', '') : imagePath;
+    const fileName = imagePath.split('/').pop() || imagePath; // 修正: 只取檔名，避免重複路徑
     return this.staticUrl + 'images/rooms/' + fileName;
+  }
+
+  // === 分頁設定 ===
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredRooms.length / this.pageSize));
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  get pageRooms(): Room[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredRooms.slice(start, start + this.pageSize);
+  }
+
+  goToPage(p: number) {
+    if (p < 1 || p > this.totalPages) return;
+    this.currentPage = p;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  prevPage() {
+    this.goToPage(this.currentPage - 1);
+  }
+
+  nextPage() {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  // trackBy（效能用，可選）
+  trackById(_: number, room: Room) {
+    return room.fRoomId;
   }
 }
