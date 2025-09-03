@@ -38,7 +38,7 @@ export interface RoomOccupancy { // paypal付款入住
   cvv?: string; // 可選
   otherPayment?: string; // 可選，其他支付方式
   checkInDate: string; // 必填，入住日期
-  fBedId: number; // 必填，從後端 DTO
+  fRoomId: number; // 新增: 傳房間 ID (後端選 fBedId)
   fBillingAmount: number; // 必填，從後端 DTO
   paypalOrderId?: string; // PayPal 支付連結 ID，可選
 }

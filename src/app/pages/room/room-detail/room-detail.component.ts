@@ -20,7 +20,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   showModal: boolean = false;
   bookingForm: RoomOccupancy = {
     paymentMethod: 'paypal',
-    fBedId: 0,
+    fRoomId: 0,// 新增初始化
     fBillingAmount: 0,
     checkInDate: '', // 必填，初始化為空
     contact: '', // 必填，初始化為空
@@ -171,7 +171,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
       return;
     }
 
-    this.bookingForm.fBedId = this.room?.fBedCount ? 1 : 0;
+    this.bookingForm.fRoomId = this.room?.fRoomId ?? 0; // 新增: 傳 fRoomId (移除 fBedId)
     this.bookingForm.fBillingAmount = this.room?.fRoomPrice || 0;
     this.bookingForm.paymentMethod = 'paypal';
 
@@ -201,7 +201,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   }
 
   getImageUrl(imagePath: string): string {
-    const fileName = imagePath.startsWith('rooms/') ? imagePath.replace('rooms/', '') : imagePath;
+    const fileName = imagePath.split('/').pop() || imagePath; // 修正: 只取檔名，避免重複路徑
     return this.staticUrl + 'images/rooms/' + fileName;
   }
 }

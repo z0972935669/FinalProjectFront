@@ -170,7 +170,7 @@ export class RoomListComponent implements OnInit {
   }
 
   getImageUrl(imagePath: string): string {
-    const fileName = imagePath.startsWith('rooms/') ? imagePath.replace('rooms/', '') : imagePath;
+    const fileName = imagePath.split('/').pop() || imagePath; // 修正: 只取檔名，避免重複路徑
     return this.staticUrl + 'images/rooms/' + fileName;
   }
 
