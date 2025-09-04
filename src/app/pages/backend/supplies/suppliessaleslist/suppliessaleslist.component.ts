@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Isuppliessales } from '../../../../interfaces/supplies/isuppliessales';
+import { Isuppliessales, CreateSalesOrderDto, CreateSalesOrderResponse } from '../../../../interfaces/supplies/isuppliessales';
 import { SuppliesSalesService } from '../../../../services/supplies/supplies-sales.service';
 import { FormsModule } from '@angular/forms';
 import { Isuppliescategory } from '../../../../interfaces/supplies/isuppliescategory';
@@ -192,9 +192,9 @@ export class SuppliessaleslistComponent {
     const today = new Date();
 
     // 組合主單資料（符合 SuppliesSalesOrderDto）
-    const order = {
+    const order: CreateSalesOrderDto = {
       orderDate: today.toISOString(),  // ISO 格式，後端可直接綁到 DateTime?
-      customerName: this.newSales.customerName,
+      customerName: this.newSales.customerName || null,
       receivedDate: today.toISOString(),
       orderStatus: '未到貨',
       details: this.salesItems.map(item => ({
@@ -206,12 +206,15 @@ export class SuppliessaleslistComponent {
       }))
     };
 
-    this.http.post('https://localhost:7124/api/SuppliesSalesOrders', order, {
-      headers: { 'Content-Type': 'application/json' }
-    }).subscribe({
-      next: res => {
+    this.suppliesSalesService.addSuppliesSalesList(order).subscribe({
+      next: (res: CreateSalesOrderResponse) => {
         this.loadSalesOrders();
-        alert('新增成功');
+        alert('新增成功，條碼已生成！');
+
+        // 顯示條碼
+        if (res.qrcodeUrl) {
+          window.open(`https://localhost:7124${res.qrcodeUrl}`, '_blank');
+        }
       },
       error: err => {
         alert('新增失敗');
