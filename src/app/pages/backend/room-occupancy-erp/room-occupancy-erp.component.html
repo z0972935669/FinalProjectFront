@@ -1,0 +1,51 @@
+<!-- 入住辦理 -->
+<div class="container py-5">
+  <h1 class="text-primary mb-4">入住辦理</h1>
+
+  <!-- 加載中 -->
+  <div *ngIf="isLoading" class="text-center">
+    <p>加載中...</p>
+  </div>
+
+  <!-- 錯誤訊息 -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- 辦理表單 -->
+  <form *ngIf="!isLoading">
+    <div class="mb-3">
+      <label for="memberId" class="form-label">會員編號</label>
+      <select class="form-control" id="memberId" [(ngModel)]="selectedMemberId" name="memberId" required>
+        <option value="">選擇會員</option>
+        <option *ngFor="let member of members" [value]="member.fMemberId">{{ member.fMemberId }} - {{ member.fName }}
+        </option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="roomId" class="form-label">房間編號</label>
+      <select class="form-control" id="roomId" [(ngModel)]="selectedRoomId" name="roomId" (change)="onRoomChange()"
+        required>
+        <option value="">選擇房間</option>
+        <option *ngFor="let room of rooms" [value]="room.fRoomId">{{ room.fRoomId }} - {{ room.fRoomName }} (價格: {{
+          room.fRoomPrice }})</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="bedId" class="form-label">床位編號</label>
+      <select class="form-control" id="bedId" [(ngModel)]="selectedBedId" name="bedId" required>
+        <option value="">選擇床位</option>
+        <option *ngFor="let bed of beds" [value]="bed.fBedId">{{ bed.fBedId }} - {{ bed.fBedCode }}</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="checkInDate" class="form-label">入住日期</label>
+      <input type="date" class="form-control" id="checkInDate" [(ngModel)]="checkInDate" name="checkInDate" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">支付金額</label>
+      <p class="form-control-static">{{ billingAmount }}</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="submitOccupancy()">現金支付</button>
+  </form>
+</div>

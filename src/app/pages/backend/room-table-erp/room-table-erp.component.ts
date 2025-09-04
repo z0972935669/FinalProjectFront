@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RoomTableErpService } from '../../../services/room/room-table-erp.service';
 import { RoomTableErp } from '../../../interfaces/room/roomerp.interface';
 import { signal, computed } from '@angular/core';
+
 
 declare var bootstrap: any;
 
@@ -15,7 +16,9 @@ declare var bootstrap: any;
   templateUrl: './room-table-erp.component.html',
   styleUrls: ['./room-table-erp.component.scss'],
 })
+
 export class RoomTableErpComponent implements OnInit {
+  @ViewChild('roomForm') roomForm!: NgForm;
   rooms = signal<RoomTableErp[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -43,15 +46,19 @@ export class RoomTableErpComponent implements OnInit {
     if (modalElement) {
       this.roomModal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
     } else {
-      console.error('Modal element with ID "roomModal" not found');
+      // console.error('Modal element with ID "roomModal" not found');
     }
     const descModalElement = document.getElementById('descriptionModal');
     if (descModalElement) {
       this.descriptionModal = new bootstrap.Modal(descModalElement);
+    } else {
+      // console.error('Modal element with ID "descriptionModal" not found');
     }
     const occModalElement = document.getElementById('occupancyModal');
     if (occModalElement) {
       this.occupancyModal = new bootstrap.Modal(occModalElement);
+    } else {
+      // console.error('Modal element with ID "occupancyModal" not found');
     }
   }
 
@@ -134,11 +141,11 @@ export class RoomTableErpComponent implements OnInit {
           showFullDescription: false,
           images: Array.isArray(room.images) ? room.images : [], // 確保 images 是陣列
         })));
-        console.log('Loaded rooms:', response.data.map(r => ({ id: r.fRoomId, images: r.images }))); // 日誌
+        // console.log('Loaded rooms:', response.data.map(r => ({ id: r.fRoomId, images: r.images }))); // 日誌
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('載入房間失敗', err);
+        // console.error('載入房間失敗', err);
         this.error.set(err.error?.message || '無法載入房間列表，請稍後重試');
         this.loading.set(false);
       }
@@ -151,73 +158,55 @@ export class RoomTableErpComponent implements OnInit {
     this.selectedFiles = [];
     this.imagePreviews = [];
     this.originalImages = [...(room.images || [])];
-    console.log('Edit room images:', this.originalImages); // 日誌
+    // console.log('Edit room images:', this.originalImages); // 日誌
     this.roomModal.show();
   }
 
   saveRoom(): void {
-    if (!this.currentRoom.fRoomName || !this.currentRoom.fRoomAlias || !this.currentRoom.fRoomDescription || this.currentRoom.fRoomPrice <= 0 || this.currentRoom.fBedCount <= 0) {
-      this.errorMessage = '請填寫所有必填欄位，且價格與床位數必須大於 0';
+    if (!this.roomForm?.valid) {
+      this.errorMessage = '請檢查必填欄位或輸入格式';
+      this.roomForm?.form.markAllAsTouched();
       return;
     }
 
     const formData = new FormData();
-    formData.append('fRoomName', this.currentRoom.fRoomName || '');
-    formData.append('fRoomAlias', this.currentRoom.fRoomAlias || '');
-    formData.append('fRoomDescription', this.currentRoom.fRoomDescription || '');
-    formData.append('fRoomPrice', String(this.currentRoom.fRoomPrice || 0));
-    formData.append('fBedCount', String(this.currentRoom.fBedCount || 0));
-    formData.append('fRoomType', String(this.currentRoom.fRoomType));
-    formData.append('fRoomStatus', this.currentRoom.fRoomStatus.trim());
+    formData.append('fRoomName', this.currentRoom.fRoomName);
+    formData.append('fRoomAlias', this.currentRoom.fRoomAlias);
+    formData.append('fRoomDescription', this.currentRoom.fRoomDescription);
+    formData.append('fRoomPrice', this.currentRoom.fRoomPrice.toString());
+    formData.append('fBedCount', this.currentRoom.fBedCount.toString());
+    formData.append('fRoomType', this.currentRoom.fRoomType.toString());
+    formData.append('fRoomStatus', this.currentRoom.fRoomStatus);
 
-    // 僅傳送 existingImages 如果不為空
-    if (this.originalImages.length > 0) {
-      formData.append('existingImages', JSON.stringify(this.originalImages));
-      console.log('Sending existingImages:', this.originalImages); // 日誌
-    } else {
-      console.log('No existing images to send');
-    }
+    this.selectedFiles.forEach(file => formData.append('RoomImages', file));
+    this.originalImages.forEach(image => formData.append('ExistingImages', image));
 
-    if (this.selectedFiles.length > 0) {
-      this.selectedFiles.forEach(file => {
-        formData.append('roomImages', file, file.name);
-      });
-    }
+    const request = this.isEdit
+      ? this.roomTableErpService.updateRoom(this.currentRoom.fRoomId, formData)
+      : this.roomTableErpService.createRoom(formData);
 
-    if (this.isEdit && this.currentRoom.fRoomId > 0) {
-      this.roomTableErpService.updateRoom(this.currentRoom.fRoomId, formData).subscribe({
-        next: () => {
-          this.loadRooms();
-          this.closeModal();
-        },
-        error: (err) => {
-          console.error('更新失敗', err);
-          this.errorMessage = err.error?.message || '更新房間失敗，請檢查輸入數據';
-        }
-      });
-    } else {
-      this.roomTableErpService.createRoom(formData).subscribe({
-        next: () => {
-          this.loadRooms();
-          this.closeModal();
-        },
-        error: (err) => {
-          console.error('新增失敗', err);
-          this.errorMessage = err.error?.message || '新增房間失敗，請檢查輸入數據';
-        }
-      });
-    }
+    request.subscribe({
+      next: () => {
+        alert(this.isEdit ? '房間更新成功' : '房間新增成功');
+        this.loadRooms();
+        this.closeModal();
+      },
+      error: (err) => {
+        this.errorMessage = err.message;
+      }
+    });
   }
-
   deleteRoom(roomId: number): void {
-    if (!confirm('確定要刪除此房間嗎？')) return;
+    if (!confirm('確定要刪除此房間？')) return;
+    if (!confirm('請再次確認刪除此房間，此操作無法撤銷！')) return;
+
     this.roomTableErpService.deleteRoom(roomId).subscribe({
       next: () => {
+        alert('房間刪除成功');
         this.loadRooms();
       },
       error: (err) => {
-        console.error('刪除失敗', err);
-        this.errorMessage = err.error?.message || '刪除房間失敗，請稍後重試';
+        this.errorMessage = err.message;
       }
     });
   }
@@ -231,12 +220,13 @@ export class RoomTableErpComponent implements OnInit {
         room.fRoomStatus = newStatus;
         this.loadRooms();
       },
-      error: (err) => console.error('狀態切換失敗', err)
+      // error: (err) => console.error('狀態切換失敗', err)
     });
   }
 
   openDescriptionModal(room: RoomTableErp): void {
     this.currentRoom = { ...room };
+    // console.log('Description Modal Data:', this.currentRoom.fRoomDescription);
     this.descriptionModal.show();
   }
 
@@ -247,7 +237,7 @@ export class RoomTableErpComponent implements OnInit {
 
   openOccupancyModal(room: RoomTableErp): void {
     this.currentRoom = { ...room };
-    this.selectedOccupancies = [];
+    // console.log('Opening Occupancy Modal with data:', this.currentRoom.occupiedInfo); // 調試
     this.occupancyModal.show();
   }
 
@@ -256,7 +246,6 @@ export class RoomTableErpComponent implements OnInit {
     this.currentRoom = this.resetRoom();
     this.selectedOccupancies = [];
   }
-
   toggleOccupancySelection(id: number): void {
     const index = this.selectedOccupancies.indexOf(id);
     if (index !== -1) {
@@ -281,7 +270,7 @@ export class RoomTableErpComponent implements OnInit {
         this.closeOccupancyModal();
       },
       error: (err) => {
-        console.error('離院失敗', err);
+        console.error('Checkout Error:', err); // Enhanced logging
         this.errorMessage = err.error?.message || '離院失敗，請檢查輸入數據';
       }
     });
@@ -327,17 +316,24 @@ export class RoomTableErpComponent implements OnInit {
 
   handleImageError(event: Event): void {
     const imgElement = event.target as HTMLImageElement;
-    console.error('圖片載入失敗:', imgElement.src);
+    // console.error('圖片載入失敗:', imgElement.src);
     imgElement.src = this.baseUrl + 'images/rooms/default-room-image.jpg';
     imgElement.onerror = () => {
-      console.warn('第一後備圖片失敗:', imgElement.src);
+      // console.warn('第一後備圖片失敗:', imgElement.src);
       imgElement.src = this.baseUrl + 'images/rooms/alternative-default.jpg';
       imgElement.onerror = null;
     };
     setTimeout(() => {
       if (!imgElement.complete) {
-        console.warn('後備圖片載入超時:', imgElement.src);
+        // console.warn('後備圖片載入超時:', imgElement.src);
       }
     }, 2000);
+  }
+  // 價格輸入驗證
+  onPriceChange(): void {
+    if (this.currentRoom.fRoomPrice < 0) {
+      this.currentRoom.fRoomPrice = 0;
+    }
+    this.currentRoom.fRoomPrice = Math.floor(this.currentRoom.fRoomPrice); // 確保整數
   }
 }

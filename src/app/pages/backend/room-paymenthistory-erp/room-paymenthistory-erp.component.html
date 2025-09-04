@@ -1,0 +1,78 @@
+<!-- 繳費紀錄列表 -->
+<div class="container py-5">
+  <h1 class="text-primary mb-4">繳費紀錄</h1>
+
+  <!-- 加載中 -->
+  <div *ngIf="isLoading" class="text-center">
+    <p>加載中...</p>
+  </div>
+
+  <!-- 錯誤訊息 -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- 列表表 -->
+  <table class="table table-striped" *ngIf="!isLoading && paymentHistories.length > 0">
+    <thead>
+      <tr>
+        <th>會員編號</th>
+        <th>姓名</th>
+        <th>繳款狀態</th>
+        <th>繳費時間</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let history of paymentHistories">
+        <td>{{ history.MemberId }}</td>
+        <td>{{ history.Name }}</td>
+        <td>{{ history.BillingAmount }}</td>
+        <td>{{ history.BillingDate | date:'yyyy-MM-dd' }}</td>
+        <td>
+          <button class="btn btn-primary" (click)="viewDetails(history)">查看詳細</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 詳細視窗 -->
+  <div *ngIf="selectedHistory" class="modal fade show" style="display: block;" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">繳費詳細</h5>
+          <button type="button" class="btn-close" (click)="selectedHistory = null"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>fPaymentId</th>
+                <th>fPaymentMethod</th>
+                <th>fBillingStatus</th>
+                <th>fPaypalOrderId</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let detail of selectedHistory.PaymentHistory">
+                <td>{{ detail.FPaymentId }}</td>
+                <td>{{ detail.FPaymentMethod }}</td>
+                <td>{{ detail.FBillingStatus }}</td>
+                <td>{{ detail.FPaypalOrderId }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="selectedHistory = null">關閉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 無資料 -->
+  <div *ngIf="!isLoading && paymentHistories.length === 0" class="alert alert-info">
+    無繳費紀錄
+  </div>
+</div>

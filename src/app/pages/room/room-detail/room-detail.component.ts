@@ -25,6 +25,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
     checkInDate: '', // 必填，初始化為空
     contact: '', // 必填，初始化為空
     paypalOrderId: '' // 初始為空字符串
+
   };
   minCheckInDate: string;
   staticUrl = 'https://localhost:7124/';
@@ -32,6 +33,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   memberInfo: any = null;
   isAlreadyResiding: boolean = false;
   isPaypalButtonRendered: boolean = false; // 跟踪 PayPal 按鈕是否已渲染
+  lastReceiptId: number | null = null;
 
   constructor(private route: ActivatedRoute, private roomService: RoomDetailService) {
     const today = new Date();
@@ -144,10 +146,8 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
             });
           },
           onApprove: (data: any, actions: any) => {
-            console.log('支付批准，捕獲訂單...', data.orderID);
             return actions.order.capture().then((details: any) => {
-              this.bookingForm.paypalOrderId = details.id || '';
-              alert(`付款成功！交易 ID: ${this.bookingForm.paypalOrderId}`);
+              this.bookingForm.paypalOrderId = details.id;
               this.submitBookingToBackend();
             });
           },
@@ -171,16 +171,20 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
       return;
     }
 
-    this.bookingForm.fRoomId = this.room?.fRoomId ?? 0; // 新增: 傳 fRoomId (移除 fBedId)
+    this.bookingForm.fRoomId = this.room?.fRoomId ?? 0;
     this.bookingForm.fBillingAmount = this.room?.fRoomPrice || 0;
     this.bookingForm.paymentMethod = 'paypal';
 
     this.roomService.submitBooking(this.bookingForm).subscribe({
       next: (response) => {
         alert(`入住預訂成功!\n入住時間為: ${this.bookingForm.checkInDate}\n如有異動請聯繫我們: 0988888888\nID: ${response.occupancyId}`);
+        this.lastReceiptId = response.receiptId ?? null;
         this.closeBookingModal();
       },
-      error: (err) => alert('預訂失敗：' + err.message)
+      error: (err: HttpErrorResponse) => {
+        console.error('支付錯誤細節:', err.error);
+        alert('預訂失敗：' + (err.error?.message || err.error?.error || err.message || '伺服器錯誤，請檢查後端日誌'));
+      }
     });
   }
 

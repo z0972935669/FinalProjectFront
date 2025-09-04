@@ -20,9 +20,9 @@
   <table class="table table-striped table-soft-green table-head-strong">
     <thead>
       <tr>
-        <th>序號</th>
-        <th>房間名稱</th>
-        <th>別名</th>
+        <th>列表編號</th>
+        <th>房號</th>
+        <th>房名</th>
         <th>描述</th>
         <th>價格</th>
         <th>床位數</th>
@@ -91,109 +91,110 @@
   </div>
 
   <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="roomModalLabel">{{ isEdit ? '編輯房間' : '新增房間' }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-            (click)="closeModal()"></button>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
         </div>
         <div class="modal-body">
-          <form>
+          <form #roomForm="ngForm">
             <div class="mb-3">
               <label for="roomName" class="form-label">房間名稱</label>
               <input type="text" class="form-control" id="roomName" [(ngModel)]="currentRoom.fRoomName" name="fRoomName"
-                required [disabled]="isEdit">
+                required>
+              <div *ngIf="roomForm.form.controls['fRoomName']?.invalid && roomForm.form.controls['fRoomName']?.touched"
+                class="text-danger">
+                房間名稱為必填
+              </div>
             </div>
             <div class="mb-3">
               <label for="roomAlias" class="form-label">別名</label>
               <input type="text" class="form-control" id="roomAlias" [(ngModel)]="currentRoom.fRoomAlias"
                 name="fRoomAlias" required>
+              <div
+                *ngIf="roomForm.form.controls['fRoomAlias']?.invalid && roomForm.form.controls['fRoomAlias']?.touched"
+                class="text-danger">
+                別名為必填
+              </div>
             </div>
             <div class="mb-3">
               <label for="roomDescription" class="form-label">描述</label>
               <textarea class="form-control" id="roomDescription" [(ngModel)]="currentRoom.fRoomDescription"
-                name="fRoomDescription" rows="4" required></textarea>
+                name="fRoomDescription"></textarea>
             </div>
             <div class="mb-3">
               <label for="roomPrice" class="form-label">價格</label>
               <input type="number" class="form-control" id="roomPrice" [(ngModel)]="currentRoom.fRoomPrice"
-                name="fRoomPrice" min="0" required>
+                name="fRoomPrice" min="0" step="1" (ngModelChange)="onPriceChange()" required>
+              <div
+                *ngIf="roomForm.form.controls['fRoomPrice']?.invalid && roomForm.form.controls['fRoomPrice']?.touched"
+                class="text-danger">
+                價格必須為正整數
+              </div>
             </div>
             <div class="mb-3">
               <label for="bedCount" class="form-label">床位數</label>
-              <input type="number" class="form-control" id="bedCount" [(ngModel)]="currentRoom.fBedCount"
-                name="fBedCount" min="1" required [disabled]="isEdit">
+              <select class="form-control" id="bedCount" [(ngModel)]="currentRoom.fBedCount" name="fBedCount" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+              </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">房間類型</label>
-              <div>
-                <input type="radio" id="singleRoom" [(ngModel)]="currentRoom.fRoomType" name="fRoomType" [value]="false"
-                  required>
-                <label for="singleRoom" class="me-3">單人房</label>
-                <input type="radio" id="multiRoom" [(ngModel)]="currentRoom.fRoomType" name="fRoomType" [value]="true">
-                <label for="multiRoom">多人房</label>
-              </div>
+              <label for="roomType" class="form-label">房間類型</label>
+              <select class="form-control" id="roomType" [(ngModel)]="currentRoom.fRoomType" name="fRoomType" required>
+                <option value="false">單人房</option>
+                <option value="true">多人房</option>
+              </select>
             </div>
-            <!-- <div class="mb-3">
-              <label class="form-label">房間狀態</label>
-              <div>
-                <input type="radio" id="active" [(ngModel)]="currentRoom.fRoomStatus" name="fRoomStatus" value="active"
-                  required>
-                <label for="active" class="me-3">上架</label>
-                <input type="radio" id="vacant" [(ngModel)]="currentRoom.fRoomStatus" name="fRoomStatus" value="vacant">
-                <label for="vacant">下架</label>
-              </div>
-            </div> -->
             <div class="mb-3">
               <label for="roomImages" class="form-label">房間圖片</label>
-              <div>
-                <div *ngIf="originalImages.length > 0" class="image-preview-container">
-                  <div *ngFor="let image of originalImages; let i = index" class="image-preview">
-                    <img [src]="getImageUrl(image)" alt="房間圖片" (error)="handleImageError($event)">
-                    <button type="button" class="btn btn-danger btn-sm" (click)="removeExistingImage(image)">X</button>
-                  </div>
+              <input type="file" class="form-control" id="roomImages" (change)="onFileSelected($event)" multiple
+                accept="image/*">
+              <div class="image-preview-container mt-2">
+                <div class="image-preview" *ngFor="let preview of imagePreviews">
+                  <img [src]="preview" alt="預覽圖片">
+                  <button type="button" class="btn btn-danger btn-sm" (click)="removeImage(preview)">X</button>
                 </div>
-                <input type="file" class="form-control" id="roomImages" (change)="onFileSelected($event)" multiple
-                  accept="image/*">
-                <div *ngIf="imagePreviews.length > 0" class="image-preview-container">
-                  <div *ngFor="let preview of imagePreviews; let i = index" class="image-preview">
-                    <img [src]="preview" alt="預覽圖片">
-                    <button type="button" class="btn btn-danger btn-sm" (click)="removeImage(preview)">X</button>
-                  </div>
+                <div class="image-preview" *ngFor="let image of originalImages">
+                  <img [src]="getImageUrl(image)" alt="現有圖片" (error)="handleImageError($event)">
+                  <button type="button" class="btn btn-danger btn-sm" (click)="removeExistingImage(image)">X</button>
                 </div>
               </div>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeModal()">取消</button>
-          <button type="button" class="btn btn-primary" (click)="saveRoom()">{{ isEdit ? '儲存' : '新增' }}</button>
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">取消</button>
+          <button type="button" class="btn btn-primary" (click)="saveRoom()" [disabled]="roomForm?.invalid">{{ isEdit ?
+            '儲存' : '新增' }}</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Description Modal -->
   <div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="descriptionModalLabel">房間描述</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-            (click)="closeDescriptionModal()"></button>
+          <button type="button" class="btn-close" (click)="closeDescriptionModal()"></button>
         </div>
         <div class="modal-body">
-          <p>{{ currentRoom.fRoomDescription }}</p>
+          {{ currentRoom.fRoomDescription }}
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-            (click)="closeDescriptionModal()">關閉</button>
+          <button type="button" class="btn btn-secondary" (click)="closeDescriptionModal()">關閉</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Occupancy Modal -->
   <div class="modal fade" id="occupancyModal" tabindex="-1" aria-labelledby="occupancyModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -216,11 +217,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-warning" (click)="checkout()">離院</button>
+          <button type="button" class="btn btn-primary" (click)="checkout()"
+            [disabled]="selectedOccupancies.length === 0">離院</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
             (click)="closeOccupancyModal()">關閉</button>
         </div>
       </div>
     </div>
   </div>
-</div>

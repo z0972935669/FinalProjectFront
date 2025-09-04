@@ -60,9 +60,10 @@ export class RoomTableErpService {
 
   // 新增: 離院 API 呼叫
   checkoutOccupancies(occupancyIds: number[]): Observable<{ message: string }> {
+    console.log('Checkout IDs:', occupancyIds); // Debug log
     return this.http.post<{ message: string }>(`${this.apiUrl}/checkout`, occupancyIds).pipe(
       catchError(error => {
-        console.error('離院失敗', error);
+        console.error('Checkout failed', error);
         return throwError(() => new Error(error.error?.message || '離院失敗，請檢查輸入數據'));
       })
     );

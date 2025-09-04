@@ -17,7 +17,7 @@ export class RoomDetailService {
     return this.http.get<{ message: string, data: RoomDetail }>(`${this.apiUrl}/${id}`).pipe(
       tap(response => {
         if (response.data && response.data.images) {
-          // response.data.images.forEach(img => console.log('API回傳的圖片路徑:', img));
+          response.data.images.forEach(img => console.log('API回傳的圖片路徑:', img));
         }
       }),
       catchError(err => {
@@ -36,18 +36,26 @@ export class RoomDetailService {
     );
   }
 
-  submitBooking(booking: RoomOccupancy): Observable<{ message: string, occupancyId: number }> {
+  submitBooking(booking: RoomOccupancy): Observable<{ message: string, occupancyId: number, receiptId?: number }> {
     const bookingDto = {
-      FRoomId: booking.fRoomId, // 新增: 傳 fRoomId
+      FRoomId: booking.fRoomId,
       FCheckInDate: new Date(booking.checkInDate).toISOString(),
       FBillingAmount: booking.fBillingAmount,
       FPaymentMethod: booking.paymentMethod,
       FPaypalOrderId: booking.paypalOrderId || ''
     };
-    return this.http.post<{ message: string, occupancyId: number }>(`${this.apiUrl}/bookings`, bookingDto).pipe(
+    return this.http.post<{ message: string, occupancyId: number, receiptId?: number }>(`${this.apiUrl}/bookings`, bookingDto).pipe(
       catchError(err => {
-        console.error('預訂API錯誤:', err);
+        console.error('預訂API錯誤詳細:', err);  // 添加詳細日誌
         return throwError(() => new Error('預訂失敗，請檢查輸入或聯繫客服'));
+      })
+    );
+  }
+  getReceipt(receiptId: number): Observable<Blob> {
+    return this.http.get(`${this.memberApiUrl}/receipt/${receiptId}`, { responseType: 'blob' }).pipe(
+      catchError(err => {
+        console.error('收據下載錯誤:', err);
+        return throwError(() => new Error('無法下載收據'));
       })
     );
   }

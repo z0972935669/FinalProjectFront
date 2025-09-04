@@ -33,15 +33,38 @@
             <dd class="col-sm-8">{{ RoomBed.fBedCode || '無' }}</dd>
             <dt class="col-sm-4">房間價格：</dt>
             <dd class="col-sm-8">{{ RoomTable.fRoomPrice ? `NT $${RoomTable.fRoomPrice} 元/月` : '無' }}</dd>
-            <dt class="col-sm-4">繳款狀態：</dt>
-            <dd class="col-sm-8">
-              <ng-container *ngIf="RoomOccupancy && RoomOccupancy.fBillingStatus !== undefined">
-                {{ RoomOccupancy.fBillingStatus ? '已繳費，本月無須繳費' : '請盡速繳費' }}
-              </ng-container>
-              <ng-container *ngIf="!RoomOccupancy || RoomOccupancy.fBillingStatus === undefined">
-                無紀錄
-              </ng-container>
-            </dd>
+            <!-- ... (其他部分不變) -->
+
+            <dl class="row">
+              <dt class="col-sm-3">繳款狀態：</dt>
+              <dd class="col-sm-9">
+                <ng-container *ngIf="RoomOccupancy; else noRecord">
+                  <span *ngIf="RoomOccupancy.fBillingStatus" class="text-success">已繳費，本月無須繳費</span>
+                  <span *ngIf="!RoomOccupancy.fBillingStatus" class="text-danger">未繳費，請盡速繳費</span>
+                </ng-container>
+                <ng-template #noRecord>
+                  <span class="text-warning">無紀錄</span>
+                </ng-template>
+              </dd>
+
+              <!-- 新增: 上次繳費時間 (從最新 PaymentHistory 取) -->
+              <dt class="col-sm-3">上次繳費時間：</dt>
+              <dd class="col-sm-9">{{ lastBillingDate ? (lastBillingDate | date:'yyyy-MM-dd') : '無紀錄' }}</dd>
+
+              <!-- 新增: 下次繳費時間 (計算: 上次 + 30 天) -->
+              <dt class="col-sm-3">下次繳費時間：</dt>
+              <dd class="col-sm-9">{{ nextBillingDate ? (nextBillingDate | date:'yyyy-MM-dd') : '無紀錄' }}</dd>
+
+              <!-- 新增: 延期繳費按鈕 -->
+              <dt class="col-sm-3">快速繳費：</dt>
+              <dd class="col-sm-9">
+                <ng-container *ngIf="!RoomOccupancy?.fBillingStatus && !isLoading && hasRoomData">
+                  <button class="btn btn-primary" (click)="showPaypalPayment()">線上繳費</button>
+                  <div #paypalButtonContainer id="paypal-button-container"></div> <!-- 使用 ViewChild 綁定 -->
+                </ng-container>
+                <span *ngIf="RoomOccupancy?.fBillingStatus" class="text-muted">暫時無須繳費</span>
+              </dd>
+            </dl>
           </div>
         </dl>
       </div>
