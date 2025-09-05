@@ -12,6 +12,7 @@ import { SuppliesListService } from '../../../../services/supplies/supplies-list
 import { SuppliesSupplierService } from '../../../../services/supplies/supplies-supplier.service';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-suppliespurchasinglist',
@@ -181,10 +182,10 @@ export class SuppliespurchasinglistComponent {
     this.suppliesPurchasingService.createPurchasingOrder(order).subscribe({
       next: res => {
         this.loadPurchasingOrders();
-        alert('新增成功');
+        Swal.fire({ title: '新增成功', icon: "success" });
       },
       error: err => {
-        alert('新增失敗');
+        Swal.fire({ title: '新增失敗', icon: "error" });
       }
     });
     this.resetNewPurchasing();

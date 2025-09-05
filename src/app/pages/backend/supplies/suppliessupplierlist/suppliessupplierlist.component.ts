@@ -6,6 +6,7 @@ import { SuppliesSupplierService } from '../../../../services/supplies/supplies-
 import { NgClass } from '@angular/common';
 import { Isuppliescategory } from '../../../../interfaces/supplies/isuppliescategory';
 import { SuppliesCategoryService } from '../../../../services/supplies/supplies-category.service';
+import Swal from 'sweetalert2';
 
 type TabKey = 'all' | 'continued' | 'cancelled';
 @Component({
@@ -127,14 +128,14 @@ export class SuppliessupplierlistComponent {
   submitAddSupplier() {
     this.suppliesSupplierService.addSuppliesSupplier(this.newSupplier).subscribe({
       next: (res) => {
-        alert('新增成功')
+        Swal.fire({ title: '新增成功', icon: "success" })
         this.resetNewSupplier();
         // 新增後重載三個 tab，確保分頁正確
         this.searchAllTabs();
       },
       error: (err) => {
         // 錯誤處理
-        alert('新增失敗');
+        Swal.fire({ title: '新增失敗', icon: "error" });
       }
     });
     // 清空輸入欄位
@@ -144,13 +145,13 @@ export class SuppliessupplierlistComponent {
   submitEditSupplier() {
     this.suppliesSupplierService.editSuppliesSupplier(this.newSupplier).subscribe({
       next: (res) => {
-        alert('修改成功')
+        Swal.fire({ title: '新增成功', icon: "success" })
         this.resetNewSupplier();
         this.searchAllTabs();
       },
       error: (err) => {
         // 錯誤處理
-        alert('修改失敗');
+        Swal.fire({ title: '新增失敗', icon: "error" });
       }
     });
     // 清空輸入欄位

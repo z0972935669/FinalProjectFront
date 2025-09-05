@@ -11,8 +11,8 @@ import { SuppliesListService } from '../../../../services/supplies/supplies-list
 import { Isupplieslist } from '../../../../interfaces/supplies/isupplieslist';
 import { SuppliesDateService } from '../../../../services/supplies/supplies-date.service';
 import { Isuppliesdate } from '../../../../interfaces/supplies/isuppliesdate';
-
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -209,7 +209,7 @@ export class SuppliessaleslistComponent {
     this.suppliesSalesService.addSuppliesSalesList(order).subscribe({
       next: (res: CreateSalesOrderResponse) => {
         this.loadSalesOrders();
-        alert('新增成功，條碼已生成！');
+        Swal.fire({ title: '新增成功，條碼已生成！', icon: "success" });
 
         // 顯示條碼
         if (res.qrcodeUrl) {
@@ -217,7 +217,7 @@ export class SuppliessaleslistComponent {
         }
       },
       error: err => {
-        alert('新增失敗');
+        Swal.fire({ title: '新增失敗', icon: "error" });
       }
     });
     this.resetNewSales();
@@ -299,7 +299,7 @@ export class SuppliessaleslistComponent {
       detail.suppliesSalesOrderId === order.suppliesSalesOrderId
     );
 
-    // 🔹 去掉重複的項目（依照 suppliesSalesOrderDetailId 唯一化）
+    // 去掉重複的項目（依照 suppliesSalesOrderDetailId 唯一化）
     const uniqueDetailsMap = new Map<number, Isuppliessales>();
     details.forEach(d => {
       uniqueDetailsMap.set(d.suppliesSalesOrderDetailId, d);
@@ -307,16 +307,6 @@ export class SuppliessaleslistComponent {
 
     this.selectedSalesOrder = Array.from(uniqueDetailsMap.values());
   }
-
-  // getUniqueSalesOrders(tab: string) {
-  //   const map = new Map();
-  //   this.pagination[tab].data.forEach(order => {
-  //     if (!map.has(order.suppliesSalesOrderId)) {
-  //       map.set(order.suppliesSalesOrderId, order);
-  //     }
-  //   });
-  //   return Array.from(map.values());
-  // }
 
   // 確認銷貨單在改變狀態後就不能變動
   canUpdateStatus(): boolean {
@@ -346,7 +336,7 @@ export class SuppliessaleslistComponent {
             }
           });
 
-          alert('更新成功！');
+          Swal.fire({ title: '更新成功！', icon: "success" });
 
           // 重新載入確保資料正確
           this.loadSalesOrders('all');
@@ -356,7 +346,7 @@ export class SuppliessaleslistComponent {
         },
         error: err => {
           console.error(err);
-          alert('更新失敗！');
+          Swal.fire({ title: '更新失敗', icon: "error" });
         }
       });
     }

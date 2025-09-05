@@ -10,6 +10,7 @@ import { Isuppliescategory } from '../../../../interfaces/supplies/isuppliescate
 import { SuppliesCategoryService } from '../../../../services/supplies/supplies-category.service';
 import { Isuppliesdate } from '../../../../interfaces/supplies/isuppliesdate';
 import { SuppliesDateService } from '../../../../services/supplies/supplies-date.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-supplieslist',
@@ -125,14 +126,14 @@ export class SupplieslistComponent {
   submitAddProduct() {
     this.suppliesListService.addSuppliesProduct(this.newProduct).subscribe({
       next: (res) => {
-        alert('新增成功')
+        Swal.fire({ title: '新增成功', icon: "success" })
         // 新增成功後可重新載入列表或顯示訊息
         this.loadProducts(this.currentPage);
         this.resetNewProduct();
       },
       error: (err) => {
         // 錯誤處理
-        alert('新增失敗');
+        Swal.fire({ title: '新增失敗', icon: "error" });
       }
 
     });
@@ -143,14 +144,14 @@ export class SupplieslistComponent {
   submitEditProduct() {
     this.suppliesListService.editSuppliesProduct(this.newProduct).subscribe({
       next: (res) => {
-        alert('修改成功')
+        Swal.fire({ title: '新增成功', icon: "success" })
         // 修改成功後可重新載入列表或顯示訊息
         this.loadProducts(this.currentPage);
         this.resetNewProduct();
       },
       error: (err) => {
         // 錯誤處理
-        alert('修改失敗');
+        Swal.fire({ title: '新增失敗', icon: "error" });
       }
     });
     // 清空輸入欄位
