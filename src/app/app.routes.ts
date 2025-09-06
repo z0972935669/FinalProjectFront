@@ -61,6 +61,7 @@ import { EmployeelistComponent } from './pages/backend/employeelist/employeelist
 import { EmployeelistdetailComponent } from './pages/backend/employeelistdetail/employeelistdetail.component';
 import { EmployeelisteditComponent } from './pages/backend/employeelistedit/employeelistedit.component';
 import { EmployeeapprovalflowComponent } from './pages/backend/employeeapprovalflow/employeeapprovalflow.component';
+import { EmployeeapprovalflowmissingComponent } from './pages/backend/employeeapprovalflowmissing/employeeapprovalflowmissing.component';
 import { EmployeeapprovallistComponent } from './pages/backend/employeeapprovallist/employeeapprovallist.component';
 import { EmployeeattendanceComponent } from './pages/backend/employeeattendance/employeeattendance.component';
 import { EmployeeattendancerecordsComponent } from './pages/backend/employeeattendancerecords/employeeattendancerecords.component';
@@ -269,8 +270,8 @@ export const routes: Routes = [
           { path: 'employeelistedit', component: EmployeelisteditComponent, title: '編輯員工' },
           { path: 'employeelistedit/:id', component: EmployeelisteditComponent, title: '編輯員工' },
           { path: 'employeeapprovalflow', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
-          { path: 'employeeapprovalflow/:formType/:formId/:approvalId', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
-          { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
+          { path: 'employeeapprovalflow/:formId/:approvalId', component: EmployeeapprovalflowComponent, title: '員工審核流程' },
+          { path: 'employeeapprovalflowmissing/:formId/:approvalId', component: EmployeeapprovalflowmissingComponent, title: '員工審核忘卡流程' },
           { path: 'employeeapprovallist', component: EmployeeapprovallistComponent, title: '員工入職流程' },
           { path: 'employeeattendance', component: EmployeeattendanceComponent, title: '員工考勤' },
           { path: 'employeeattendancerecords', component: EmployeeattendancerecordsComponent, title: '考勤紀錄' },

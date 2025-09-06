@@ -71,8 +71,7 @@
                   <td class="cell">{{ r.jobTitleName }}</td>
                   <td class="cell">{{ r.applicantName }}</td>
                   <td class="cell">
-                    <a class="btn btn-primary" style="font-size: 1rem;"
-                      [routerLink]="['/erp/employeeapprovalflow', r.formType, r.formId, r.approvalId]">
+                    <a class="btn btn-primary" style="font-size: 1rem;" [routerLink]="detailLink(r)">
                       詳細資料
                     </a>
                   </td>

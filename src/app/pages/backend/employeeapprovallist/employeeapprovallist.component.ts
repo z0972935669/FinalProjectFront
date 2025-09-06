@@ -227,4 +227,20 @@ export class EmployeeapprovallistComponent implements OnInit {
     if (typeof anyErr?.message === 'string') return anyErr.message;
     return '載入失敗';
   }
+  // pages/backend/employeeapprovallist/employeeapprovallist.component.ts
+
+  detailLink(r: ApprovalInboxItemDto): any[] {
+    const ft = (r.formType || '').trim();
+    // 請假單 → /erp/employeeapprovalflow/:formId/:approvalId
+    if (ft === 'Leave') {
+      return ['/erp/employeeapprovalflow', r.formId, r.approvalId ?? 0];
+    }
+    // 忘卡單 → /erp/employeeapprovalflowmissing/:formId/:approvalId
+    if (ft === 'MissingPunch') {
+      return ['/erp/employeeapprovalflowmissing', r.formId, r.approvalId ?? 0];
+    }
+    // 其他型別（暫時導到請假單頁，或改成你要的預設頁）
+    return ['/erp/employeeapprovalflow', r.formId, r.approvalId ?? 0];
+  }
+
 }

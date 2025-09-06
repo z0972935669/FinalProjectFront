@@ -77,4 +77,9 @@ export class EmployeeLoginComponent implements OnInit {
   toggleShowPwd() {
     this.showPwd = !this.showPwd;
   }
+  fillAccount(user: string, pwd: string) {
+    this.vm.username = user;
+    this.vm.password = pwd;
+  }
+
 }
