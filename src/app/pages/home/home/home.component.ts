@@ -20,7 +20,17 @@ type HomeEventCard = {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, SwiperComponent, BannerSwiperComponent, RoomSwiperComponent, HttpClientModule, CurrencyPipe, DatePipe, JsonPipe, CommonModule],
+  imports: [
+    RouterModule,
+    SwiperComponent,
+    BannerSwiperComponent,
+    RoomSwiperComponent,
+    HttpClientModule,
+    CurrencyPipe,
+    DatePipe,
+    JsonPipe,
+    CommonModule,
+  ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -68,7 +78,10 @@ export class HomeComponent implements OnInit {
     },
   ];
 
-  constructor(private roomService: RoomSwiperService, private http: HttpClient) { }
+  constructor(
+    private roomService: RoomSwiperService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
     this.roomService.getRooms().subscribe({
@@ -84,7 +97,7 @@ export class HomeComponent implements OnInit {
       },
       error: (err) => {
         this.roomItems = this.fallbackRoomItems;
-      }
+      },
     });
 
     this.loadHotProducts();
@@ -94,16 +107,18 @@ export class HomeComponent implements OnInit {
     // 依你慣用的後端固定埠（你之前說用 7124）
     const baseUrl = 'https://localhost:7124';
     const url = `${baseUrl}/api/ShopProducts/list?page=1&pageSize=4`;
-    this.http.get<{ items: IShopProductList[]; totalCount: number }>(url).subscribe({
-      next: (res) => {
-        this.productList = Array.isArray(res?.items) ? res.items : [];
-        console.log('Hot products:', this.productList);
-      },
-      error: (err) => {
-        console.error('載入熱銷商品失敗：', err);
-        this.productList = []; // 留給前端顯示「目前沒有商品」
-      }
-    });
+    this.http
+      .get<{ items: IShopProductList[]; totalCount: number }>(url)
+      .subscribe({
+        next: (res) => {
+          this.productList = Array.isArray(res?.items) ? res.items : [];
+          // console.log('Hot products:', this.productList);
+        },
+        error: (err) => {
+          console.error('載入熱銷商品失敗：', err);
+          this.productList = []; // 留給前端顯示「目前沒有商品」
+        },
+      });
   }
 
   //

@@ -1,0 +1,40 @@
+.nav-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+.nav-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 0;
+}
+
+.nav-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+.nav-right-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    height: 40px;
+}
+
+@media (max-width: 1199.98px) {
+    .nav-center {
+        display: none !important;
+    }
+}

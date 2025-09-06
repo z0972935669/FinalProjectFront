@@ -1,23 +1,23 @@
 <div class="nav-bg">
   <div class="container px-0">
     <nav class="navbar navbar-light navbar-expand-xl">
-      <a routerLink="/show/" routerLinkActive="active" class="navbar-brand pb-0">
+      <a routerLink="/show/" routerLinkActive="active" class="navbar-brand pb-0 nav-left">
         <h1 class="logo">
           <img src="assets/img/logo/logo.png" alt="" />
         </h1>
       </a>
-      <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+      <button class="navbar-toggler py-2 px-3 nav-right-btn" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
         <span class="fa fa-bars text-primary"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <div class="navbar-nav mx-auto">
-          <a routerLink="/show/room-list" class="nav-item nav-link">入住</a>
-          <a routerLink="/show/event" class="nav-item nav-link">活動</a>
-          <a routerLink="/show/community" class="nav-item nav-link">社群</a>
-          <a routerLink="/show/shop" class="nav-item nav-link">商店</a>
-          <a routerLink="/show/customer-service" class="nav-item nav-link">客服</a>
-        </div>
+      <div class="navbar-nav nav-center">
+        <a routerLink="/show/room-list" class="nav-item nav-link">入住</a>
+        <a routerLink="/show/event" class="nav-item nav-link">活動</a>
+        <a routerLink="/show/community" class="nav-item nav-link">社群</a>
+        <a routerLink="/show/shop" class="nav-item nav-link">商店</a>
+        <a routerLink="/show/customer-service" class="nav-item nav-link">客服</a>
+      </div>
+      <div class="collapse navbar-collapse nav-right" id="navbarCollapse">
 
         <!-- ERP 後台入口：獨立按鈕，不需登入 -->
         <div class="d-flex m-3 me-0 func">
