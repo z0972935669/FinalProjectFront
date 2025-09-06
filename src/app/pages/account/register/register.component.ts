@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, FormsModule, RouterModule],
 })
 export class RegisterComponent {
-  // ===== 既有欄位（原樣保留） =====
+
   account = '';
   password = '';
   confirmPassword = '';
@@ -27,31 +27,31 @@ export class RegisterComponent {
   showPassword = false;
   showConfirmPassword = false;
 
-  // 你原本的註冊 API（保留）
   private readonly apiUrl = 'https://localhost:7124/api/account/register';
 
-  // ====== 這段是「新增」：查重需要的狀態與端點 ======
-  // 狀態：是否檢查中 / 是否已被使用（true 表示已被註冊）
+  // 狀態：是否檢查中 / 是否已被使用
   checkingAccount = false;
   checkingEmail = false;
-  accountTaken?: boolean; // undefined=尚未檢查 / true=已被用 / false=可用
+  accountTaken?: boolean;
   emailTaken?: boolean;
 
-  // 防抖用計時器（避免每次輸入就打 API）
+
+  emailHasWhitespace = false;
+  emailHasCJK = false;
+
+
   private acctTimer?: any;
   private emailTimer?: any;
 
-  // 查重端點（不動你原本的 apiUrl）
   private readonly checkAccountUrl = 'https://localhost:7124/api/account/check-account';
   private readonly checkEmailUrl = 'https://localhost:7124/api/account/check-email';
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  // 顯示/隱藏密碼（原本保留）
   togglePassword() { this.showPassword = !this.showPassword; }
   toggleConfirmPassword() { this.showConfirmPassword = !this.showConfirmPassword; }
 
-  // 大頭貼預覽（原本保留）
+
   onPhotoSelected(event: any) {
     this.photoFile = event.target.files?.[0];
     if (this.photoFile) {
@@ -63,14 +63,29 @@ export class RegisterComponent {
     }
   }
 
-  // ===== 新增：輸入中先清掉紅字，避免舊結果殘留 =====
-  onAccountChange() { this.accountTaken = undefined; }
-  onEmailChange()   { this.emailTaken   = undefined; }
 
-  // ===== 新增：blur 後做「帳號」查重（含 350ms 防抖）=====
+  onAccountChange() { this.accountTaken = undefined; }
+  onEmailChange()   { this.emailTaken   = undefined; } // 若 HTML 仍用 (ngModelChange) 時可沿用
+
+
+  onEmailInput(ev: Event) {
+    const val = (ev.target as HTMLInputElement).value;
+
+    // 即時內容檢查
+    this.emailHasWhitespace = /\s/.test(val);
+    this.emailHasCJK = /[\u3000-\u303F\u3040-\u30FF\u3400-\u9FFF\uF900-\uFAFF]/.test(val);
+
+    // 清除舊的查重狀態與 loading
+    this.emailTaken = undefined;
+    this.checkingEmail = false;
+
+
+    if (this.emailTimer) clearTimeout(this.emailTimer);
+    this.emailTimer = setTimeout(() => this.checkEmail(true), 500);
+  }
+
   checkAccount() {
     const val = this.account.trim();
-    // 空值就不檢查、也不顯示紅字
     if (!val) { this.accountTaken = undefined; return; }
 
     clearTimeout(this.acctTimer);
@@ -85,13 +100,27 @@ export class RegisterComponent {
     }, 350);
   }
 
-  // ===== 新增：blur 後做「Email」查重（格式正確才打，350ms 防抖）=====
-  checkEmail() {
-    const val = this.email.trim();
-    if (!val || !this.isEmailFormatOk(val)) { this.emailTaken = undefined; return; }
+  checkEmail(silent = false) {
+    const val = (this.email ?? '').trim();
+
+
+    const okFormat = this.isEmailFormatOk(val);
+    const hasWs = /\s/.test(val);
+    const hasCJK = /[\u3000-\u303F\u3040-\u30FF\u3400-\u9FFF\uF900-\uFAFF]/.test(val);
+
+    // 更新旗標
+    this.emailHasWhitespace = hasWs;
+    this.emailHasCJK = hasCJK;
+
+    if (!val || !okFormat || hasWs || hasCJK) {
+      this.emailTaken = undefined;
+      this.checkingEmail = false;
+      return;
+    }
+
+    if (!silent) this.checkingEmail = true;
 
     clearTimeout(this.emailTimer);
-    this.checkingEmail = true;
     this.emailTimer = setTimeout(() => {
       this.http.get<{ exists: boolean }>(this.checkEmailUrl, { params: { email: val } })
         .subscribe({
@@ -99,15 +128,15 @@ export class RegisterComponent {
           error: _ => this.emailTaken = undefined,
           complete: () => this.checkingEmail = false
         });
-    }, 350);
+    }, silent ? 0 : 350);
   }
 
-  // 基本 Email 檢核（原本保留）
+  // Email 檢核
   private isEmailFormatOk(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   }
 
-  // 前端欄位檢查（原本保留）
+  // 前端欄位檢查
   private validate(): string[] {
     const missing: string[] = [];
     if (!this.account.trim()) missing.push('帳號');
@@ -120,6 +149,8 @@ export class RegisterComponent {
     const errs: string[] = [];
     if (missing.length === 0) {
       if (!this.isEmailFormatOk(this.email)) errs.push('Email 格式不正確');
+      if (this.emailHasWhitespace) errs.push('Email 不可含空白字元');
+      if (this.emailHasCJK) errs.push('Email 不可包含中文或全形字元');
       if (this.password !== this.confirmPassword) errs.push('密碼與確認密碼不一致');
       if (this.password.length < 6) errs.push('密碼至少 6 碼');
     }
@@ -127,14 +158,35 @@ export class RegisterComponent {
     return missing.length ? [`請填寫：${missing.join('、')}`] : errs;
   }
 
+fillDemoData() {
+  // const rand = Math.floor(Math.random() * 10000); // 保證唯一性
+  // this.account = `demoUser${rand}`;
+  this.account = `demoUser0912`;
+  this.password = "123456";
+  this.confirmPassword = "123456";
+  this.name = "黃大爺";
+  this.gender = "男";
+  this.birthDate = "1971-09-06";
+  this.phone = "0912345678";
+  this.email = `ispan0912@gmail.com`;
+
+
+  this.photoFile = undefined;
+  this.photoPreview = "";
+
+
+  this.agree = true;
+}
+
+
   agree = false;
-  // 送出註冊（原本保留；僅多兩道保護：查重期間/已被註冊則擋）
+
+  // 送出註冊
   register() {
-      if (!this.agree) {
-    alert('請先勾選「我同意 服務條款」');
-    return;
-  }
-    // 若還在查重或確定重複，先擋掉
+    if (!this.agree) {
+      alert('請先勾選「我同意 服務條款」');
+      return;
+    }
     if (this.checkingAccount || this.checkingEmail) {
       alert('正在檢查帳號/Email，請稍候再送出');
       return;

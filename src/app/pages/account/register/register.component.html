@@ -103,7 +103,23 @@
                       class="form-control"
                       [(ngModel)]="phone"
                       name="phone"
+                      required
+                      pattern="^09\d{8}$"
+                      #phoneCtrl="ngModel"
                     />
+
+                    <!-- 沒輸入 -->
+                    <div
+                      *ngIf="phoneCtrl.invalid && phoneCtrl.touched"
+                      class="text-danger mt-1"
+                    >
+                      <div *ngIf="phoneCtrl.errors?.['required']">
+                        手機號碼不可空白
+                      </div>
+                      <div *ngIf="phoneCtrl.errors?.['pattern']">
+                        格式錯誤，請輸入09開頭共10碼
+                      </div>
+                    </div>
                   </div>
 
                   <!-- 電子郵件 -->
@@ -275,7 +291,16 @@
                   </div>
                 </form>
               </div>
-
+              <!-- Demo 填寫按鈕 -->
+              <div class="d-flex justify-content-center mb-3">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="fillDemoData()"
+                >
+                  Demo 填寫
+                </button>
+              </div>
               <div
                 class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2"
               >
