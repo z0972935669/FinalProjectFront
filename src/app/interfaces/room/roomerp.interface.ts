@@ -22,22 +22,34 @@ export interface RoomTableErp {
   }[];
   showFullDescription: boolean;
 }
-export interface PaymentHistory {
-  FPaymentId: number;
-  FOccupancyId: number;
-  FBillingAmount: number;
-  FBillingDate: Date; // 改為 Date，匹配後端 DateTime
-  FPaymentMethod: string;
-  FBillingStatus: boolean;
-  FPaypalOrderId: string;
+export interface PaymentHistoryDto {
+  paymentId: number;
+  occupancyId: number;
+  memberId: number;
+  name: string;
+  phone: string;
+  email: string;
+  residesInCareHomeStatus: boolean | null;
+  billingStatus: boolean;
+  billingAmount: number;
+  billingDate: string;
+  paymentMethod: string;
+  billingStatusText: string;
+  paypalOrderId: string;
+  checkInDate: string;
+  checkOutDate: string;
+  paymentHistory: PaymentHistory[];
+  dueDate?: string; // 添加此行
 }
 
-export interface PaymentHistoryDto {
-  MemberId: number;
-  Name: string;
-  BillingAmount: number;
-  BillingDate: string;
-  PaymentHistory: PaymentHistory[]; // 確認屬性名稱為 PaymentHistory
+export interface PaymentHistory {
+  fPaymentId: number;
+  fOccupancyId: number;
+  fBillingAmount: number;
+  fBillingDate: string;
+  fPaymentMethod: string;
+  fBillingStatus: boolean;
+  fPaypalOrderId: string;
 }
 
 export interface VisitReservation {

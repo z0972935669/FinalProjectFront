@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { PaymentHistoryDto, RoomOccupancyDto, VisitReservation } from '../../interfaces/room/roomerp.interface';
+import { PaymentHistoryDto, RoomOccupancyDto, VisitReservation, PaymentHistory } from '../../interfaces/room/roomerp.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +21,14 @@ export class RoomErpService {
       })
     );
   }
+  getPaymentHistoriesByOccupancyId(occupancyId: number): Observable<PaymentHistory[]> {
+    return this.http.get<PaymentHistory[]>(`${this.apiUrl}/payment-histories/${occupancyId}`, { responseType: 'json' }).pipe(
+      catchError((err: HttpErrorResponse) => {
+        console.error('獲取訂單明細錯誤:', err);
+        return throwError(() => new Error('無法載入訂單明細: ' + err.message + ' - Status: ' + err.status));
+      })
+    );
+  }
 
   // 2. 獲取預約參訪列表
   getVisitReservations(): Observable<VisitReservation[]> {
@@ -31,7 +39,34 @@ export class RoomErpService {
       })
     );
   }
+  //2. 預約參訪列表批量更新日期
+  batchUpdateDate(dto: { reservationIds: number[], newDate: Date }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/visit-reservations/batch-update-date`, dto).pipe(
+      catchError(err => {
+        console.error('批量更新錯誤:', err);
+        return throwError(() => new Error('批量更新失敗'));
+      })
+    );
+  }
+  // 預約參訪列表批量更新聯絡狀態
+  batchUpdateContactStatus(dto: { reservationIds: number[], newStatus: boolean }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/visit-reservations/batch-update-contact`, dto).pipe(
+      catchError(err => {
+        console.error('批量聯絡更新錯誤:', err);
+        return throwError(() => new Error('批量聯絡更新失敗'));
+      })
+    );
+  }
 
+  // 預約參訪列表批量刪除
+  batchDeleteReservations(dto: { reservationIds: number[] }): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/visit-reservations/batch-delete`, { body: dto }).pipe(
+      catchError(err => {
+        console.error('批量刪除錯誤:', err);
+        return throwError(() => new Error('批量刪除失敗'));
+      })
+    );
+  }
   // 2. 更新預約參訪狀態
   updateVisitStatus(reservationId: number, status: number): Observable<any> {
     console.log('Sending update request:', { reservationId, status });

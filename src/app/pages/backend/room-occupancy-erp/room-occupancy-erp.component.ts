@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoomErpService } from '../../../services/room/room-erp.service';
 import { RoomOccupancyDto } from '../../../interfaces/room/roomerp.interface'; // 更新為 RoomOccupancyDto
+import { NgxSonnerToaster, toast } from 'ngx-sonner'; // 導入 toast
 
 @Component({
   selector: 'app-room-occupancy',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxSonnerToaster],
   templateUrl: './room-occupancy-erp.component.html',
   styleUrl: './room-occupancy-erp.component.scss',
 })
@@ -73,7 +74,7 @@ export class RoomOccupancyComponent implements OnInit {
 
   submitOccupancy(): void {
     if (!this.selectedMemberId || !this.selectedRoomId || !this.selectedBedId || !this.checkInDate) {
-      alert('請填寫所有必填欄位');
+      toast('請填寫所有必填欄位');
       return;
     }
 
@@ -91,11 +92,11 @@ export class RoomOccupancyComponent implements OnInit {
 
         this.roomErpService.createOccupancy(dto).subscribe({
           next: (response) => {
-            alert('入住辦理成功');
+            toast('入住辦理成功');
             this.resetForm();
           },
           error: (err) => {
-            alert('入住辦理失敗: ' + err.message);
+            toast.error('入住辦理失敗: ' + err.message);
           }
         });
       }

@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { MemberRoomService } from '../../../services/member/member-room.service';
 import { MemberRoomData } from '../../../interfaces/room/room.interface';
 import { HttpErrorResponse } from '@angular/common/http';
+import { NgxSonnerToaster, toast } from 'ngx-sonner'; // 導入 toast
+import Swal from 'sweetalert2';//sweetalert2彈窗
+
 
 @Component({
   selector: 'app-member-room',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgxSonnerToaster],
   templateUrl: './member-room.component.html',
   styleUrl: './member-room.component.scss',
 })
@@ -83,62 +86,92 @@ export class MemberRoomComponent implements OnInit {
     return url;
   }
 
-  showPaypalPayment(): void {
-    if (this.isPaypalButtonRendered || this.isLoading || !this.hasRoomData || this.RoomOccupancy?.fBillingStatus) return;
+  showPaymentPopup(): void {
+    if (this.isLoading || !this.hasRoomData || this.RoomOccupancy?.fBillingStatus || !this.RoomTable.fRoomPrice) return;
 
-    // 清理舊的按鈕容器
-    if (this.paypalButtonContainer && this.paypalButtonContainer.nativeElement) {
-      this.paypalButtonContainer.nativeElement.innerHTML = '';
-    }
-
-    let attempts = 0;
-    const maxAttempts = 10;
-    const checkPaypal = setInterval(() => {
-      if ((window as any).paypal) {
-        clearInterval(checkPaypal);
-        (window as any).paypal.Buttons({
-          createOrder: (data: any, actions: any) => {
-            return actions.order.create({
-              purchase_units: [{
-                amount: { value: (this.RoomTable.fRoomPrice || 0).toFixed(2) }
-              }]
-            });
-          },
-          onApprove: (data: any, actions: any) => {
-            return actions.order.capture().then((details: any) => {
-              this.recordPayment(details.id);
-            });
-          },
-          onError: (err: any) => {
-            console.error('PayPal 錯誤:', err);
-          }
-        }).render('#paypal-button-container').catch((err: any) => {
-          console.error('PayPal 按鈕渲染失敗:', err);
+    Swal.fire({
+      title: '線上繳費',
+      html: `
+        <div id="paypal-button-container" style="margin: 0 auto; width: 300px;"></div>
+      `,
+      showCancelButton: true,
+      cancelButtonText: '取消支付',
+      showConfirmButton: false, // 移除確認按鈕
+      didOpen: () => {
+        this.renderPaypalButton();
+      },
+      preConfirm: () => {
+        return new Promise((resolve) => {
+          setTimeout(() => resolve(true), 100); // 確保 PayPal 按鈕準備好
         });
-        this.isPaypalButtonRendered = true;
-      } else if (attempts >= maxAttempts) {
-        clearInterval(checkPaypal);
-        console.error('PayPal 加載失敗');
+      },
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.cancel) {
+        toast('支付已取消');
       }
-      attempts++;
-    }, 1000);
+    });
   }
 
+  renderPaypalButton(): void {
+    if (!this.RoomOccupancy?.fOccupancyId || !this.RoomTable.fRoomPrice || this.isPaypalButtonRendered) return;
+
+    const paypalButtonContainer = document.getElementById('paypal-button-container');
+    if (!paypalButtonContainer) return;
+
+    paypalButtonContainer.innerHTML = ''; // 清理舊內容
+
+    (window as any).paypal.Buttons({
+      createOrder: (data: any, actions: any) => {
+        const price = this.RoomTable.fRoomPrice || 0; // 預設值 0，若無價格
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: price.toFixed(2) }
+          }]
+        });
+      },
+      onApprove: (data: any, actions: any) => {
+        return actions.order.capture().then((details: any) => {
+          this.recordPayment(details.id);
+          Swal.fire({
+            icon: 'success',
+            title: '下單成功',
+            text: '支付完成！',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false
+          }).then(() => {
+            this.loadMemberRoomData(); // 重新加載數據
+          });
+        });
+      },
+      onError: (err: any) => {
+        console.error('PayPal 錯誤:', err);
+        toast.error('支付失敗，請稍後再試');
+      }
+    }).render('#paypal-button-container').then(() => {
+      this.isPaypalButtonRendered = true;
+    }).catch((err: any) => {
+      console.error('PayPal 按鈕渲染失敗:', err);
+      toast.error('支付介面加載失敗');
+    });
+  }
   recordPayment(paypalOrderId: string): void {
     const dto = {
       occupancyId: this.RoomOccupancy?.fOccupancyId || 0, // 確保 fOccupancyId 有效
       amount: Math.floor(this.RoomTable.fRoomPrice || 0),
       paypalOrderId: paypalOrderId
     };
-    console.log('Sending payment request:', dto);
+    // console.log('Sending payment request:', dto);
     this.memberRoomService.recordPayment(dto).subscribe({
       next: (response) => {
-        alert('延期繳費成功');
+        toast('延期繳費成功');
         this.loadMemberRoomData();
       },
       error: (err) => {
         console.error('繳費失敗:', err);
-        alert('繳費失敗: ' + (err.error?.message || err.message || '伺服器錯誤'));
+        toast.error('繳費失敗: ' + (err.error?.message || err.message || '伺服器錯誤'));
       }
     });
   }

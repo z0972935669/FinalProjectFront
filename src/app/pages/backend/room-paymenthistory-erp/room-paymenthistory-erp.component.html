@@ -1,6 +1,15 @@
 <!-- 繳費紀錄列表 -->
-<div class="container py-5">
-  <h1 class="text-primary mb-4">繳費紀錄</h1>
+<div class="container py-4" style="margin-left: 130px;">
+  <h1 class="badge bg-primary page-header mb-0" style="font-size: xx-large;">繳費紀錄</h1>
+
+  <!-- 篩選下拉選單 - 放在右上角 -->
+  <div class="d-flex justify-content-end mb-3">
+    <select class="form-select w-auto" [(ngModel)]="filterOption" (ngModelChange)="applyFilter()">
+      <option value="全部">全部</option>
+      <option value="付款">付款</option>
+      <option value="未付款">未付款</option>
+    </select>
+  </div>
 
   <!-- 加載中 -->
   <div *ngIf="isLoading" class="text-center">
@@ -13,66 +22,46 @@
   </div>
 
   <!-- 列表表 -->
-  <table class="table table-striped" *ngIf="!isLoading && paymentHistories.length > 0">
-    <thead>
-      <tr>
-        <th>會員編號</th>
-        <th>姓名</th>
-        <th>繳款狀態</th>
-        <th>繳費時間</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let history of paymentHistories">
-        <td>{{ history.MemberId }}</td>
-        <td>{{ history.Name }}</td>
-        <td>{{ history.BillingAmount }}</td>
-        <td>{{ history.BillingDate | date:'yyyy-MM-dd' }}</td>
-        <td>
-          <button class="btn btn-primary" (click)="viewDetails(history)">查看詳細</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- 詳細視窗 -->
-  <div *ngIf="selectedHistory" class="modal fade show" style="display: block;" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">繳費詳細</h5>
-          <button type="button" class="btn-close" (click)="selectedHistory = null"></button>
-        </div>
-        <div class="modal-body">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>fPaymentId</th>
-                <th>fPaymentMethod</th>
-                <th>fBillingStatus</th>
-                <th>fPaypalOrderId</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let detail of selectedHistory.PaymentHistory">
-                <td>{{ detail.FPaymentId }}</td>
-                <td>{{ detail.FPaymentMethod }}</td>
-                <td>{{ detail.FBillingStatus }}</td>
-                <td>{{ detail.FPaypalOrderId }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="selectedHistory = null">關閉</button>
-        </div>
-      </div>
-    </div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>入住編號</th>
+          <th>會員編號</th>
+          <th>姓名</th>
+          <th>電話</th>
+          <th>電子郵件</th>
+          <th>是否在院</th>
+          <th>付款狀態</th>
+          <th>本次繳費時間</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let history of filteredPaymentHistories; let i = index">
+          <td>{{ history.occupancyId || 'N/A' }}</td>
+          <td>{{ history.memberId || 'N/A' }}</td>
+          <td>{{ history.name || '無姓名' }}</td>
+          <td>{{ history.phone || '無' }}</td>
+          <td>{{ history.email || '無' }}</td>
+          <td>{{ history.residesInCareHomeStatus !== null ? (history.residesInCareHomeStatus ? '是' : '否') : '未知' }}</td>
+          <td>{{ history.billingStatus ? '已付款' : '未付款' }}</td>
+          <td [ngStyle]="{'color': isOverdue(history.dueDate) ? 'red' : 'green'}">
+            {{ history.dueDate || '無' }}
+          </td>
+          <td class="text-center">
+            <div class="btn-group" role="group">
+              <button class="btn btn-primary me-2" (click)="viewOrderDetails(history.occupancyId)">訂單明細</button>
+              <button class="btn btn-warning" (click)="notifyPaymentReminder(history.occupancyId)">通知催款</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- 無資料 -->
-  <div *ngIf="!isLoading && paymentHistories.length === 0" class="alert alert-info">
+  <div *ngIf="!isLoading && filteredPaymentHistories.length === 0" class="alert alert-info">
     無繳費紀錄
   </div>
 </div>

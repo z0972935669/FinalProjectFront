@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewChecked } from '@angular/core'; // 添加 AfterViewChecked
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,11 +7,13 @@ import { RoomDetailService } from '../../../services/room/room-detail.service';
 import { RoomDetail, RoomOccupancy } from '../../../interfaces/room/room.interface';
 import { timeout } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
+import { NgxSonnerToaster, toast } from 'ngx-sonner'; // 導入 toast
+import Swal from 'sweetalert2'; // 導入 SweetAlert2
 
 @Component({
   selector: 'app-room-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, NgxSonnerToaster],
   templateUrl: './room-detail.component.html',
   styleUrl: './room-detail.component.scss',
 })
@@ -35,7 +37,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
   isPaypalButtonRendered: boolean = false; // 跟踪 PayPal 按鈕是否已渲染
   lastReceiptId: number | null = null;
 
-  constructor(private route: ActivatedRoute, private roomService: RoomDetailService) {
+  constructor(private route: ActivatedRoute, private roomService: RoomDetailService, private router: Router) {
     const today = new Date();
     const minDate = new Date(today);
     minDate.setDate(today.getDate() + 1);
@@ -55,7 +57,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
       },
       error: (err) => {
         console.error('API 或圖片載入錯誤:', err);
-        alert('載入房間資料超時或失敗，請檢查網路或聯繫客服');
+        toast.error('載入房間資料超時或失敗，請檢查網路或聯繫客服');
       }
     });
     window.scrollTo(0, 0);
@@ -76,7 +78,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
         this.memberInfo = response;
         this.isAlreadyResiding = response.residesInCareHome;
         if (this.isAlreadyResiding) {
-          alert('您已經入住中！如需變更，請聯繫客服。');
+          toast('您已經入住中！如需變更，\n請聯繫客服:09-8888-8888');
           return;
         }
         this.bookingForm.name = this.memberInfo.name;
@@ -93,10 +95,10 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
       error: (err: HttpErrorResponse) => {
         this.isLoggedIn = false;
         if (err.status === 401) {
-          alert('請先登入會員！');
+          toast('請先登入會員！');
           // 可導向登入頁：this.router.navigate(['/account/login']);
         } else {
-          alert('檢查登入狀態失敗，請稍後重試。');
+          toast.error('檢查登入狀態失敗，請稍後重試。');
         }
         return;
       }
@@ -122,7 +124,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
     console.log('嘗試創建 PayPal 按鈕...');
     if (!window.paypal || !window.paypal.Buttons) {
       console.error('PayPal SDK 未正確加載，檢查 Client ID 或網路連線');
-      alert('PayPal 服務暫時不可用，請確認網路並重試，或聯繫客服。');
+      toast.error('PayPal 服務暫時不可用，請確認網路並重試\n，或聯繫客服:09-8888-8888');
       return;
     }
 
@@ -153,13 +155,13 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
           },
           onError: (err: any) => {
             console.error('PayPal 錯誤:', err);
-            alert('付款失敗，請重試或聯繫客服。');
+            toast.error('付款失敗，請重試或聯繫客服。');
           }
         }).render('#paypal-button-container');
       } else if (attempts >= maxAttempts) {
         clearInterval(checkPaypal);
         console.error('PayPal SDK 加載失敗，超過重試次數');
-        alert('PayPal 服務加載失敗，請檢查網路或聯繫客服。');
+        toast.error('PayPal 服務加載失敗，請檢查網路或聯繫客服。');
       }
       attempts++;
     }, 1000);
@@ -167,7 +169,7 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
 
   submitBookingToBackend(): void {
     if (!this.bookingForm.contact || !this.bookingForm.checkInDate) {
-      alert('電話和入住時間為必填項！');
+      toast('電話和入住時間為必填項！');
       return;
     }
 
@@ -177,13 +179,23 @@ export class RoomDetailComponent implements OnInit, AfterViewChecked {
 
     this.roomService.submitBooking(this.bookingForm).subscribe({
       next: (response) => {
-        alert(`入住預訂成功!\n入住時間為: ${this.bookingForm.checkInDate}\n如有異動請聯繫我們: 0988888888\nID: ${response.occupancyId}`);
+        toast(`入住預訂成功!\n入住時間為: ${this.bookingForm.checkInDate}\n如有異動請聯繫我們: 0988888888\nID: ${response.occupancyId}`);
         this.lastReceiptId = response.receiptId ?? null;
+        Swal.fire({
+          icon: 'success',
+          title: '下單成功',
+          text: '將為您導向成功頁。',
+          timer: 2000, // 2 秒後自動關閉
+          timerProgressBar: true, // 顯示進度條
+          showConfirmButton: false // 隱藏確認按鈕
+        }).then(() => {
+          this.router.navigate(['/show/room-list']); // 導向 room-list.component
+        });
         this.closeBookingModal();
       },
       error: (err: HttpErrorResponse) => {
         console.error('支付錯誤細節:', err.error);
-        alert('預訂失敗：' + (err.error?.message || err.error?.error || err.message || '伺服器錯誤，請檢查後端日誌'));
+        toast.error('預訂失敗：' + (err.error?.message || err.error?.error || err.message || '請聯繫信用卡公司。'));
       }
     });
   }

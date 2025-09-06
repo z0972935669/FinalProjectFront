@@ -5,14 +5,15 @@ import { HttpClientModule } from '@angular/common/http';
 import { RoomTableErpService } from '../../../services/room/room-table-erp.service';
 import { RoomTableErp } from '../../../interfaces/room/roomerp.interface';
 import { signal, computed } from '@angular/core';
-
+import { NgxSonnerToaster, toast } from 'ngx-sonner'; // 導入 toast
+import Swal from 'sweetalert2'; // 導入 SweetAlert2
 
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-room-table-erp',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, NgxSonnerToaster],
   templateUrl: './room-table-erp.component.html',
   styleUrls: ['./room-table-erp.component.scss'],
 })
@@ -187,7 +188,7 @@ export class RoomTableErpComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        alert(this.isEdit ? '房間更新成功' : '房間新增成功');
+        toast(this.isEdit ? '房間更新成功' : '房間新增成功');
         this.loadRooms();
         this.closeModal();
       },
@@ -197,30 +198,64 @@ export class RoomTableErpComponent implements OnInit {
     });
   }
   deleteRoom(roomId: number): void {
-    if (!confirm('確定要刪除此房間？')) return;
-    if (!confirm('請再次確認刪除此房間，此操作無法撤銷！')) return;
-
-    this.roomTableErpService.deleteRoom(roomId).subscribe({
-      next: () => {
-        alert('房間刪除成功');
-        this.loadRooms();
-      },
-      error: (err) => {
-        this.errorMessage = err.message;
+    Swal.fire({
+      title: '確認刪除',
+      text: '確定要刪除此房間？此操作無法撤銷！',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '確認',
+      cancelButtonText: '取消',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: '再次確認',
+          text: '請再次確認刪除此房間，此操作無法撤銷！',
+          icon: 'error',
+          showCancelButton: true,
+          confirmButtonText: '確認',
+          cancelButtonText: '取消',
+          reverseButtons: true,
+          focusCancel: true
+        }).then((secondResult) => {
+          if (secondResult.isConfirmed) {
+            this.roomTableErpService.deleteRoom(roomId).subscribe({
+              next: () => {
+                toast('房間刪除成功');
+                this.loadRooms();
+              },
+              error: (err) => {
+                this.errorMessage = err.message;
+              }
+            });
+          }
+        });
       }
     });
   }
 
   toggleRoomStatus(room: RoomTableErp): void {
     const newStatus = room.fRoomStatus === 'active' ? 'vacant' : 'active';
-    if (!confirm(`確定要${newStatus === 'active' ? '上架' : '下架'}這個房間嗎？`)) return;
-
-    this.roomTableErpService.toggleRoomStatus(room.fRoomId, newStatus).subscribe({
-      next: () => {
-        room.fRoomStatus = newStatus;
-        this.loadRooms();
-      },
-      // error: (err) => console.error('狀態切換失敗', err)
+    Swal.fire({
+      title: '確認切換狀態',
+      text: `確定要${newStatus === 'active' ? '上架' : '下架'}這個房間嗎？`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '確認',
+      cancelButtonText: '取消',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.roomTableErpService.toggleRoomStatus(room.fRoomId, newStatus).subscribe({
+          next: () => {
+            room.fRoomStatus = newStatus;
+            this.loadRooms();
+          },
+          // error: (err) => console.error('狀態切換失敗', err)
+        });
+      }
     });
   }
 
@@ -257,25 +292,35 @@ export class RoomTableErpComponent implements OnInit {
 
   checkout(): void {
     if (this.selectedOccupancies.length === 0) {
-      alert('請至少選擇一項入住資訊');
+      toast('請至少選擇一項入住資訊');
       return;
     }
 
-    if (!confirm('確定要為選中的入住記錄辦理離院嗎？')) return;
-
-    this.roomTableErpService.checkoutOccupancies(this.selectedOccupancies).subscribe({
-      next: () => {
-        alert('離院成功');
-        this.loadRooms();
-        this.closeOccupancyModal();
-      },
-      error: (err) => {
-        console.error('Checkout Error:', err); // Enhanced logging
-        this.errorMessage = err.error?.message || '離院失敗，請檢查輸入數據';
+    Swal.fire({
+      title: '確認離院',
+      text: '確定要為選中的入住記錄辦理離院嗎？',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '確認',
+      cancelButtonText: '取消',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.roomTableErpService.checkoutOccupancies(this.selectedOccupancies).subscribe({
+          next: () => {
+            toast('離院成功');
+            this.loadRooms();
+            this.closeOccupancyModal();
+          },
+          error: (err) => {
+            console.error('Checkout Error:', err); // Enhanced logging
+            this.errorMessage = err.error?.message || '離院失敗，請檢查輸入數據';
+          }
+        });
       }
     });
   }
-
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {
