@@ -19,30 +19,33 @@
                   <div class="col-auto">
                     <button type="submit" class="btn app-btn-secondary">查詢</button>
                   </div>
+                  <select class="form-select w-auto">
+                    <option selected value="option-1">--類別--</option>
+                    <option value="option-2">醫藥品</option>
+                    <option value="option-3">保健品</option>
+                    <option value="option-4">日用品</option>
+                    <option value="option-5">辦公用品</option>
+                  </select>
                 </form>
-
               </div><!--//col-->
-              <div class="col-auto">
-
-                <select class="form-select w-auto">
-                  <option selected value="option-1">--類別--</option>
-                  <option value="option-2">醫藥品</option>
-                  <option value="option-3">保健品</option>
-                  <option value="option-4">日用品</option>
-                  <option value="option-5">辦公用品</option>
-
-                </select>
-              </div>
             </div><!--//row-->
           </div><!--//table-utilities-->
         </div><!--//col-auto-->
       </div><!--//row-->
 
 
-      <div>
+      <div class="d-flex align-items-center mb-3">
         <button class="app-btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addSuppliesModal"
           (click)="resetNewProduct()">
           新增品項
+        </button>
+
+        <button type="button" class="btn btn-outline-primary ms-auto" (click)="downloadTemplate()">
+          下載新增用Excel範本
+        </button>
+        <input type="file" class="form-control w-auto" accept=".xlsx" (change)="onFileSelected($event)">
+        <button type="button" class="btn btn-outline-success" [disabled]="!selectedFile" (click)="uploadExcel()">
+          批次匯入
         </button>
       </div>
 

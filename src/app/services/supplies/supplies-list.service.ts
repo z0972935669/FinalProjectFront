@@ -33,4 +33,17 @@ export class SuppliesListService {
     }
     return this.http.get<any>(url); // 回傳 { totalCount, totalPages, page, pageSize, data }
   }
+
+
+  downloadTemplate(): Observable<Blob> {
+    const url = `${this.apiUrlsup}/excel/template`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
+  importExcel(file: File): Observable<any> {
+    const url = `${this.apiUrlsup}/excel/import`;
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<any>(url, form);
+  }
 }

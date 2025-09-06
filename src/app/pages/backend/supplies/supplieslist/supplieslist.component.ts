@@ -185,4 +185,47 @@ export class SupplieslistComponent {
     // 根據 suppliesProductID 過濾出對應的時間資料
     this.selectedProductDates = this.suppliesDate.filter(date => date.suppliesProductId === product.suppliesProductID);
   }
+
+  // EPPlus
+  selectedFile: File | null = null;
+
+  onFileSelected(evt: Event) {
+    const input = evt.target as HTMLInputElement;
+    this.selectedFile = (input.files && input.files.length > 0) ? input.files[0] : null;
+  }
+
+  downloadTemplate() {
+    this.suppliesListService.downloadTemplate().subscribe({
+      next: blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'SuppliesProducts_Template.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: _ => {
+        Swal.fire({ title: '下載失敗', icon: 'error' });
+      }
+    });
+  }
+
+  uploadExcel() {
+    if (!this.selectedFile) return;
+
+    this.suppliesListService.importExcel(this.selectedFile).subscribe({
+      next: res => {
+        const msg = `匯入完成：新增 ${res.inserted} 筆` + (res.errors?.length ? `，錯誤 ${res.errors.length} 筆` : '');
+        Swal.fire({ title: '成功', text: msg, icon: 'success', width: 600 });
+        if (res.errors?.length) {
+          console.warn('Import row errors:', res.errors);
+        }
+        this.selectedFile = null;
+        this.loadProducts(this.currentPage); // 重新載入列表
+      },
+      error: err => {
+        Swal.fire({ title: '匯入失敗', text: (err?.error ?? '請檢查檔案格式/標題列'), icon: 'error' });
+      }
+    });
+  }
 }
