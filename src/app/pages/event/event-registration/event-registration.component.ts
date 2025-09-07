@@ -97,23 +97,46 @@ export class EventRegistrationComponent {
   // 收到[linepay跳出視窗]的回應
   private onLinePayMessage = (ev: MessageEvent) => {
     const data = ev.data || {};
-    if (data.type !== 'LINEPAY_DONE') return; //彈出視窗關閉後(回傳LINEPAY_DONE)執行的
+    if (data.type !== 'LINEPAY_DONE') return;
 
-    // 收到付款結果 → 解鎖、提示、關窗
     this.zone.run(() => {
-      //使用第三方SDK callback時需透過zone 畫面才會更新   把後續程式放到 Angular 的 NgZone 裡執行，確保 UI 可以即時更新（避免 Angular 偵測不到外部事件造成畫面不變）。
+      // 不論成功/失敗都先關掉 popup
+      try {
+        this.payWin?.close();
+      } catch {}
+      this.payWin = null;
 
       if (data.ok) {
-        alert('已付款完成！');
-        this.router.navigate(['../'], {
-          relativeTo: this.route,
-        });
-      } else {
-        // 解鎖
+        // 成功：解鎖 + 彈窗 + 導回 returnTo
         this.uiBlocked = false;
         this.form.enable({ emitEvent: false });
         this.submitting = false;
-        alert(`付款未完成或失敗${data.message ? '：' + data.message : ''}`);
+
+        Swal.fire({
+          icon: 'success',
+          title: '付款完成',
+          text: '已成功完成 LINE Pay 付款！',
+          confirmButtonText: '確定',
+          confirmButtonColor: '#6b4e3d',
+        }).then(() => {
+          // 用你在 ngOnInit 設好的 returnTo，不會跳到整站首頁
+          this.router.navigateByUrl(this.returnTo, { replaceUrl: true });
+        });
+      } else {
+        // 失敗或未完成：解鎖 + 彈窗（留在原頁）
+        this.uiBlocked = false;
+        this.form.enable({ emitEvent: false });
+        this.submitting = false;
+
+        Swal.fire({
+          icon: 'error',
+          title: '付款未完成',
+          text: data.message
+            ? `原因：${data.message}`
+            : '請稍後再試或改用其他方式',
+          confirmButtonText: '知道了',
+          confirmButtonColor: '#6b4e3d',
+        });
       }
     });
   };
@@ -259,7 +282,13 @@ export class EventRegistrationComponent {
       return;
     }
     if (method === 'LINEPAY' && invoiceType === '電子發票' && !carrier) {
-      alert('付款為 LINE Pay 且選擇電子發票時，必須填寫載具！');
+      Swal.fire({
+        icon: 'warning',
+        title: '注意',
+        text: '付款為 LINE Pay 且選擇電子發票時，必須填寫載具！',
+        confirmButtonText: '確定',
+        confirmButtonColor: '#5c4033', // 咖啡色按鈕，符合你的樣式
+      });
       return;
     }
 
@@ -380,8 +409,8 @@ export class EventRegistrationComponent {
     const carrier = payGroup?.get('eInvoiceCarrier');
 
     if (this.isFree) {
-      // 免費：拿掉與付款相關的驗證，條款勾選也不強制
-      agree?.clearValidators();
+      // 免費：拿掉與付款相關的驗證，
+      agree?.setValidators(Validators.requiredTrue);
       method?.clearValidators();
       invoice?.clearValidators();
       carrier?.clearValidators();
