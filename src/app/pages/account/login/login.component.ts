@@ -21,7 +21,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   lockCountdown = 0;
   private lockTimer?: any;
 
-  // 停權對話框狀態
   showBanDialog = false;
   banMessage = '您的帳號已被停權，請聯繫安養院或客服。';
 
@@ -29,7 +28,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   rememberMe = false;
   private readonly REMEMBER_ACCOUNT_KEY = 'remember_account';
 
-  // ===== 常數（只改這裡即可統一導頁與 Token key）=====
+  // ===== 統一導頁與 Token key=====
   private readonly apiBase = 'https://localhost:7124/api/account';
   private readonly TOKEN_KEYS = ['jwt', 'jwtToken'];
   private readonly LOGIN_REDIRECT = '/member-info';
@@ -115,7 +114,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         localStorage.setItem('memberName', res.name ?? '');
         this.loading = false;
 
-        // ===== 新增：成功後依勾選狀態記住或清除帳號 =====
         const acc = (this.account ?? '').trim();
         if (this.rememberMe && acc) {
           localStorage.setItem(this.REMEMBER_ACCOUNT_KEY, acc);
@@ -159,7 +157,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       });
   };
 
-  // ===== LINE 登入（原流程保留） =====
+  // ===== LINE 登入 =====
   private line = {
     clientId: '2007987566',
     redirectUri: 'http://localhost:4200/show/login',
@@ -255,7 +253,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private openBanDialog(serverMsg?: string) {
-    // 後端訊息優先，否則顯示預設
     this.banMessage = serverMsg || '您的帳號已被停權，請聯繫安養院或客服。';
     this.showBanDialog = true;
   }
@@ -264,7 +261,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.showBanDialog = false;
   }
 
-  // ===== 統一處理 401/403/429（避免三處重複碼）=====
   private handleAuthError(err: HttpErrorResponse) {
     this.loading = false;
 
