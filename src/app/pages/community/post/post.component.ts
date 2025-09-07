@@ -164,17 +164,17 @@ export class PostComponent implements OnInit {
   loadPost(postID: number): void {
     this.postService.getPost(postID).subscribe({
       next: (post: Post) => {
-        console.log('收到的文章資料:', post);
-        console.log('文章創建時間:', post.createdAt);
-        console.log('本地時間:', new Date(post.createdAt).toLocaleString());
+        // console.log('收到的文章資料:', post);
+        // console.log('文章創建時間:', post.createdAt);
+        // console.log('本地時間:', new Date(post.createdAt).toLocaleString());
 
         // 檢查每個附件的結構
-        if (post.attachments && post.attachments.length > 0) {
-          post.attachments.forEach((att, index) => {
-            console.log(`附件 ${index}:`, att);
-            console.log(`附件 ${index} 的所有屬性:`, Object.keys(att));
-          });
-        }
+        // if (post.attachments && post.attachments.length > 0) {
+        //   post.attachments.forEach((att, index) => {
+        //     console.log(`附件 ${index}:`, att);
+        //     console.log(`附件 ${index} 的所有屬性:`, Object.keys(att));
+        //   });
+        // }
 
         this.post = post;
         this.sanitizedContent = this.processContent(post.content || '');
@@ -1037,8 +1037,8 @@ export class PostComponent implements OnInit {
   // 移除現有附件
   removeExistingAttachment(attachment: Attachment): void {
     if (this.editingPost) {
-      console.log('準備刪除附件:', attachment);
-      console.log('附件的所有屬性:', Object.keys(attachment));
+      // console.log('準備刪除附件:', attachment);
+      // console.log('附件的所有屬性:', Object.keys(attachment));
 
       // 修正：更全面地嘗試取得附件 ID
       const attachmentId =
@@ -1050,7 +1050,7 @@ export class PostComponent implements OnInit {
         (attachment as any).Id ||
         (attachment as any).ID;
 
-      console.log('提取的附件 ID:', attachmentId, typeof attachmentId);
+      // console.log('提取的附件 ID:', attachmentId, typeof attachmentId);
 
       if (!attachmentId && attachmentId !== 0) {
         // 允許 ID 為 0
@@ -1087,20 +1087,20 @@ export class PostComponent implements OnInit {
       // 添加到刪除列表
       if (!this.attachmentsToDelete.includes(attachmentId)) {
         this.attachmentsToDelete.push(attachmentId);
-        console.log('已添加到刪除列表:', attachmentId);
+        // console.log('已添加到刪除列表:', attachmentId);
       }
 
-      console.log('當前刪除列表:', this.attachmentsToDelete);
-      console.log('剩餘附件:', this.editingPost.attachments?.length || 0);
+      // console.log('當前刪除列表:', this.attachmentsToDelete);
+      // console.log('剩餘附件:', this.editingPost.attachments?.length || 0);
     }
   }
 
   // 儲存編輯文章
   saveEditPost(): void {
-    console.log('開始更新文章');
-    console.log('文章 ID:', this.editingPost?.postId);
-    console.log('要刪除的附件:', this.attachmentsToDelete);
-    console.log('新上傳的檔案:', this.selectedFiles);
+    // console.log('開始更新文章');
+    // console.log('文章 ID:', this.editingPost?.postId);
+    // console.log('要刪除的附件:', this.attachmentsToDelete);
+    // console.log('新上傳的檔案:', this.selectedFiles);
 
     if (!this.editingPost || !this.editingPost.postId) return;
 
@@ -1131,10 +1131,10 @@ export class PostComponent implements OnInit {
         'deletedAttachmentIds',
         JSON.stringify(this.attachmentsToDelete)
       );
-      console.log(
-        '要刪除的附件 IDs:',
-        JSON.stringify(this.attachmentsToDelete)
-      );
+      // console.log(
+      //   '要刪除的附件 IDs:',
+      //   JSON.stringify(this.attachmentsToDelete)
+      // );
     }
 
     // 添加新附件
@@ -1142,9 +1142,9 @@ export class PostComponent implements OnInit {
       this.selectedFiles.forEach((file) => {
         formData.append('attachments', file);
       });
-      console.log(`添加了 ${this.selectedFiles.length} 個新附件`);
+      // console.log(`添加了 ${this.selectedFiles.length} 個新附件`);
     } else {
-      console.log('沒有新附件需要上傳');
+      // console.log('沒有新附件需要上傳');
     }
 
     // 發送更新請求

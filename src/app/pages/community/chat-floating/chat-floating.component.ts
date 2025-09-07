@@ -122,11 +122,11 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 訂閱訊息
   private subscribeToMessages(): void {
-    console.log('📡 [ChatFloating] 開始訂閱訊息');
+    // console.log('📡 [ChatFloating] 開始訂閱訊息');
 
     const messageSub = this.chatService.messages$.subscribe({
       next: (message) => {
-        console.log('📥 [ChatFloating] 訂閱收到訊息:', message);
+        // console.log('📥 [ChatFloating] 訂閱收到訊息:', message);
         this.handleIncomingMessage(message);
       },
       error: (error) => {
@@ -206,11 +206,11 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
     const messageToSend = this.newMessage.trim();
     const roomId = this.selectedRoom.roomId;
 
-    console.log('🔄 [ChatFloating] 準備發送訊息:', {
-      roomId,
-      userId: this.userId,
-      content: messageToSend
-    });
+    // console.log('🔄 [ChatFloating] 準備發送訊息:', {
+    //   roomId,
+    //   userId: this.userId,
+    //   content: messageToSend
+    // });
 
     // 清空輸入框
     this.newMessage = '';
@@ -218,7 +218,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
     this.chatService
       .sendMessage(roomId, this.userId, messageToSend)
       .then(() => {
-        console.log('✅ [ChatFloating] 訊息發送成功，等待 SignalR 回傳');
+        // console.log('✅ [ChatFloating] 訊息發送成功，等待 SignalR 回傳');
       })
       .catch((err: any) => {
         console.error('❌ [ChatFloating] 發送訊息失敗:', err);
@@ -237,9 +237,9 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 處理接收到的訊息 - 強化版本
   private handleIncomingMessage(msg: ChatMessage): void {
-    console.log('🔔 [ChatFloating] 收到訊息:', msg);
-    console.log('🔍 [ChatFloating] 當前選中聊天室:', this.selectedRoom?.roomId);
-    console.log('📊 [ChatFloating] 當前訊息數量:', this.messages.length);
+    // console.log('🔔 [ChatFloating] 收到訊息:', msg);
+    // console.log('🔍 [ChatFloating] 當前選中聊天室:', this.selectedRoom?.roomId);
+    // console.log('📊 [ChatFloating] 當前訊息數量:', this.messages.length);
 
     // 基本資料驗證
     if (!msg.content || !msg.roomId || !msg.senderId) {
@@ -258,13 +258,13 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
     const room = this.rooms.find((r) => r.roomId === msg.roomId);
     if (!room) {
       console.warn('⚠️ [ChatFloating] 找不到對應的聊天室:', msg.roomId);
-      console.log('📋 [ChatFloating] 當前可用聊天室:', this.rooms.map(r => r.roomId));
+      // console.log('📋 [ChatFloating] 當前可用聊天室:', this.rooms.map(r => r.roomId));
       return;
     }
 
     // 如果是當前聊天室，添加訊息
     if (this.selectedRoom?.roomId === msg.roomId) {
-      console.log('✅ [ChatFloating] 訊息屬於當前聊天室，準備添加');
+      // console.log('✅ [ChatFloating] 訊息屬於當前聊天室，準備添加');
 
       // 檢查重複訊息（使用更嚴格的條件）
       const isDuplicate = this.messages.some(existingMsg =>
@@ -278,12 +278,12 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
       );
 
       if (!isDuplicate) {
-        console.log('🆕 [ChatFloating] 新訊息，添加到列表');
+        // console.log('🆕 [ChatFloating] 新訊息，添加到列表');
 
         // 強制在 Angular Zone 內執行
         this.ngZone.run(() => {
           this.messages = [...this.messages, messageWithData]; // 使用展開運算符確保引用改變
-          console.log('📈 [ChatFloating] 訊息已添加，新的訊息數量:', this.messages.length);
+          // console.log('📈 [ChatFloating] 訊息已添加，新的訊息數量:', this.messages.length);
 
           // 延遲滾動確保 DOM 已更新
           setTimeout(() => {
@@ -291,14 +291,14 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
           }, 50);
         });
       } else {
-        console.log('🔄 [ChatFloating] 重複訊息，已忽略');
+        // console.log('🔄 [ChatFloating] 重複訊息，已忽略');
       }
     } else {
       // 更新未讀訊息數
-      console.log('📬 [ChatFloating] 訊息來自其他聊天室，更新未讀數');
+      // console.log('📬 [ChatFloating] 訊息來自其他聊天室，更新未讀數');
       this.ngZone.run(() => {
         room.unread = (room.unread || 0) + 1;
-        console.log('📈 [ChatFloating] 未讀訊息數更新為:', room.unread);
+        // console.log('📈 [ChatFloating] 未讀訊息數更新為:', room.unread);
       });
     }
   }
@@ -332,7 +332,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
     const connectionSub = this.chatService.connectionState$.subscribe((connected) => {
       this.ngZone.run(() => {
         this.isConnected = connected;
-        console.log('🔗 [ChatFloating] 連線狀態更新:', connected);
+        // console.log('🔗 [ChatFloating] 連線狀態更新:', connected);
       });
     });
     this.subscriptions.push(connectionSub);
@@ -340,7 +340,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 載入私人聊天室列表
   private loadPrivateRooms(): void {
-    console.log('🔄 [ChatFloating] 載入私人聊天室列表，用戶ID:', this.userId);
+    // console.log('🔄 [ChatFloating] 載入私人聊天室列表，用戶ID:', this.userId);
 
     if (!this.userId) {
       console.warn('⚠️ [ChatFloating] 用戶ID無效，無法載入聊天室');
@@ -349,8 +349,8 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
     this.chatService.getPrivateRooms(this.userId).subscribe({
       next: (rooms) => {
-        console.log('✅ [ChatFloating] 載入聊天室成功，數量:', rooms.length);
-        console.log('📋 [ChatFloating] 聊天室列表:', rooms);
+        // console.log('✅ [ChatFloating] 載入聊天室成功，數量:', rooms.length);
+        // console.log('📋 [ChatFloating] 聊天室列表:', rooms);
 
         this.ngZone.run(() => {
           this.rooms = rooms;
@@ -377,14 +377,14 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 自動加入所有聊天室（用於接收訊息）
   private joinAllRooms(): void {
-    console.log('🔄 [ChatFloating] 自動加入所有聊天室');
+    // console.log('🔄 [ChatFloating] 自動加入所有聊天室');
 
     this.rooms.forEach((room) => {
       if (room.roomId) {
         this.chatService
           .joinRoom(room.roomId, this.userId)
           .then(() => {
-            console.log('✅ [ChatFloating] 成功加入聊天室:', room.roomId);
+            // console.log('✅ [ChatFloating] 成功加入聊天室:', room.roomId);
           })
           .catch((err: any) => {
             console.error('❌ [ChatFloating] 加入聊天室失敗:', room.roomId, err);
@@ -395,7 +395,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 加入聊天室並載入訊息
   private joinAndLoad(room: ChatRoom): void {
-    console.log('🔄 [ChatFloating] 加入聊天室並載入訊息:', room.roomId);
+    // console.log('🔄 [ChatFloating] 加入聊天室並載入訊息:', room.roomId);
 
     if (!room.roomId) {
       console.error('❌ [ChatFloating] 聊天室ID無效');
@@ -406,7 +406,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
     this.chatService.joinRoom(room.roomId, this.userId)
       .then(() => {
-        console.log('✅ [ChatFloating] 成功加入聊天室:', room.roomId);
+        // console.log('✅ [ChatFloating] 成功加入聊天室:', room.roomId);
 
         // 載入聊天歷史
         this.loadChatHistory(room.roomId);
@@ -426,7 +426,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 選擇聊天室 - 修正版本
   selectRoom(room: ChatRoom): void {
-    console.log('🔄 [ChatFloating] 選擇聊天室:', room.roomId);
+    // console.log('🔄 [ChatFloating] 選擇聊天室:', room.roomId);
 
     // 清除未讀訊息數
     if (room.unread && room.unread > 0) {
@@ -440,7 +440,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 開啟好友私人聊天室 - 修正版本，移除 createPrivateRoom 呼叫
   openPrivateChat(friendId: number): void {
-    console.log('🔄 [ChatFloating] 開啟私人聊天室，好友ID:', friendId, '當前用戶ID:', this.userId);
+    // console.log('🔄 [ChatFloating] 開啟私人聊天室，好友ID:', friendId, '當前用戶ID:', this.userId);
 
     if (!this.userId || !friendId) {
       console.error('❌ [ChatFloating] 參數無效:', { userId: this.userId, friendId });
@@ -453,7 +453,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
     // 取得或建立私人聊天室
     this.chatService.getOrCreatePrivateRoom(this.userId, friendId).subscribe({
       next: (room) => {
-        console.log('✅ [ChatFloating] 成功取得聊天室:', room);
+        // console.log('✅ [ChatFloating] 成功取得聊天室:', room);
 
         if (!room || !room.roomId || room.roomId <= 0) {
           console.error('❌ [ChatFloating] 聊天室資料無效:', room);
@@ -465,12 +465,12 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
         this.selectedRoom = room;
         this.messages = [];
 
-        console.log('🔄 [ChatFloating] 嘗試加入聊天室，roomId:', room.roomId);
+        // console.log('🔄 [ChatFloating] 嘗試加入聊天室，roomId:', room.roomId);
 
         // 加入聊天室
         this.chatService.joinRoom(room.roomId, this.userId)
           .then(() => {
-            console.log('✅ [ChatFloating] 成功加入聊天室');
+            // console.log('✅ [ChatFloating] 成功加入聊天室');
             this.isLoadingMessages = false;
 
             // 載入歷史訊息
@@ -513,12 +513,12 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
 
   // 載入聊天歷史記錄 - 強化版本
   private loadChatHistory(roomId: number): void {
-    console.log('🔄 [ChatFloating] 載入聊天歷史，roomId:', roomId);
+    // console.log('🔄 [ChatFloating] 載入聊天歷史，roomId:', roomId);
 
     this.chatService.getHistory(roomId).subscribe({
       next: (msgs) => {
-        console.log('✅ [ChatFloating] 載入聊天歷史成功，訊息數量:', msgs.length);
-        console.log('📋 [ChatFloating] 歷史訊息詳情:', msgs);
+        // console.log('✅ [ChatFloating] 載入聊天歷史成功，訊息數量:', msgs.length);
+        // console.log('📋 [ChatFloating] 歷史訊息詳情:', msgs);
 
         this.ngZone.run(() => {
           this.messages = msgs.map(msg => ({
@@ -527,7 +527,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
             senderName: msg.senderName || '未知用戶'
           }));
 
-          console.log('📋 [ChatFloating] 歷史訊息已設置，總數:', this.messages.length);
+          // console.log('📋 [ChatFloating] 歷史訊息已設置，總數:', this.messages.length);
 
           setTimeout(() => {
             this.scrollToBottom();
@@ -549,7 +549,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
       if (this.messagesContainer?.nativeElement) {
         const element = this.messagesContainer.nativeElement;
         element.scrollTop = element.scrollHeight;
-        console.log('📜 [ChatFloating] 已滾動到底部');
+        // console.log('📜 [ChatFloating] 已滾動到底部');
       }
     } catch (err) {
       console.warn('⚠️ [ChatFloating] 滾動失敗:', err);
@@ -605,7 +605,7 @@ export class ChatFloatingComponent implements OnInit, OnDestroy {
     this.selectedFriend = friend;
     this.isVisible = true;
     // 這裡可以添加載入聊天記錄的邏輯
-    console.log('開始與好友聊天:', friend);
+    // console.log('開始與好友聊天:', friend);
   }
 
   // 隱藏聊天視窗

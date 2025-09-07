@@ -219,13 +219,13 @@ export class PostService {
   getPost(id: number): Observable<Post> {
     return this.http.get<any>(`${this.apiUrl}/CommunityPosts/${id}`).pipe(
       map((res: any) => {
-        console.log('API 原始回應:', res); // 除錯輸出
-        console.log('API 回傳的附件:', res.attachments); // 除錯輸出
+        // console.log('API 原始回應:', res); // 除錯輸出
+        // console.log('API 回傳的附件:', res.attachments); // 除錯輸出
 
         // 修正：更全面地處理附件欄位名稱
-        const attachments: Attachment[] = (res.attachments || [])
-          .map((att: any, index: number) => {
-            console.log(`處理附件 ${index}:`, att); // 除錯輸出
+        const attachments: Attachment[] = (res.attachments || []).map(
+          (att: any, index: number) => {
+            // console.log(`處理附件 ${index}:`, att); // 除錯輸出
 
             // 嘗試多種可能的欄位名稱
             const attachmentId =
@@ -258,11 +258,12 @@ export class PostService {
                 att.url,
             };
 
-            console.log(`轉換後的附件 ${index}:`, result); // 除錯輸出
+            // console.log(`轉換後的附件 ${index}:`, result); // 除錯輸出
             return result;
-          });
+          }
+        );
 
-        console.log('最終附件陣列:', attachments); // 除錯輸出
+        // console.log('最終附件陣列:', attachments); // 除錯輸出
 
         // 處理留言與回覆的邏輯保持不變...
         const comments: Comment[] = (res.comments || []).map((c: any) => {
@@ -382,17 +383,17 @@ export class PostService {
 
   // 取得指定看板文章
   getPostsByBoard(boardID: number): Observable<Post[]> {
-    return this.http.get<Post[]>(
-      `${this.apiUrl}/CommunityPosts/board/${boardID}`
-    ).pipe(
-      map((posts: any[]) =>
-        posts.map((post) => ({
-          ...post,
-          createdAt: post.createdAt ? new Date(post.createdAt) : new Date(),
-          updatedAt: post.updatedAt ? new Date(post.updatedAt) : undefined,
-        }))
-      )
-    );
+    return this.http
+      .get<Post[]>(`${this.apiUrl}/CommunityPosts/board/${boardID}`)
+      .pipe(
+        map((posts: any[]) =>
+          posts.map((post) => ({
+            ...post,
+            createdAt: post.createdAt ? new Date(post.createdAt) : new Date(),
+            updatedAt: post.updatedAt ? new Date(post.updatedAt) : undefined,
+          }))
+        )
+      );
   }
 
   // 更新喜歡數
@@ -625,32 +626,38 @@ export class PostService {
   }
 
   // 修改：取得檢舉列表（支援篩選與分頁）
-  getReports(params: HttpParams): Observable<{
-    total: number;
-    page: number;
-    pageSize: number;
-    items: ReportListItem[];
-  }> {
-    return this.http.get<{
-      total: number;
-      page: number;
-      pageSize: number;
-      items: ReportListItem[];
-    }>(`${this.apiUrl}/CommunityReports`, { params });
+  getReports(params: HttpParams): Observable<any> {
+    const token = localStorage.getItem('jwtToken'); // 或從 cookie 讀取
+    const headers = new HttpHeaders({
+      'Authorization': token ? `Bearer ${token}` : '',
+      // 如果使用 cookie，可添加 'withCredentials: true' 在請求選項中
+    });
+
+    return this.http.get(`${this.apiUrl}/CommunityReports`, { params, headers, withCredentials: true });
   }
 
   // 新增：取得單一檢舉詳情
   getReportById(id: number): Observable<ReportDetailDto> {
     return this.http.get<ReportDetailDto>(
-      `${this.apiUrl}/CommunityReports/${id}`
+      `${this.apiUrl}/CommunityReports/${id}`,
+      {
+        headers: this.getAuthHeaders(),
+        withCredentials: true,
+      }
     );
   }
 
   // 新增：處理檢舉
-  handleReport(id: number, request: HandleReportRequest): Observable<any> {
+  handleReport(
+    reportId: number,
+    request: HandleReportRequest
+  ): Observable<any> {
     return this.http.put(
-      `${this.apiUrl}/CommunityReports/${id}/handle`,
-      request
+      `${this.apiUrl}/CommunityReports/${reportId}/handle`,
+      request,
+      {
+        withCredentials: true, // 新增認證
+      }
     );
   }
 

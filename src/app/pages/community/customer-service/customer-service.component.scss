@@ -1,3 +1,4 @@
+// 原有的樣式保持不變
 .message-bubble {
   padding: 10px;
   margin: 5px 0;
@@ -5,19 +6,23 @@
   max-width: 70%;
   word-wrap: break-word;
 }
+
 .message-bubble.member {
   background-color: #e1f5fe;
   align-self: flex-start;
 }
+
 .message-bubble.staff {
   background-color: #c8e6c9;
   align-self: flex-end;
 }
+
 .timestamp {
   font-size: 0.8em;
   color: #666;
   margin-top: 5px;
 }
+
 .chat-body {
   display: flex;
   flex-direction: column;
@@ -26,30 +31,24 @@
 .chat-wrapper {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 600px; // 限制最大寬度，增加現代感
-  height: 80vh;
-  margin: 20px auto;
-  border-radius: 20px; // 增加圓角
-  border: none; // 移除邊框，使用陰影
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); // 現代漸層背景
+  width: 100vw;  // 全螢幕寬度
+  height: calc(100vh - 172px); // 減去導覽列和底部空間（調整 172px 為實際高度）
+  margin: 0;     // 移除居中 margin
+  border-radius: 0; // 移除圓角（全螢幕時可選）
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); // 更強的陰影
-  transition: box-shadow 0.3s ease; // 添加過渡效果
-
-  &:hover {
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); // 懸停時增強陰影
-  }
+  box-shadow: none; // 移除陰影（全螢幕時可選）
+  transition: none; // 移除 hover 效果（可選）
 }
 
 .chat-header {
   padding: 20px;
   font-size: 18px;
   font-weight: 700;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); // 現代漸層標題
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   color: #fff;
   text-align: center;
-  border-radius: 20px 20px 0 0; // 圓角頂部
+  border-radius: 20px 20px 0 0;
 }
 
 .chat-body-wrapper {
@@ -64,33 +63,198 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px; // 增加訊息間距
-  background-color: transparent; // 透明背景，讓漸層顯示
-  border-bottom: none; // 移除邊框
+  gap: 12px;
+  background-color: transparent;
+  border-bottom: none;
 }
 
 .chat-message {
   padding: 12px 18px;
-  border-radius: 18px; // 更大圓角
+  border-radius: 18px;
   max-width: 80%;
   font-size: 15px;
   word-break: break-word;
-  animation: fadeIn 0.3s ease-in; // 添加淡入動畫
+  animation: fadeIn 0.3s ease-in;
 
   &.user {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); // 漸層氣泡
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     margin-left: auto;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); // 陰影
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+    p {
+      margin: 0; // 移除用戶訊息的預設 margin
+    }
   }
 
   &.ai {
-    background-color: #fff; // 白色背景
+    background-color: #fff;
     border: 1px solid #e0e6ed;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-right: auto;
     color: #333;
     font-style: normal;
+
+    // AI 格式化內容的樣式
+    .ai-formatted-content {
+      line-height: 1.6;
+      margin: 0;
+
+      // 標題樣式
+      h1, h2, h3, h4, h5, h6 {
+        margin: 0.8em 0 0.4em 0;
+        color: #2c3e50;
+        font-weight: bold;
+
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+
+      h1 { font-size: 1.4em; }
+      h2 { font-size: 1.3em; }
+      h3 { font-size: 1.2em; }
+      h4 { font-size: 1.1em; }
+
+      // 段落樣式
+      p {
+        margin: 0.6em 0;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      // 粗體和斜體
+      strong, b {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      em, i {
+        font-style: italic;
+        color: #34495e;
+      }
+
+      // 列表樣式
+      ul, ol {
+        margin: 0.8em 0;
+        padding-left: 1.5em;
+
+        li {
+          margin: 0.4em 0;
+          line-height: 1.5;
+        }
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      ul li {
+        list-style-type: disc;
+      }
+
+      // 代碼樣式
+      code {
+        background-color: #f1f3f4;
+        border: 1px solid #e1e5e9;
+        border-radius: 4px;
+        padding: 0.2em 0.4em;
+        font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+        font-size: 0.85em;
+        color: #d63384;
+      }
+
+      // 代碼塊樣式
+      pre {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 1em;
+        margin: 0.8em 0;
+        overflow-x: auto;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        code {
+          background: none;
+          border: none;
+          padding: 0;
+          color: #212529;
+          font-size: 0.9em;
+        }
+      }
+
+      // 分隔線樣式
+      hr {
+        border: none;
+        border-top: 2px solid #e9ecef;
+        margin: 1.2em 0;
+        border-radius: 1px;
+      }
+
+      // 引用樣式
+      blockquote {
+        border-left: 4px solid #667eea;
+        padding-left: 1em;
+        margin: 0.8em 0;
+        font-style: italic;
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-radius: 0 4px 4px 0;
+        padding: 0.8em 1em;
+      }
+
+      // 鏈接樣式
+      a {
+        color: #667eea;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+          color: #764ba2;
+        }
+      }
+
+      // 表格樣式
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.8em 0;
+        font-size: 0.9em;
+
+        th, td {
+          border: 1px solid #dee2e6;
+          padding: 0.6em;
+          text-align: left;
+        }
+
+        th {
+          background-color: #f8f9fa;
+          font-weight: bold;
+          color: #495057;
+        }
+
+        tr:nth-child(even) {
+          background-color: #f8f9fa;
+        }
+      }
+    }
   }
 
   &.typing {
@@ -98,7 +262,7 @@
     font-style: italic;
     color: #666;
     margin-right: auto;
-    animation: pulse 1.5s infinite; // 打字動畫
+    animation: pulse 1.5s infinite;
   }
 }
 
@@ -107,7 +271,7 @@
   padding: 15px 20px;
   border-top: 1px solid #e0e6ed;
   background-color: #fff;
-  border-radius: 0 0 20px 20px; // 圓角底部
+  border-radius: 0 0 20px 20px;
 
   textarea {
     flex: 1;
@@ -121,7 +285,7 @@
     transition: border-color 0.2s ease;
 
     &:focus {
-      border-color: #667eea; // 焦點時改變邊框色
+      border-color: #667eea;
       outline: none;
     }
   }
@@ -139,7 +303,7 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover:not(:disabled) {
-      transform: translateY(-2px); // 懸停時輕微上移
+      transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
 
@@ -151,14 +315,20 @@
   }
 
   .transfer-btn {
-    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); // 不同漸層區別
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
   }
 }
 
 // 動畫定義
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse {
@@ -176,6 +346,19 @@
 
   .chat-message {
     max-width: 90%;
+
+    &.ai .ai-formatted-content {
+      font-size: 0.9em;
+
+      pre {
+        padding: 0.8em;
+        font-size: 0.8em;
+      }
+
+      h1 { font-size: 1.3em; }
+      h2 { font-size: 1.2em; }
+      h3 { font-size: 1.1em; }
+    }
   }
 }
 
@@ -187,12 +370,26 @@
   }
 
   .chat-input-area {
-    flex-direction: column; // 小螢幕垂直排列
+    flex-direction: column;
     gap: 10px;
 
     button {
       margin-left: 0;
       width: 100%;
+    }
+  }
+
+  .chat-message {
+    &.ai .ai-formatted-content {
+      font-size: 0.85em;
+
+      table {
+        font-size: 0.8em;
+
+        th, td {
+          padding: 0.4em;
+        }
+      }
     }
   }
 }

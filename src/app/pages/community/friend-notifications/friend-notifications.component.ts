@@ -94,8 +94,8 @@ export class FriendNotificationsComponent implements OnInit, OnDestroy {
   constructor(private friendService: FriendService) {}
 
   ngOnInit(): void {
-    console.log('🎯 FriendNotificationsComponent 初始化成功！');
-    console.log('當前用戶ID:', this.getCurrentUserId());
+    // console.log('🎯 FriendNotificationsComponent 初始化成功！');
+    // console.log('當前用戶ID:', this.getCurrentUserId());
     this.loadPendingRequests();
     this.startPolling();
     // 添加全域點擊監聽器
@@ -137,24 +137,24 @@ export class FriendNotificationsComponent implements OnInit, OnDestroy {
   }
 
   private loadPendingRequests(): void {
-    console.log('🔄 開始載入好友邀請...');
+    // console.log('🔄 開始載入好友邀請...');
 
     this.friendService.getFriendRequests().subscribe({
       next: (requests: any[]) => { // 暫時使用 any[] 類型
-        console.log('📥 API 回傳的原始資料:', requests);
+        // console.log('📥 API 回傳的原始資料:', requests);
 
         // 過濾出 Pending 狀態的邀請，並且是發送給當前用戶的
         const currentUserId = this.getCurrentUserId();
-        console.log('👤 當前用戶ID:', currentUserId);
+        // console.log('👤 當前用戶ID:', currentUserId);
 
         const pendingRequests = requests.filter(req => {
           const isPending = req.requestStatus === 'Pending' || req.requestStatus === undefined;
           const isForCurrentUser = req.receiverID === currentUserId; // 使用 receiverID
-          console.log(`🔍 檢查邀請 ${req.requestID}: 狀態=${req.requestStatus}, 接收者=${req.receiverID}, 符合=${isPending && isForCurrentUser}`);
+          // console.log(`🔍 檢查邀請 ${req.requestID}: 狀態=${req.requestStatus}, 接收者=${req.receiverID}, 符合=${isPending && isForCurrentUser}`);
           return isPending && isForCurrentUser;
         });
 
-        console.log('✅ 過濾後的邀請:', pendingRequests);
+        // console.log('✅ 過濾後的邀請:', pendingRequests);
 
         this.pendingRequests = pendingRequests.map(req => ({
           id: req.requestID,
@@ -166,10 +166,10 @@ export class FriendNotificationsComponent implements OnInit, OnDestroy {
         }));
 
         this.hasNotifications = this.pendingRequests.length > 0;
-        console.log('🎉 最終結果:', {
-          pendingRequests: this.pendingRequests,
-          hasNotifications: this.hasNotifications
-        });
+        // console.log('🎉 最終結果:', {
+        //   pendingRequests: this.pendingRequests,
+        //   hasNotifications: this.hasNotifications
+        // });
       },
       error: (error: any) => {
         console.error('❌ 載入好友邀請失敗:', error);
@@ -192,7 +192,7 @@ export class FriendNotificationsComponent implements OnInit, OnDestroy {
         this.pendingRequests = this.pendingRequests.filter(r => r.id !== request.id);
         this.hasNotifications = this.pendingRequests.length > 0;
         this.processing = false;
-        console.log('好友邀請已接受');
+        // console.log('好友邀請已接受');
       },
       error: (error: any) => {
         console.error('接受好友邀請失敗:', error);
@@ -212,7 +212,7 @@ export class FriendNotificationsComponent implements OnInit, OnDestroy {
         this.pendingRequests = this.pendingRequests.filter(r => r.id !== request.id);
         this.hasNotifications = this.pendingRequests.length > 0;
         this.processing = false;
-        console.log('好友邀請已拒絕');
+        // console.log('好友邀請已拒絕');
       },
       error: (error: any) => {
         console.error('拒絕好友邀請失敗:', error);

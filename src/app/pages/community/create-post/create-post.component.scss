@@ -240,6 +240,7 @@ button.btn {
   word-wrap: break-word;
   max-height: 300px;  /* 限制高度，避免過長 */
   overflow-y: auto;    /* 添加滾動條 */
+  white-space: pre-wrap;  // 保留空格和換行
 
   iframe {
     max-width: 100%;

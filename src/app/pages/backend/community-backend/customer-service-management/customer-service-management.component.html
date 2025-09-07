@@ -8,14 +8,21 @@
           <p class="text-muted mb-0">管理客戶對話與服務請求</p>
         </div>
         <div class="d-flex align-items-center gap-3">
-          <div class="status-indicator">
-            <i class="bi bi-circle-fill text-success"></i>
-            <span>在線</span>
-          </div>
-          <button class="btn btn-outline-secondary" (click)="toggleStatus()">
-            <i class="bi bi-toggle-on"></i>
-            切換狀態
-          </button>
+          <!-- 將按鈕改成下拉選單 -->
+          <select
+            class="form-select"
+            *ngIf="selectedConversation"
+            [value]="selectedConversation.status"
+            (change)="onStatusChange($event)"
+          >
+            <option *ngFor="let status of statusOptions" [value]="status">
+              {{ status }}
+            </option>
+          </select>
+          <!-- 如果沒有選中會話，顯示提示 -->
+          <span *ngIf="!selectedConversation" class="text-muted"
+            >請選擇會話</span
+          >
         </div>
       </div>
 
@@ -27,32 +34,42 @@
             <div class="panel-header">
               <h5>會話列表</h5>
               <div class="search-box">
-                <input type="text"
-                       class="form-control"
-                       placeholder="搜索客戶..."
-                       [(ngModel)]="searchTerm"
-                       (input)="filterConversations()">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="搜索客戶..."
+                  [(ngModel)]="searchTerm"
+                  (input)="filterConversations()"
+                />
               </div>
             </div>
 
             <div class="conversations-list">
-              <div *ngFor="let conv of filteredConversations"
-                   class="conversation-item"
-                   [ngClass]="{'active': selectedConversation?.id === conv.id}"
-                   (click)="selectConversation(conv)">
-
+              <div
+                *ngFor="let conv of filteredConversations"
+                class="conversation-item"
+                [ngClass]="{ active: selectedConversation?.id === conv.id }"
+                (click)="selectConversation(conv)"
+              >
                 <div class="conversation-avatar">
                   <i class="bi bi-person-circle"></i>
                 </div>
 
                 <div class="conversation-info">
                   <div class="conversation-name">{{ conv.memberName }}</div>
-                  <div class="conversation-preview">{{ conv.latestMessage }}</div>
-                  <div class="conversation-time">{{ conv.lastMessageTime | date:'HH:mm' }}</div>
+                  <div class="conversation-preview">
+                    {{ conv.latestMessage }}
+                  </div>
+                  <div class="conversation-time">
+                    {{ conv.lastMessageTime | date : "HH:mm" }}
+                  </div>
                 </div>
 
                 <div class="conversation-status">
-                  <span class="badge" [ngClass]="getStatusBadgeClass(conv.status)">
+                  <span
+                    class="badge"
+                    [ngClass]="getStatusBadgeClass(conv.status)"
+                  >
                     {{ getStatusText(conv.status) }}
                   </span>
                   <div class="unread-count" *ngIf="conv.unreadCount > 0">
@@ -71,10 +88,15 @@
             <div class="chat-header">
               <div class="customer-info">
                 <h5>{{ selectedConversation.memberName }}</h5>
-                <span class="customer-account">{{ selectedConversation.memberAccount }}</span>
+                <span class="customer-account">{{
+                  selectedConversation.memberAccount
+                }}</span>
               </div>
               <div class="chat-actions">
-                <button class="btn btn-sm btn-outline-secondary" (click)="endConversation()">
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="endConversation()"
+                >
                   <i class="bi bi-x-circle"></i>
                   結束對話
                 </button>
@@ -83,18 +105,28 @@
 
             <!-- 聊天內容 -->
             <div class="chat-messages" #chatMessagesContainer>
-              <div *ngFor="let message of chatMessages"
-                   class="message-item"
-                   [ngClass]="message.senderType">
-
+              <div
+                *ngFor="let message of chatMessages"
+                class="message-item"
+                [ngClass]="message.senderType"
+              >
                 <div class="message-avatar">
-                  <i class="bi" [ngClass]="message.senderType === 'staff' ? 'bi-person-circle' : 'bi-person'"></i>
+                  <i
+                    class="bi"
+                    [ngClass]="
+                      message.senderType === 'staff'
+                        ? 'bi-person-circle'
+                        : 'bi-person'
+                    "
+                  ></i>
                 </div>
 
                 <div class="message-content">
                   <div class="message-sender">{{ message.senderName }}</div>
                   <div class="message-text">{{ message.content }}</div>
-                  <div class="message-time">{{ message.timestamp | date:'HH:mm' }}</div>
+                  <div class="message-time">
+                    {{ message.timestamp | date : "HH:mm" }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -107,9 +139,14 @@
                   [(ngModel)]="newMessage"
                   placeholder="輸入訊息..."
                   (keydown.enter)="sendMessage()"
-                  rows="2"></textarea>
-                <button class="btn btn-primary" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-                  <i class="bi bi-send"></i>
+                  rows="2"
+                ></textarea>
+                <button
+                  class="btn btn-primary"
+                  (click)="sendMessage()"
+                  [disabled]="!newMessage.trim()"
+                >
+                  <i class="bi bi-send">送出</i>
                 </button>
               </div>
             </div>

@@ -2,17 +2,23 @@
   <!-- 聊天框 -->
   <div class="chat-wrapper">
     <div class="chat-header">智能客服</div>
-
     <div #chatContainer class="chat-container">
       <div
         *ngFor="let message of chatLog"
         class="chat-message"
         [ngClass]="message.role"
       >
-        <p>{{ message.content }}</p>
+        <!-- AI 訊息：使用 innerHTML 顯示格式化內容 -->
+        <div
+          *ngIf="message.role === 'ai'"
+          [innerHTML]="message.content"
+          class="ai-formatted-content">
+        </div>
+
+        <!-- 用戶訊息：保持原本的文字顯示 -->
+        <p *ngIf="message.role === 'user'">{{ message.content }}</p>
       </div>
     </div>
-
     <div class="chat-input-area">
       <textarea
         [(ngModel)]="userInput"

@@ -141,7 +141,7 @@ export class PersonalCommunityComponent implements OnInit {
 
     this.personalService.uploadUserPhoto(currentUserId, file).subscribe({
       next: (response) => {
-        console.log('照片上傳成功', response);
+        // console.log('照片上傳成功', response);
 
         // 更新使用者頭像 - 添加空值檢查
         if (this.userProfile && response?.photoUrl) {
@@ -415,7 +415,7 @@ export class PersonalCommunityComponent implements OnInit {
 
     this.personalService.toggleFollow(this.memberId).subscribe({
       next: (response) => {
-        console.log('追蹤狀態更新成功', response);
+        // console.log('追蹤狀態更新成功', response);
         if (this.userProfile && response) {
           this.userProfile.isFollowing = response.isFollowing;
           this.userProfile.followers = response.followers;

@@ -2,8 +2,16 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FriendService, Friend, FriendRequestDto, UserSearchResult } from '../../../services/community/friend.service';
-import { ChatService, ChatRoom } from '../../../services/community/chat.service';
+import {
+  FriendService,
+  Friend,
+  FriendRequestDto,
+  UserSearchResult,
+} from '../../../services/community/friend.service';
+import {
+  ChatService,
+  ChatRoom,
+} from '../../../services/community/chat.service';
 import { ChatFloatingComponent } from '../chat-floating/chat-floating.component';
 import { FriendListComponent } from '../friend-list/friend-list.component';
 import { FriendNotificationsComponent } from '../friend-notifications/friend-notifications.component'; // 新增：引入好友通知元件
@@ -17,10 +25,10 @@ import Swal from 'sweetalert2';
     FormsModule,
     FriendListComponent,
     ChatFloatingComponent,
-    FriendNotificationsComponent
+    FriendNotificationsComponent,
   ],
   templateUrl: './chat-page.component.html',
-  styleUrls: ['./chat-page.component.scss']
+  styleUrls: ['./chat-page.component.scss'],
 })
 export class ChatPageComponent implements OnInit, AfterViewInit {
   @ViewChild(ChatFloatingComponent) chatFloating!: ChatFloatingComponent;
@@ -56,7 +64,12 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const idStr = payload.MemberID || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.sub;
+      const idStr =
+        payload.MemberID ||
+        payload[
+          'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+        ] ||
+        payload.sub;
       return Number(idStr) || 0;
     } catch {
       return 0;
@@ -78,7 +91,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
           icon: 'error',
           title: '載入失敗',
           text: '無法載入好友列表，請稍後再試',
-          confirmButtonText: '確定'
+          confirmButtonText: '確定',
         });
       },
     });
@@ -98,17 +111,21 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
   // 開啟私人聊天 - 修正版本
   openPrivateChat(friendId: number): void {
-    console.log('🔄 開啟私人聊天，好友ID:', friendId, '當前用戶ID:', this.currentUserId);
+    // console.log('🔄 開啟私人聊天，好友ID:', friendId, '當前用戶ID:', this.currentUserId);
 
     if (!this.currentUserId || !friendId || !this.chatFloating) {
-      console.error('❌ 參數錯誤:', { currentUserId: this.currentUserId, friendId, chatFloating: !!this.chatFloating });
+      console.error('❌ 參數錯誤:', {
+        currentUserId: this.currentUserId,
+        friendId,
+        chatFloating: !!this.chatFloating,
+      });
       return;
     }
 
     // 檢查是否為好友
     this.friendService.isFriend(this.currentUserId, friendId).subscribe({
       next: (isFriend) => {
-        console.log('✅ 好友檢查結果:', isFriend);
+        // console.log('✅ 好友檢查結果:', isFriend);
         if (isFriend) {
           // 直接開啟聊天室
           this.chatFloating.openPrivateChat(friendId);
@@ -117,7 +134,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
             icon: 'warning',
             title: '無法聊天',
             text: '只能與好友聊天',
-            confirmButtonText: '確定'
+            confirmButtonText: '確定',
           });
         }
       },
@@ -125,7 +142,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         console.warn('⚠️ 好友檢查失敗，嘗試直接開啟聊天:', err);
         // 如果檢查失敗，嘗試直接開啟（向後相容）
         this.chatFloating.openPrivateChat(friendId);
-      }
+      },
     });
   }
 
@@ -139,9 +156,10 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.friendService.searchUsers(this.searchQuery).subscribe({
       next: (results) => {
         // 過濾掉自己和已經是好友的用戶
-        this.searchResults = results.filter(user =>
-          user.id !== this.currentUserId &&
-          !this.friends.some(friend => friend.id === user.id)
+        this.searchResults = results.filter(
+          (user) =>
+            user.id !== this.currentUserId &&
+            !this.friends.some((friend) => friend.id === user.id)
         );
       },
       error: (err) => {
@@ -150,7 +168,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
           icon: 'error',
           title: '搜尋失敗',
           text: '搜尋用戶時發生錯誤，請稍後再試',
-          confirmButtonText: '確定'
+          confirmButtonText: '確定',
         });
       },
     });
@@ -161,14 +179,16 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.friendService.sendFriendRequest(userId).subscribe({
       next: () => {
         // 從搜尋結果中移除該用戶
-        this.searchResults = this.searchResults.filter(user => user.id !== userId);
+        this.searchResults = this.searchResults.filter(
+          (user) => user.id !== userId
+        );
 
         Swal.fire({
           icon: 'success',
           title: '邀請已發送',
           text: '好友邀請已成功發送',
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
       },
       error: (err) => {
@@ -185,15 +205,18 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
           icon: 'error',
           title: '發送失敗',
           text: errorMessage,
-          confirmButtonText: '確定'
+          confirmButtonText: '確定',
         });
       },
     });
   }
 
   // 回應好友請求
-  respondFriendRequest(requestId: number, action: 'Accepted' | 'Rejected'): void {
-    const request = this.friendRequests.find(r => r.requestID === requestId);
+  respondFriendRequest(
+    requestId: number,
+    action: 'Accepted' | 'Rejected'
+  ): void {
+    const request = this.friendRequests.find((r) => r.requestID === requestId);
     if (!request) return;
 
     const actionText = action === 'Accepted' ? '接受' : '拒絕';
@@ -201,51 +224,57 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     Swal.fire({
       icon: 'question',
       title: '確認操作',
-      text: `確定要${actionText}來自 ${request.requesterName || '用戶'} 的好友邀請嗎？`,
+      text: `確定要${actionText}來自 ${
+        request.requesterName || '用戶'
+      } 的好友邀請嗎？`,
       showCancelButton: true,
       confirmButtonText: '確定',
       cancelButtonText: '取消',
-      confirmButtonColor: action === 'Accepted' ? '#28a745' : '#dc3545'
+      confirmButtonColor: action === 'Accepted' ? '#28a745' : '#dc3545',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.friendService.respondFriendRequest({
-          RequestID: requestId,   // 修正：使用大寫 R
-          Action: action          // 修正：使用大寫 A
-        }).subscribe({
-          next: () => {
-            // 從請求列表中移除
-            this.friendRequests = this.friendRequests.filter(r => r.requestID !== requestId);
+        this.friendService
+          .respondFriendRequest({
+            RequestID: requestId, // 修正：使用大寫 R
+            Action: action, // 修正：使用大寫 A
+          })
+          .subscribe({
+            next: () => {
+              // 從請求列表中移除
+              this.friendRequests = this.friendRequests.filter(
+                (r) => r.requestID !== requestId
+              );
 
-            if (action === 'Accepted') {
-              // 如果接受了請求，重新載入好友列表
-              this.loadFriends();
-            }
+              if (action === 'Accepted') {
+                // 如果接受了請求，重新載入好友列表
+                this.loadFriends();
+              }
 
-            Swal.fire({
-              icon: 'success',
-              title: '操作成功',
-              text: `已${actionText}好友邀請`,
-              timer: 1500,
-              showConfirmButton: false
-            });
-          },
-          error: (err) => {
-            console.error('回應好友請求失敗:', err);
-            Swal.fire({
-              icon: 'error',
-              title: '操作失敗',
-              text: `回應好友邀請失敗，請稍後再試`,
-              confirmButtonText: '確定'
-            });
-          },
-        });
+              Swal.fire({
+                icon: 'success',
+                title: '操作成功',
+                text: `已${actionText}好友邀請`,
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            },
+            error: (err) => {
+              console.error('回應好友請求失敗:', err);
+              Swal.fire({
+                icon: 'error',
+                title: '操作失敗',
+                text: `回應好友邀請失敗，請稍後再試`,
+                confirmButtonText: '確定',
+              });
+            },
+          });
       }
     });
   }
 
   // 移除好友
   removeFriend(friendId: number): void {
-    const friend = this.friends.find(f => f.id === friendId);
+    const friend = this.friends.find((f) => f.id === friendId);
     if (!friend) return;
 
     Swal.fire({
@@ -255,20 +284,20 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       showCancelButton: true,
       confirmButtonText: '確定',
       cancelButtonText: '取消',
-      confirmButtonColor: '#dc3545'
+      confirmButtonColor: '#dc3545',
     }).then((result) => {
       if (result.isConfirmed) {
         this.friendService.removeFriend(friendId).subscribe({
           next: () => {
             // 從好友列表中移除
-            this.friends = this.friends.filter(f => f.id !== friendId);
+            this.friends = this.friends.filter((f) => f.id !== friendId);
 
             Swal.fire({
               icon: 'success',
               title: '移除成功',
               text: '已移除好友',
               timer: 1500,
-              showConfirmButton: false
+              showConfirmButton: false,
             });
           },
           error: (err) => {
@@ -277,7 +306,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
               icon: 'error',
               title: '移除失敗',
               text: '移除好友失敗，請稍後再試',
-              confirmButtonText: '確定'
+              confirmButtonText: '確定',
             });
           },
         });

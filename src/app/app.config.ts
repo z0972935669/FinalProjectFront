@@ -25,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
 
     // 只註冊真正的攔截器（前台用）
-    // { provide: HTTP_INTERCEPTORS, useClass: MemberService, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: MemberService, multi: true },
     // 只註冊真正的攔截器（後台用）
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
