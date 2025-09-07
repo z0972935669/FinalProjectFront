@@ -21,4 +21,12 @@ export class SuppliesSupplierService {
     const url = `${this.apiUrlsupplier}/${supplier.suppliesSupplierId}`;
     return this.http.put<Isuppliessupplier>(url, supplier)
   }
+
+  searchSuppliers(keyword: string = '', page: number = 1, pageSize: number = 10, continued: '' | 'true' | 'false' = ''): Observable<any> {
+    let url = `${this.apiUrlsupplier}/search?page=${page}&pageSize=${pageSize}`;
+    if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+    if (continued === 'true') url += `&continued=true`;
+    if (continued === 'false') url += `&continued=false`;
+    return this.http.get<any>(url);// 回傳 { totalCount, totalPages, page, pageSize, data }
+  }
 }

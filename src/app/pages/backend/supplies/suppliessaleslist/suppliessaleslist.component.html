@@ -218,9 +218,8 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    @for(saleOrders of pagination.all.data;track $index)
                     {
-                    @if(saleOrders.orderStatus !== '已取消'){
                     <tr>
                       <td class="cell">{{saleOrders.suppliesSalesOrderId}}</td>
                       <td class="cell"><span>{{saleOrders.orderDate}}</span><span class="note"></span></td>
@@ -237,7 +236,6 @@
                       </td>
                     </tr>
                     }
-                    }
                   </tbody>
                 </table>
               </div><!--//table-responsive-->
@@ -246,18 +244,18 @@
           </div><!--//app-card-->
           <nav class="app-pagination">
             <ul class="pagination justify-content-center">
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" (click)="changePage(currentPage - 1)">上一頁</a>
+              <li class="page-item" [class.disabled]="pagination.all.currentPage === 1">
+                <a class="page-link" (click)="changePage('all',pagination.all.currentPage - 1)">上一頁</a>
               </li>
 
-              @for(page of [].constructor(totalPages);track $index)
+              @for(page of [].constructor(pagination.all.totalPages);track $index)
               {
-              <li class="page-item" [class.active]="currentPage === $index + 1">
-                <button class="page-link" (click)="changePage($index + 1)">{{ $index + 1 }}</button>
+              <li class="page-item" [class.active]="pagination.all.currentPage === $index + 1">
+                <button class="page-link" (click)="changePage('all',$index + 1)">{{ $index + 1 }}</button>
               </li>
               }
-              <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <button class="page-link" (click)="changePage(currentPage + 1)">下一頁</button>
+              <li class="page-item" [class.disabled]="pagination.all.currentPage === pagination.all.totalPages">
+                <button class="page-link" (click)="changePage('all',pagination.all.currentPage + 1)">下一頁</button>
               </li>
             </ul>
           </nav><!--//app-pagination-->
@@ -283,7 +281,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    @for(saleOrders of pagination.received.data;track $index)
                     {
                     @if(saleOrders.orderStatus === '已到貨')
                     {
@@ -303,6 +301,26 @@
               </div><!--//table-responsive-->
             </div><!--//app-card-body-->
           </div><!--//app-card-->
+          <!-- 分頁器 -->
+          <nav class="app-pagination">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="pagination.received.currentPage === 1">
+                <a class="page-link" (click)="changePage('received', pagination.received.currentPage - 1)">上一頁</a>
+              </li>
+
+              @for(page of [].constructor(pagination.received.totalPages); track $index) {
+              <li class="page-item" [class.active]="pagination.received.currentPage === $index + 1">
+                <button class="page-link" (click)="changePage('received', $index + 1)">{{ $index + 1 }}</button>
+              </li>
+              }
+
+              <li class="page-item"
+                [class.disabled]="pagination.received.currentPage === pagination.received.totalPages">
+                <button class="page-link"
+                  (click)="changePage('received', pagination.received.currentPage + 1)">下一頁</button>
+              </li>
+            </ul>
+          </nav>
         </div><!--//tab-pane-->
 
         <!-- 未到貨標籤 -->
@@ -323,7 +341,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    @for(saleOrders of pagination.undelivered.data;track $index)
                     {
                     @if(saleOrders.orderStatus === '未到貨')
                     {
@@ -343,6 +361,25 @@
               </div><!--//table-responsive-->
             </div><!--//app-card-body-->
           </div><!--//app-card-->
+          <nav class="app-pagination">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="pagination.undelivered.currentPage === 1">
+                <a class="page-link" (click)="changePage('undelivered', pagination.undelivered.currentPage - 1)">上一頁</a>
+              </li>
+
+              @for(page of getPageNumbers('undelivered'); track $index) {
+              <li class="page-item" [class.active]="pagination.undelivered.currentPage === page">
+                <button class="page-link" (click)="changePage('undelivered', page)">{{ page }}</button>
+              </li>
+              }
+
+              <li class="page-item"
+                [class.disabled]="pagination.undelivered.currentPage === pagination.undelivered.totalPages">
+                <button class="page-link"
+                  (click)="changePage('undelivered', pagination.undelivered.currentPage + 1)">下一頁</button>
+              </li>
+            </ul>
+          </nav>
         </div><!--//tab-pane-->
 
         <!-- 已取消標籤 -->
@@ -363,7 +400,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for(saleOrders of uniqueSalesOrders;track $index)
+                    @for(saleOrders of pagination.cancelled.data;track $index)
                     {
                     @if(saleOrders.orderStatus === '已取消')
                     {
@@ -383,6 +420,25 @@
               </div><!--//table-responsive-->
             </div><!--//app-card-body-->
           </div><!--//app-card-->
+          <nav class="app-pagination">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="pagination.cancelled.currentPage === 1">
+                <a class="page-link" (click)="changePage('cancelled', pagination.cancelled.currentPage - 1)">上一頁</a>
+              </li>
+
+              @for(page of getPageNumbers('cancelled'); track $index) {
+              <li class="page-item" [class.active]="pagination.cancelled.currentPage === page">
+                <button class="page-link" (click)="changePage('cancelled', page)">{{ page }}</button>
+              </li>
+              }
+
+              <li class="page-item"
+                [class.disabled]="pagination.cancelled.currentPage === pagination.cancelled.totalPages">
+                <button class="page-link"
+                  (click)="changePage('cancelled', pagination.cancelled.currentPage + 1)">下一頁</button>
+              </li>
+            </ul>
+          </nav>
         </div><!--//tab-pane-->
       </div><!--//tab-content-->
 

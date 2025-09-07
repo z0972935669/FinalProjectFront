@@ -25,4 +25,25 @@ export class SuppliesListService {
     const url = `${this.apiUrlsup}/${product.suppliesProductID}`;
     return this.http.put<Isupplieslist>(url, product);
   }
+
+  searchProducts(keyword: string = '', page: number = 1, pageSize: number = 10) {
+    let url = `${this.apiUrlsup}/search?page=${page}&pageSize=${pageSize}`;
+    if (keyword) {
+      url += `&keyword=${encodeURIComponent(keyword)}`;
+    }
+    return this.http.get<any>(url); // 回傳 { totalCount, totalPages, page, pageSize, data }
+  }
+
+
+  downloadTemplate(): Observable<Blob> {
+    const url = `${this.apiUrlsup}/excel/template`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
+  importExcel(file: File): Observable<any> {
+    const url = `${this.apiUrlsup}/excel/import`;
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<any>(url, form);
+  }
 }

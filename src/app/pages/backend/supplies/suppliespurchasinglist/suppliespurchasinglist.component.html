@@ -11,10 +11,10 @@
           <div class="page-utilities">
             <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
               <div class="col-auto">
-                <form class="table-search-form row gx-1 align-items-center">
+                <form class="table-search-form row gx-1 align-items-center mb-3" (ngSubmit)="searchPurchasingOrders()">
                   <div class="col-auto">
-                    <input type="text" id="search-suppliesorders" name="searchsuppliesorders"
-                      class="form-control search-suppliesorders" placeholder="請輸入關鍵字">
+                    <input type="text" class="form-control" placeholder="請輸入關鍵字" [(ngModel)]="searchKeyword"
+                      name="searchKeyword" />
                   </div>
                   <div class="col-auto">
                     <button type="submit" class="btn app-btn-secondary">查詢</button>
@@ -22,16 +22,6 @@
                 </form>
 
               </div><!--//col-->
-              <div class="col-auto">
-
-                <select class="form-select w-auto">
-                  <option selected value="option-1">--類別--</option>
-                  <option value="option-2"></option>
-                  <option value="option-3"></option>
-                  <option value="option-4"></option>
-
-                </select>
-              </div>
             </div><!--//row-->
           </div><!--//table-utilities-->
         </div><!--//col-auto-->
@@ -111,8 +101,35 @@
                     </td>
                     <!-- 有效期限 -->
                     <td>
-                      <input type="date" class="form-control" [(ngModel)]="item.expiryDate" name="expiryDate{{$index}}"
-                        [disabled]="!item.suppliesProductId" min="{{ today }}" max="2100-12-31" required />
+                      <!-- 下拉選單模式 -->
+                      @if(!item.manualExpiryInput){
+                      <div>
+                        <div class="input-group">
+                          <select class="form-select" [(ngModel)]="item.expiryDate" name="expiryDate{{$index}}"
+                            [disabled]="!item.suppliesProductId">
+                            <option [ngValue]="null" disabled selected>請選擇有效期限</option>
+                            @for(date of item.filteredDates; track $index) {
+                            <option [ngValue]="date.expiryDate">{{ date.expiryDate }}</option>
+                            }
+                          </select>
+                          <button type="button" class="btn btn-outline-secondary"
+                            (click)="toggleExpiryInput($index)">手動輸入</button>
+                        </div>
+                      </div>
+                      }
+                      <!-- 手動輸入模式 -->
+                      @if(item.manualExpiryInput)
+                      {
+                      <div>
+                        <div class="input-group">
+                          <input type="date" class="form-control" [(ngModel)]="item.expiryDate"
+                            name="expiryDate{{$index}}" [disabled]="!item.suppliesProductId" min="{{ today }}"
+                            max="2100-12-31" />
+                          <button type="button" class="btn btn-outline-secondary"
+                            (click)="toggleExpiryInput($index)">改用選單</button>
+                        </div>
+                      </div>
+                      }
                     </td>
                     <!-- 數量 -->
                     <td>
@@ -223,16 +240,20 @@
 
             </div><!--//app-card-body-->
           </div><!--//app-card-->
-          <nav class="app-pagination">
+          <nav class="app-pagination mt-3">
             <ul class="pagination justify-content-center">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一頁</a>
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="changePage(currentPage - 1)">上一頁</a>
               </li>
-              <li class="page-item active"><a class="page-link" href="#">1</a></li>
-              <li class="page-item"><a class="page-link" href="#">2</a></li>
-              <li class="page-item"><a class="page-link" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link" href="#">下一頁</a>
+
+              @for(page of getPageNumbers(); track $index) {
+              <li class="page-item" [class.active]="currentPage === page">
+                <button class="page-link" (click)="changePage(page)">{{ page }}</button>
+              </li>
+              }
+
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="changePage(currentPage + 1)">下一頁</a>
               </li>
             </ul>
           </nav><!--//app-pagination-->

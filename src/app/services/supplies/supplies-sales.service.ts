@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Isuppliessales } from '../../interfaces/supplies/isuppliessales';
+import { Isuppliessales, CreateSalesOrderDto, CreateSalesOrderResponse } from '../../interfaces/supplies/isuppliessales';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +22,8 @@ export class SuppliesSalesService {
     return this.http.get<any>(url); // 回傳物件 { totalCount, page, pageSize, totalPages, data }
   }
 
-  addSuppliesSalesList(sales: Isuppliessales): Observable<Isuppliessales> {
-    return this.http.post<Isuppliessales>(this.apiUrlsales, sales)
+  addSuppliesSalesList(sales: CreateSalesOrderDto): Observable<CreateSalesOrderResponse> {
+    return this.http.post<CreateSalesOrderResponse>(this.apiUrlsales, sales);
   }
 
   updateOrderStatus(orderId: number, status: string): Observable<any> {

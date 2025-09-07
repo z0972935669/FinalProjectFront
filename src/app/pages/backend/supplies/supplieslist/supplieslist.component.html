@@ -11,38 +11,41 @@
           <div class="page-utilities">
             <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
               <div class="col-auto">
-                <form class="table-search-form row gx-1 align-items-center">
+                <form class="table-search-form row gx-1 align-items-center mb-3" (ngSubmit)="searchProducts()">
                   <div class="col-auto">
-                    <input type="text" id="search-orders" name="searchorders" class="form-control search-orders"
-                      placeholder="請輸入關鍵字" [(ngModel)]="searchKeyword" />
+                    <input type="text" class="form-control" placeholder="請輸入關鍵字" [(ngModel)]="searchKeyword"
+                      name="searchKeyword" />
                   </div>
                   <div class="col-auto">
-                    <button type="button" class="btn app-btn-secondary" (click)="searchProducts()">查詢</button>
+                    <button type="submit" class="btn app-btn-secondary">查詢</button>
                   </div>
+                  <!-- <select class="form-select w-auto">
+                    <option selected value="option-1">--類別--</option>
+                    <option value="option-2">醫藥品</option>
+                    <option value="option-3">保健品</option>
+                    <option value="option-4">日用品</option>
+                    <option value="option-5">辦公用品</option>
+                  </select> -->
                 </form>
-
               </div><!--//col-->
-              <div class="col-auto">
-
-                <select class="form-select w-auto">
-                  <option selected value="option-1">--類別--</option>
-                  <option value="option-2">醫藥品</option>
-                  <option value="option-3">保健品</option>
-                  <option value="option-4">日用品</option>
-                  <option value="option-5">辦公用品</option>
-
-                </select>
-              </div>
             </div><!--//row-->
           </div><!--//table-utilities-->
         </div><!--//col-auto-->
       </div><!--//row-->
 
 
-      <div>
+      <div class="d-flex align-items-center mb-3">
         <button class="app-btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addSuppliesModal"
           (click)="resetNewProduct()">
           新增品項
+        </button>
+
+        <button type="button" class="btn btn-outline-primary ms-auto" (click)="downloadTemplate()">
+          下載新增用Excel範本
+        </button>
+        <input type="file" class="form-control w-auto" accept=".xlsx" (change)="onFileSelected($event)">
+        <button type="button" class="btn btn-outline-success" [disabled]="!selectedFile" (click)="uploadExcel()">
+          批次匯入
         </button>
       </div>
 
@@ -252,7 +255,7 @@
                   </thead>
                   <tbody>
                     <!-- 顯示物料品項 -->
-                    @for (product of filteredProducts;track $index)
+                    @for (product of suppliesProducts;track $index)
                     {
                     <tr>
                       <td class="cell">{{product.suppliesProductID}}</td>
@@ -264,7 +267,7 @@
                       <td class="cell"><span class="cell-data">{{product.quantityPerUnit}}</span><span
                           class="note"></span>
                       </td>
-                      <td class="cell">{{product.pricePerUnit}}</td>
+                      <td class="cell">${{product.pricePerUnit}}</td>
                       <td class="cell">{{product.unitsInStock}}</td>
                       <td class="cell">
                         <button class="btn-sm app-btn-secondary" data-bs-toggle="modal"
@@ -283,16 +286,20 @@
 
             </div><!--//app-card-body-->
           </div><!--//app-card-->
-          <nav class="app-pagination">
+          <nav class="app-pagination mt-3">
             <ul class="pagination justify-content-center">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一頁</a>
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="changePage(currentPage - 1)">上一頁</a>
               </li>
-              <li class="page-item active"><a class="page-link" href="#">1</a></li>
-              <li class="page-item"><a class="page-link" href="#">2</a></li>
-              <li class="page-item"><a class="page-link" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link" href="#">下一頁</a>
+
+              @for(page of getPageNumbers(); track $index) {
+              <li class="page-item" [class.active]="currentPage === page">
+                <button class="page-link" (click)="changePage(page)">{{ page }}</button>
+              </li>
+              }
+
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="changePage(currentPage + 1)">下一頁</a>
               </li>
             </ul>
           </nav><!--//app-pagination-->
