@@ -103,6 +103,10 @@ export class CreatePostComponent {
         </div>
       `;
     });
+
+    // 新增：處理換行符號
+    processedContent = processedContent.replace(/\n/g, '<br>');
+
     return this.sanitizer.bypassSecurityTrustHtml(processedContent);
   }
 
@@ -110,7 +114,7 @@ export class CreatePostComponent {
   playVideo = (element: HTMLElement) => {
     const videoId = element.getAttribute('data-videoid');
     if (videoId) {
-      console.log('Playing video:', videoId);  // 新增：日誌檢查
+      // console.log('Playing video:', videoId);  // 新增：日誌檢查
       element.innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
     }
   };

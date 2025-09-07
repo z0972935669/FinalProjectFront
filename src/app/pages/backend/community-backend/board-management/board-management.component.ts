@@ -130,9 +130,6 @@ export class BoardManagementComponent implements OnInit {
 
   // 新增或更新看板
   saveBoard(): void {
-    console.log('Current board:', this.currentBoard);
-    console.log('Is edit mode:', this.isEdit);
-    console.log('Board ID:', this.currentBoard.boardId);
 
     const formData = new FormData();
     formData.append('boardName', this.currentBoard.boardName || '');
@@ -147,10 +144,10 @@ export class BoardManagementComponent implements OnInit {
       formData.append('boardImage', this.selectedFile, this.selectedFile.name);
     }
 
-    // Debug: 顯示 FormData 內容
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // // Debug: 顯示 FormData 內容
+    // for (let [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
 
     if (this.isEdit && this.currentBoard.boardId > 0) {
       // 編輯模式：呼叫 PUT

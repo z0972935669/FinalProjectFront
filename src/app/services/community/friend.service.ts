@@ -77,10 +77,10 @@ export class FriendService {
   // 取得好友請求列表
   getFriendRequests(): Observable<FriendRequestDto[]> {
     const url = `${this.apiUrl}/api/CommunityFriend/requests`;
-    console.log('🔍 請求好友邀請 API:', url);
+    // console.log('🔍 請求好友邀請 API:', url);
 
     return this.http.get<FriendRequestDto[]>(url, { headers: this.getAuthHeaders() }).pipe(
-      tap(requests => console.log('📡 API 回傳資料:', requests)),
+      // tap(requests => console.log('📡 API 回傳資料:', requests)),
       catchError(error => {
         console.error('❌ API 請求失敗:', error);
         return throwError(error);

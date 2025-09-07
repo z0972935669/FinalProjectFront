@@ -178,7 +178,7 @@ export class ReportManagementComponent implements OnInit {
 
   // 修改：查看相關內容（載入到模態框）
   viewContent(): void {
-    if (!this.selectedReport || this.isLoadingContent) return;  // 新增：防止重複載入
+    if (!this.selectedReport || this.isLoadingContent) return; // 新增：防止重複載入
 
     this.isLoadingContent = true;
     this.selectedPost = null;
@@ -257,7 +257,7 @@ export class ReportManagementComponent implements OnInit {
       modal.setAttribute('aria-hidden', 'true');
       // 移除所有 backdrop
       const backdrops = document.querySelectorAll('.modal-backdrop');
-      backdrops.forEach(backdrop => document.body.removeChild(backdrop));
+      backdrops.forEach((backdrop) => document.body.removeChild(backdrop));
     }
     this.selectedPost = null;
     this.selectedReplies = [];
@@ -274,15 +274,17 @@ export class ReportManagementComponent implements OnInit {
       confirmButtonText: '刪除',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.postService.updatePostStatus(this.selectedPost.postId, 'Inactive').subscribe({
-          next: () => {
-            toast.success('文章已刪除', { position: 'top-right' });
-            this.viewContent();  // 刷新內容
-          },
-          error: (err) => {
-            toast.error('刪除失敗', { position: 'top-right' });
-          }
-        });
+        this.postService
+          .updatePostStatus(this.selectedPost.postId, 'Inactive')
+          .subscribe({
+            next: () => {
+              toast.success('文章已刪除', { position: 'top-right' });
+              this.viewContent(); // 刷新內容
+            },
+            error: (err) => {
+              toast.error('刪除失敗', { position: 'top-right' });
+            },
+          });
       }
     });
   }
@@ -298,15 +300,17 @@ export class ReportManagementComponent implements OnInit {
       confirmButtonText: '恢復',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.postService.updatePostStatus(this.selectedPost.postId, 'Active').subscribe({
-          next: () => {
-            toast.success('文章已恢復', { position: 'top-right' });
-            this.viewContent();  // 刷新內容
-          },
-          error: (err) => {
-            toast.error('恢復失敗', { position: 'top-right' });
-          }
-        });
+        this.postService
+          .updatePostStatus(this.selectedPost.postId, 'Active')
+          .subscribe({
+            next: () => {
+              toast.success('文章已恢復', { position: 'top-right' });
+              this.viewContent(); // 刷新內容
+            },
+            error: (err) => {
+              toast.error('恢復失敗', { position: 'top-right' });
+            },
+          });
       }
     });
   }
@@ -324,11 +328,11 @@ export class ReportManagementComponent implements OnInit {
         this.postService.updateReplyStatus(replyId, 'Deleted').subscribe({
           next: () => {
             toast.success('回覆已刪除', { position: 'top-right' });
-            this.viewContent();  // 刷新內容
+            this.viewContent(); // 刷新內容
           },
           error: (err) => {
             toast.error('刪除失敗', { position: 'top-right' });
-          }
+          },
         });
       }
     });
@@ -347,11 +351,11 @@ export class ReportManagementComponent implements OnInit {
         this.postService.updateReplyStatus(replyId, 'Active').subscribe({
           next: () => {
             toast.success('回覆已恢復', { position: 'top-right' });
-            this.viewContent();  // 刷新內容
+            this.viewContent(); // 刷新內容
           },
           error: (err) => {
             toast.error('恢復失敗', { position: 'top-right' });
-          }
+          },
         });
       }
     });
@@ -471,8 +475,8 @@ export class ReportManagementComponent implements OnInit {
 
     // 將換行符轉換為 <br> 標籤，並處理連續空格
     return content
-      .replace(/\n/g, '<br>')  // 將 \n 轉換為 <br>
-      .replace(/\r/g, '')      // 移除 \r
+      .replace(/\n/g, '<br>') // 將 \n 轉換為 <br>
+      .replace(/\r/g, '') // 移除 \r
       .replace(/\s{2,}/g, (match) => '&nbsp;'.repeat(match.length)); // 處理連續空格
   }
 

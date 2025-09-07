@@ -78,13 +78,13 @@ export class ChatService {
     this.hubConnection.on(
       'ReceiveMessage',
       (roomId: string, senderId: string, senderName: string, content: string, timestamp: string) => {
-        console.log('📨 [ChatService] 收到 SignalR 訊息:', {
-          roomId,
-          senderId,
-          senderName,
-          content,
-          timestamp
-        });
+        // console.log('📨 [ChatService] 收到 SignalR 訊息:', {
+        //   roomId,
+        //   senderId,
+        //   senderName,
+        //   content,
+        //   timestamp
+        // });
 
         try {
           const chatMessage: ChatMessage = {
@@ -96,12 +96,12 @@ export class ChatService {
             timestamp: timestamp ? new Date(timestamp) : new Date()
           };
 
-          console.log('✅ [ChatService] 處理後的訊息物件:', chatMessage);
-          console.log('🔄 [ChatService] 即將發送給組件...');
+          // console.log('✅ [ChatService] 處理後的訊息物件:', chatMessage); // 除錯用
+          // console.log('🔄 [ChatService] 即將發送給組件...'); // 除錯用
 
           // 立即發送給訂閱者
           this.messageSubject.next(chatMessage);
-          console.log('📤 [ChatService] 訊息已發送給訂閱者');
+          // console.log('📤 [ChatService] 訊息已發送給訂閱者'); // 除錯用
 
         } catch (error) {
           console.error('❌ [ChatService] 處理訊息時發生錯誤:', error);
@@ -117,24 +117,24 @@ export class ChatService {
 
     // 連線狀態處理
     this.hubConnection.onreconnecting((error) => {
-      console.log('🔄 [ChatService] 正在重新連線...', error);
+      // console.log('🔄 [ChatService] 正在重新連線...', error);
       this.connectionSubject.next(false);
     });
 
     this.hubConnection.onreconnected((connectionId) => {
-      console.log('✅ [ChatService] 重新連線成功:', connectionId);
+      // console.log('✅ [ChatService] 重新連線成功:', connectionId);
       this.connectionSubject.next(true);
     });
 
     this.hubConnection.onclose((error) => {
-      console.log('❌ [ChatService] 連線關閉:', error);
+      // console.log('❌ [ChatService] 連線關閉:', error);
       this.connectionSubject.next(false);
     });
 
     return this.hubConnection
       .start()
       .then(() => {
-        console.log('✅ [ChatService] SignalR connection started');
+        // console.log('✅ [ChatService] SignalR connection started');
         this.connectionSubject.next(true);
       })
       .catch((err) => {
@@ -174,7 +174,7 @@ export class ChatService {
     return this.hubConnection
       .start()
       .then(() => {
-        console.log('Anonymous SignalR connection started');
+        // console.log('Anonymous SignalR connection started');
         this.connectionSubject.next(true);
         // 註冊用戶 ID
         return this.hubConnection.invoke('RegisterUser', memberId);
@@ -203,7 +203,7 @@ export class ChatService {
 
   // 加入聊天室 - 修正版本
   async joinRoom(roomId: number, userId: number): Promise<void> {
-    console.log('🔄 [ChatService] 嘗試加入聊天室:', { roomId, userId });
+    // console.log('🔄 [ChatService] 嘗試加入聊天室:', { roomId, userId });
 
     if (!this.hubConnection || this.hubConnection.state !== 'Connected') {
       console.error('❌ [ChatService] SignalR 連線未建立');
@@ -221,10 +221,10 @@ export class ChatService {
     }
 
     try {
-      console.log('🔄 [ChatService] 呼叫 SignalR JoinRoom:', { roomId, userId });
+      // console.log('🔄 [ChatService] 呼叫 SignalR JoinRoom:', { roomId, userId });
       // 確保參數類型正確
       await this.hubConnection.invoke('JoinRoom', roomId, userId);
-      console.log('✅ [ChatService] 成功加入聊天室:', roomId);
+      // console.log('✅ [ChatService] 成功加入聊天室:', roomId);
     } catch (error) {
       console.error('❌ [ChatService] 加入聊天室失敗:', error);
       throw error;
@@ -239,7 +239,7 @@ export class ChatService {
     return this.http.get<boolean>(`https://localhost:7124/api/Chat/room/${roomId}/exists`, { headers })
       .toPromise()
       .then(exists => {
-        console.log('🔍 [ChatService] 聊天室存在檢查:', { roomId, exists });
+        // console.log('🔍 [ChatService] 聊天室存在檢查:', { roomId, exists });
         return exists || false;
       })
       .catch(error => {
@@ -251,7 +251,7 @@ export class ChatService {
   // 取得或建立私人聊天室 - 修正 API 路徑和參數
   getOrCreatePrivateRoom(userId1: number, userId2: number): Observable<ChatRoom> {
     const headers = this.getAuthHeaders();
-    console.log('🔄 [ChatService] 取得或建立私人聊天室:', { userId1, userId2 });
+    // console.log('🔄 [ChatService] 取得或建立私人聊天室:', { userId1, userId2 });
 
     return this.http.get<any>(
       `https://localhost:7124/api/Chat/private-room/${userId1}/${userId2}`,
@@ -268,7 +268,7 @@ export class ChatService {
         } as ChatRoom;
       }),
       tap(room => {
-        console.log('✅ [ChatService] 取得聊天室成功:', room);
+        // console.log('✅ [ChatService] 取得聊天室成功:', room);
       }),
       catchError(error => {
         console.error('❌ [ChatService] 取得聊天室失敗:', error);
@@ -280,7 +280,7 @@ export class ChatService {
   // 取得用戶的私人聊天室列表 - 修正回傳格式
   getPrivateRooms(userId: number): Observable<ChatRoom[]> {
     const headers = this.getAuthHeaders();
-    console.log('🔄 [ChatService] 取得私人聊天室列表，用戶ID:', userId);
+    // console.log('🔄 [ChatService] 取得私人聊天室列表，用戶ID:', userId);
 
     return this.http.get<any[]>(
       `https://localhost:7124/api/Chat/private-rooms/${userId}`,
@@ -297,7 +297,7 @@ export class ChatService {
         } as ChatRoom));
       }),
       tap(rooms => {
-        console.log('✅ [ChatService] 取得私人聊天室成功:', rooms);
+        // console.log('✅ [ChatService] 取得私人聊天室成功:', rooms);
       }),
       catchError(error => {
         console.warn('⚠️ [ChatService] 無法取得聊天室，返回空陣列:', error);
@@ -309,7 +309,7 @@ export class ChatService {
   // 取得聊天室歷史訊息 - 修正回傳格式處理
   getHistory(roomId: number): Observable<ChatMessage[]> {
     const headers = this.getAuthHeaders();
-    console.log('🔄 [ChatService] 取得聊天歷史，roomId:', roomId);
+    // console.log('🔄 [ChatService] 取得聊天歷史，roomId:', roomId);
 
     return this.http.get<any[]>(
       `https://localhost:7124/api/Chat/${roomId}/messages`,
@@ -326,7 +326,7 @@ export class ChatService {
         } as ChatMessage));
       }),
       tap(messages => {
-        console.log('✅ [ChatService] 聊天歷史轉換完成:', messages);
+        // console.log('✅ [ChatService] 聊天歷史轉換完成:', messages);
       }),
       catchError(error => {
         console.error('❌ [ChatService] 取得聊天歷史失敗:', error);

@@ -188,8 +188,6 @@ export class PostManagementComponent implements OnInit {
     this.postService.getPostById(post.postId).subscribe({
       next: (data) => {
         this.selectedPost = data;
-        console.log('載入的文章資料:', data);
-        console.log('附件:', data.attachments);
         this.selectedReplies = data.comments || [];
         this.isLoadingContent = false;
         this.showContentModal();

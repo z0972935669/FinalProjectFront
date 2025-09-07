@@ -251,8 +251,10 @@
             border-radius: 0.375rem;
             border: 1px solid #ced4da;
             resize: vertical;
-            min-height: 2.5rem;
-            max-height: 6rem;
+            min-height: 2rem; // 保持調整後的高度
+            max-height: 4rem;
+            flex: 1; // 讓 textarea 佔滿剩餘空間
+            max-width: calc(100% - 80px); // 縮短寬度，留 80px 給按鈕
 
             &:focus {
               border-color: #80bdff;
@@ -263,6 +265,8 @@
           .btn {
             border-radius: 0.375rem;
             padding: 0.375rem 0.75rem;
+            flex-shrink: 0; // 防止按鈕縮小
+            width: 80px; // 讓按鈕長一點
           }
         }
       }
