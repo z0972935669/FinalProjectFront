@@ -111,6 +111,17 @@
                 (click)="submit()" style="font-size:2rem; padding:0.5rem; color: white;">
                 {{ loading ? '送出中…' : '送出' }}
               </button>
+              <button type="button" class="btn btn-outline-success btn-sm w-100" (click)="
+              startDate='2025-09-18';
+              endDate='2025-09-18';
+              startTime='09:00';
+              endTime='18:00';
+              leaveTypeId = (leaveTypes?.length ? leaveTypes[0].leaveTypeId : null);
+              reason='特休';
+              agentId = (agents?.length ? agents[8].employeeId : null);
+              ">
+                填入
+              </button>
             </div>
 
           </div>

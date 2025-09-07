@@ -52,6 +52,16 @@
                 [disabled]="loading || f.invalid">
                 {{ loading ? '登入中…' : '登入' }}
               </button>
+              <div class="mt-3 d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-success"
+                  (click)="fillAccount('monday','0000')">員工1</button>
+                <button type="button" class="btn btn-outline-success"
+                  (click)="fillAccount('tuesday','0000')">員工2</button>
+                <button type="button" class="btn btn-outline-success" (click)="fillAccount('sunday','0000')">主管</button>
+                <button type="button" class="btn btn-outline-success"
+                  (click)="fillAccount('ken199711','0000')">人資</button>
+              </div>
+
             </form>
 
             <div class="pt-4 text-center mb-1">

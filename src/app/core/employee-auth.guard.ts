@@ -12,7 +12,7 @@ export const employeeAuthGuard: CanActivateChildFn = (_childRoute, state): boole
   const auth = inject(EmployeeAuthService);
 
   // 公開頁白名單
-  const publicPaths = ['/erp/login', '/erp/employeeregister', '/erp/employeepasswordreset'];
+  const publicPaths = ['/erp/login', '/erp/employeeregister', '/erp/employeepasswordreset', '/erp/employeeforgotpassword'];
   if (publicPaths.some(p => state.url.startsWith(p))) return true;
 
   // Cookie 或 JWT 任一種通過即可

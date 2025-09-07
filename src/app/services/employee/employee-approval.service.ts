@@ -30,6 +30,8 @@ export interface ApprovalDetailDto {
   endTime?: string | null;
   leaveHours?: number;
   reason?: string | null;
+  missingDate?: string | null;
+  actualInTime?: string | null;
 
   logs: ApprovalLogDto[];
 }

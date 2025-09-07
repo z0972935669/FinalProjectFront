@@ -1,0 +1,142 @@
+.main-content {
+  border-left: 1px solid #ddd;
+  /* 淡灰色分隔線 */
+  padding-left: 20px;
+  /* 與分隔線保持距離 */
+}
+
+.content-area {
+  border-left: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table th {
+  font-size: large;
+  font-weight: bolder;
+  color: forestgreen;
+  /* 綠色 */
+  width: 150px;
+  /* 固定欄寬 */
+}
+
+/* === 簽核流程：三顆群組點（穩定版） === */
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  /* 點與文字從上緣對齊，避免被不同行高影響 */
+  justify-content: space-between;
+  gap: 12px;
+  /* 點與線的間距 */
+  margin: 20px 0;
+  position: relative;
+  flex-wrap: wrap;
+  /* 窄螢幕允許換行 */
+}
+
+/* 每個「點+文字」群組 */
+.timeline .item {
+  flex: 1 1 0;
+  /* 平均分配，且允許縮小 */
+  min-width: 0;
+  /* 讓文字不把 item 撐爆 */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 圓點 */
+.timeline .dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #adb5bd;
+  /* 預設灰色 */
+  position: relative;
+  z-index: 2;
+}
+
+/* 兩點之間的連接線：固定基底寬，避免被撐很長或很短 */
+.timeline .connector {
+  flex: 0 0 clamp(28px, 8vw, 96px);
+  height: 3px;
+  background: #dee2e6;
+  align-self: center;
+  border-radius: 2px;
+}
+
+/* 狀態色彩（沿用你的） */
+.timeline .dot.waiting {
+  background: #0d6efd;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, .2);
+}
+
+.timeline .dot.approved {
+  background: #28a745;
+}
+
+.timeline .dot.rejected {
+  background: #dc3545;
+}
+
+.timeline .dot.terminated {
+  background: #6c757d;
+}
+
+/* 下方標題 + 狀態 */
+.timeline .item .fw-semibold {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+  /* 避免標題換行把高度撐太高 */
+}
+
+.timeline .item small {
+  font-size: .85rem;
+  color: #6c757d;
+}
+
+/* 手機：改成直式堆疊，連接線改縱向，避免橫向擠爆 */
+@media (max-width: 576px) {
+  .timeline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .timeline .connector {
+    display: none;
+    /* 隱藏橫線 */
+  }
+
+  .timeline .item {
+    position: relative;
+    padding-left: 36px;
+    /* 為直向線與點騰出空間 */
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .timeline .item .dot {
+    position: absolute;
+    left: 6px;
+    top: 2px;
+  }
+
+  .timeline .item::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    /* 和 .dot 對齊中心 */
+    top: 22px;
+    bottom: -16px;
+    /* 留些下緣間距 */
+    width: 3px;
+    background: #dee2e6;
+  }
+
+  .timeline .item:last-child::before {
+    display: none;
+  }
+}
