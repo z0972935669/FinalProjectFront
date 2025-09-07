@@ -44,7 +44,7 @@ export interface RoomOccupancy { // paypal付款入住
 }
 
 // 新增 MemberRoomData 介面，整合 API 回傳數據
-export interface MemberRoomData { //member-room使用
+export interface MemberRoomData { // member-room 使用
   member: {
     fName: string;
     fIdNumber: string;
@@ -61,6 +61,19 @@ export interface MemberRoomData { //member-room使用
   };
   roomOccupancy: {
     fBillingStatus: boolean;
+    fOccupancyId?: number; // 添加以匹配後端回傳
   };
+  paymentHistory: {
+    fPaymentId: number;
+    fBillingDate: string;
+    fBillingAmount: number;
+    fPaymentMethod: string;
+    fPaypalOrderId?: string;
+    receipt?: {
+      fReceiptId: number;
+      fReceiptNumber: string;
+      fReceiptDate: string;
+      fReceiptFilePath?: string;
+    };
+  }[];
 }
-

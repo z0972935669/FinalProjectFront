@@ -8,7 +8,7 @@ import { MemberRoomData } from '../../interfaces/room/room.interface';
   providedIn: 'root'
 })
 export class MemberRoomService {
-  private apiUrl = 'https://localhost:7124/api/MemberMyRoom/room'; // 與新控制器端點匹配
+  private apiUrl = 'https://localhost:7124/api/MemberMyRoom/room'; // 確認路徑
 
   constructor(private http: HttpClient) { }
 
@@ -20,6 +20,15 @@ export class MemberRoomService {
       catchError(err => {
         console.error('獲取房間資料錯誤:', err);
         return throwError(() => new Error('無法載入房間資料，請聯繫客服'));
+      })
+    );
+  }
+
+  recordPayment(dto: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/record-payment`, dto).pipe(
+      catchError(err => {
+        console.error('記錄支付錯誤:', err);
+        return throwError(() => new Error('繳費記錄失敗'));
       })
     );
   }

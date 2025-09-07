@@ -5,11 +5,13 @@ import { RouterModule } from '@angular/router';
 import { RoomListService } from '../../../services/room/room-list.service';
 import { Room, RoomVisitReservation } from '../../../interfaces/room/room.interface';
 import { timeout } from 'rxjs/operators';
+import { NgxSonnerToaster, toast } from 'ngx-sonner'; // 導入 NgxSonnerToaster
+
 
 @Component({
   selector: 'app-room-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, NgxSonnerToaster], // 添加 NgxSonnerToaster
   templateUrl: './room-list.component.html',
   styleUrl: './room-list.component.scss',
 })
@@ -27,6 +29,8 @@ export class RoomListComponent implements OnInit {
   // === 分頁設定 ===
   pageSize = 9; // 每頁顯示 3 筆
   currentPage = 1;
+
+  isSubmitting = false;
 
   constructor(private roomService: RoomListService) {
     const today = new Date();
@@ -63,7 +67,7 @@ export class RoomListComponent implements OnInit {
         console.error('API 或圖片載入錯誤:', err);
         this.rooms = [];
         this.filteredRooms = [];
-        alert('載入房間列表超時或失敗，請檢查網路或聯繫客服');
+        toast.error('載入房間列表超時或失敗，請檢查網路或聯繫客服');
       }
     });
   }
@@ -133,22 +137,39 @@ export class RoomListComponent implements OnInit {
   }
 
   onSubmit(reservation: RoomVisitReservation) {
+    if (this.isSubmitting) return;
+
     if (reservation.fName && reservation.fEmail && reservation.fPhoneOrLineId && reservation.fReservationDate) {
+      this.isSubmitting = true;
       this.roomService.submitReservation(reservation).subscribe({
         next: (response) => {
-          alert(`預約成功！ID: ${response.data}`);
+          toast.success(`預約成功！ID: ${response.data}`, {
+            description: `郵件通知已發送至 ${reservation.fEmail}，感謝您的預約！`,
+          });
           this.resetForm();
+          this.isSubmitting = false;
         },
         error: (err) => {
           console.error('完整錯誤:', err);
-          alert('預約失敗：' + (err.error?.message || err.message));
+          const errorMsg = err.error?.message || '預約失敗，請稍後再試！';
+          if (err.status === 400 && errorMsg.includes("一天內已預約")) {
+            toast.warning(errorMsg, {
+              description: '請確認您的預約時間或使用其他信箱。',
+            });
+          } else {
+            toast.error('預約失敗', {
+              description: errorMsg,
+            });
+          }
+          this.isSubmitting = false;
         }
       });
     } else {
-      alert('請填寫所有必填欄位！');
+      toast.warning('請填寫所有必填欄位！', {
+        description: '姓名、電子郵件、聯絡方式和預約日期為必填。',
+      });
     }
   }
-
   resetForm() {
     this.RoomVisitReservation = { fName: '', fEmail: '', fPhoneOrLineId: '', fReservationDate: '' };
   }

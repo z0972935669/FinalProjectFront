@@ -1,0 +1,66 @@
+<!-- 預約參訪列表 -->
+<div class="container py-5">
+  <h1 class="badge bg-primary page-header mb-0" style="font-size: xx-large;">預約參訪</h1>
+
+  <div style="margin-left: 885PX;">
+    <!-- 批量操作按鈕 -->
+    <div class="mb-3" style="margin-top: -40PX;">
+      <button class="btn btn-info" (click)="openEditModal()">批量編輯</button>
+      <button class="btn btn-success" (click)="batchContact()">批量聯絡</button>
+      <button class="btn btn-danger" (click)="batchDelete()">批量刪除</button>
+    </div>
+  </div>
+
+  <!-- 加載中 -->
+  <div *ngIf="isLoading" class="text-center">
+    <p>加載中...</p>
+  </div>
+
+  <!-- 錯誤訊息 -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- 列表表 -->
+  <table class="table table-striped" *ngIf="!isLoading && visitReservations != null && visitReservations.length > 0">
+    <thead>
+      <tr>
+        <th></th> <!-- Checkbox 欄位 -->
+        <th>預約 ID</th>
+        <th>姓名</th>
+        <th>電子郵件</th>
+        <th>電話/Line ID</th>
+        <th>預約日期</th>
+        <th>創建時間</th>
+        <th>狀態</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let reservation of visitReservations">
+        <td>
+          <input type="checkbox" (change)="toggleSelection(reservation.fReservationId, $event)">
+          <!-- Checkbox -->
+        </td>
+        <td>{{ reservation.fReservationId }}</td>
+        <td>{{ reservation.fName }}</td>
+        <td>{{ reservation.fEmail }}</td>
+        <td>{{ reservation.fPhoneOrLineId }}</td>
+        <td>{{ reservation.fReservationDate | date:'yyyy-MM-dd' }}</td>
+        <td>{{ reservation.fCreatedAt | date:'yyyy-MM-dd' }}</td>
+        <td>{{ !reservation.fStatus ? '未聯絡' : '已聯絡' }}</td>
+        <td>
+          <button class="btn btn-warning" *ngIf="!reservation.fStatus"
+            (click)="updateStatus(reservation.fReservationId, 1)" [disabled]="reservation.fStatus">未聯絡</button>
+          <button class="btn btn-success" *ngIf="reservation.fStatus"
+            (click)="updateStatus(reservation.fReservationId, 0)" [disabled]="!reservation.fStatus">已聯絡</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 無資料 -->
+  <div *ngIf="!isLoading && visitReservations != null && visitReservations.length === 0" class="alert alert-info">
+    無預約參訪紀錄
+  </div>
+</div>

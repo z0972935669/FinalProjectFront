@@ -1,0 +1,35 @@
+/* 調整整體容器向左偏移 */
+.container {
+  margin-left: 120px;
+  /* 向左移動 20px，可以根據需要調整 */
+  max-width: 95%;
+  /* 確保內容不超出視圖，視覺上更整齊 */
+}
+
+/* 調整標題「預約參訪」向上移動 */
+.page-header {
+  margin-top: -60px;
+  /* 向上移動 10px，可以根據需要調整 */
+  display: inline-block;
+  /* 確保標題不會因偏移而失常 */
+}
+
+/* 保持表格樣式 */
+.table {
+  margin-top: 20px;
+}
+
+/* 按鈕間距 */
+.btn {
+  margin-right: 10px;
+}
+
+/* 模態視窗樣式 */
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 10px;
+}

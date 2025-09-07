@@ -89,6 +89,9 @@ import { EmployeesetnewpasswordComponent } from './pages/backend/employeesetnewp
 import { MemberCalendarComponent } from './pages/member/member-event/member-calendar/member-calendar.component';
 import { MemberActivityShellComponent } from './pages/member/member-event/member-activity-shell.component';
 import { MemberEventCouponComponent } from './pages/member/member-event/member-event-coupon/member-event-coupon.component';
+import { RoomOccupancyComponent } from './pages/backend/room-occupancy-erp/room-occupancy-erp.component';
+import { RoomVisitreservationErpComponent } from './pages/backend/room-visitreservation-erp/room-visitreservation-erp.component';
+import { RoomPaymenthistoryErpComponent } from './pages/backend/room-paymenthistory-erp/room-paymenthistory-erp.component';
 
 export const routes: Routes = [
   // 根目錄導向前台
@@ -286,6 +289,9 @@ export const routes: Routes = [
           { path: 'report-management', component: ReportManagementComponent, title: '檢舉管理' },
           { path: 'memberlist', component: MemberlistComponent, title: '會員列表' },
           { path: 'room-table-erp', component: RoomTableErpComponent, title: '房間管理' },
+          { path: 'room-visitreservation-erp', component: RoomVisitreservationErpComponent, title: '預約參訪' },
+          { path: 'room-occupancy-erp', component: RoomOccupancyComponent, title: '入住辦理' },
+          { path: 'room-paymenthistory-erp', component: RoomPaymenthistoryErpComponent, title: '繳費紀錄' },
 
           //客服管理
           { path: 'customer-service-management', component: CustomerServiceManagementComponent, title: '客服管理' },
