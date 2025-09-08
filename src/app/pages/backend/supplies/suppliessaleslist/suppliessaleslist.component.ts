@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Isuppliessales, CreateSalesOrderDto, CreateSalesOrderResponse } from '../../../../interfaces/supplies/isuppliessales';
 import { SuppliesSalesService } from '../../../../services/supplies/supplies-sales.service';
@@ -13,6 +13,7 @@ import { SuppliesDateService } from '../../../../services/supplies/supplies-date
 import { Isuppliesdate } from '../../../../interfaces/supplies/isuppliesdate';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
+import * as signalR from '@microsoft/signalr';
 
 
 @Component({
@@ -22,7 +23,7 @@ import Swal from 'sweetalert2';
   templateUrl: './suppliessaleslist.component.html',
   styleUrl: './suppliessaleslist.component.scss'
 })
-export class SuppliessaleslistComponent {
+export class SuppliessaleslistComponent implements OnInit, OnDestroy {
   suppliesSales: Isuppliessales[] = [];
   categories: Isuppliescategory[] = [];
   suppliers: Isuppliessupplier[] = [];
@@ -41,11 +42,14 @@ export class SuppliessaleslistComponent {
     cancelled: { currentPage: 1, pageSize: 10, totalPages: 0, totalCount: 0, data: [] },
   };
 
+  private hubConnection!: signalR.HubConnection;
+
   constructor(private http: HttpClient,
     private suppliesSalesService: SuppliesSalesService,
     private suppliesCategoryService: SuppliesCategoryService, private suppliesSupplierService: SuppliesSupplierService, private suppliesListService: SuppliesListService, private suppliesDateService: SuppliesDateService) { }
 
   ngOnInit(): void {
+
     // 抓銷貨單資料
     this.suppliesSalesService.getSuppliesSalesList().subscribe((data: Isuppliessales[]) => {
       this.suppliesSales = data;
@@ -71,7 +75,33 @@ export class SuppliessaleslistComponent {
     this.loadSalesOrders('received');
     this.loadSalesOrders('undelivered');
     this.loadSalesOrders('cancelled');
+
+        this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl('https://localhost:7124/orderHub') // ⚠️ 上 ngrok 要換成 ngrok 網址
+      .withAutomaticReconnect()
+      .build();
+
+    this.hubConnection
+      .start()
+      .then(() => console.log('✅ SignalR 已連線'))
+      .catch(err => console.error('❌ SignalR 連線失敗:', err));
+
+    this.hubConnection.on('OrderStatusChanged', (orderId: number, status: string) => {
+      console.log(`📢 訂單 ${orderId} 狀態更新為 ${status}`);
+      this.loadSalesOrders('all');
+      this.loadSalesOrders('received');
+      this.loadSalesOrders('undelivered');
+      this.loadSalesOrders('cancelled');
+    });
+
   }
+  ngOnDestroy(): void {
+    if (this.hubConnection) {
+      this.hubConnection.stop();
+    }
+  }
+
+
 
   // 抓後端資料（支援分頁）
   loadSalesOrders(status: string = 'all') {
