@@ -77,17 +77,17 @@ export class SuppliessaleslistComponent implements OnInit, OnDestroy {
     this.loadSalesOrders('cancelled');
 
         this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7124/orderHub') // ⚠️ 上 ngrok 要換成 ngrok 網址
+      .withUrl('https://localhost:7124/orderHub') //  上 ngrok 要換成 ngrok 網址
       .withAutomaticReconnect()
       .build();
 
     this.hubConnection
       .start()
-      .then(() => console.log('✅ SignalR 已連線'))
-      .catch(err => console.error('❌ SignalR 連線失敗:', err));
+      .then(() => console.log(' SignalR 已連線'))
+      .catch(err => console.error(' SignalR 連線失敗:', err));
 
     this.hubConnection.on('OrderStatusChanged', (orderId: number, status: string) => {
-      console.log(`📢 訂單 ${orderId} 狀態更新為 ${status}`);
+      console.log(` 訂單 ${orderId} 狀態更新為 ${status}`);
       this.loadSalesOrders('all');
       this.loadSalesOrders('received');
       this.loadSalesOrders('undelivered');
