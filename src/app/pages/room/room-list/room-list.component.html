@@ -149,9 +149,11 @@
       </div>
       <!-- 吐司 -->
       <div class="col-12 text-center">
-        <button type="submit" class="btn btn-primary" style="margin-right: 0px;"
-          [disabled]="isSubmitting || !reservationForm.valid">
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || !reservationForm.valid">
           馬上預約
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="fillDemoData()">
+          預約Demo
         </button>
       </div>
     </form>

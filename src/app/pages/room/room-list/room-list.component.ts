@@ -136,6 +136,16 @@ export class RoomListComponent implements OnInit {
     this.applyFilters();
   }
 
+  // 填充 Demo 資料
+  fillDemoData(): void {
+    this.RoomVisitReservation = {
+      fName: '小澤',
+      fEmail: 'jkldsa1347@gmail.com',
+      fPhoneOrLineId: '0985070243',
+      fReservationDate: '2025-09-27'
+    };
+  }
+
   onSubmit(reservation: RoomVisitReservation) {
     if (this.isSubmitting) return;
 
