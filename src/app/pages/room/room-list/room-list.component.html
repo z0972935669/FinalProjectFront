@@ -86,7 +86,7 @@
             <div class="card-body">
               <h5 class="card-title">{{ room.fRoomAlias }}</h5>
               <p class="card-text" [title]="room.fRoomDescription">{{ room.fRoomDescription | slice:0:15 }}...</p>
-              <p class="card-text"><strong>價格: NT $ {{ room.fRoomPrice ?? '未設定' }} 元</strong></p>
+              <p class="card-text"><strong>價格: NT $ {{ room.fRoomPrice ?? '未設定' }} 元/月</strong></p>
               <p class="card-text">剩餘可入住床位數量: {{ room.availableBeds }}</p>
               <a [routerLink]="['/show/room-detail', room.fRoomId]" class="btn btn-primary float-end">查看房間內容</a>
             </div>
@@ -148,11 +148,12 @@
         </div>
       </div>
       <!-- 吐司 -->
-      <div class="col-12 text-center">
+      <div class="col-12 text-center" style="margin-left: 230PX;">
         <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || !reservationForm.valid">
           馬上預約
         </button>
-        <button type="button" class="btn btn-secondary" (click)="fillDemoData()">
+        <button type="button" class="btn btn-secondary" style="  margin-left: 50px;
+" (click)="fillDemoData()">
           預約Demo
         </button>
       </div>
